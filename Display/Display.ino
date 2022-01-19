@@ -6,81 +6,406 @@
 #include <freertos/task.h>
 
 //DEFINIÇÕES
-LiquidCrystal_I2C lcd_1(0x27,20,4); //Display 1
-LiquidCrystal_I2C lcd_2(0x3F,20,4); //Display 2
+LiquidCrystal_I2C lcd(0x27,20,4); 
+
+//CARACTERES ESPECIAIS
+byte Fuel_Simbol[8] = {
+  B00000,
+  B11111,
+  B10001,
+  B10001,
+  B11111,
+  B11111,
+  B00000,
+  B11111
+};
+
+//PARA O GRÁFICO DO COMBUSTIVEL
+byte Fuel_1[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111
+};
+byte Fuel_2[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111,
+  B11111
+};
+byte Fuel_3[8] = {
+  B00000,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111
+};
+byte Fuel_4[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111,
+  B11111,
+  B11111,
+  B11111
+};
+byte Fuel_5[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111
+};
+byte Fuel_6[8] = {
+  B00000,
+  B00000,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11111
+};
+byte Fuel_7[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111,
+  B11111,
+  B11111
+};
+byte Fuel_8[8] = {
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111
+};
+
+//PARA BATERIA
+byte bat1[8] = {
+  B11100,
+  B11100,
+  B11111,
+  B11111,
+  B11111,
+  B11111,
+  B11100,
+  B11100
+};
+byte bat2[8] = {
+  B11100,
+  B11100,
+  B11111,
+  B11101,
+  B11101,
+  B11111,
+  B11100,
+  B11100
+};
+byte bat3[8] = {
+  B11100,
+  B10100,
+  B10111,
+  B10001,
+  B10001,
+  B10111,
+  B10100,
+  B11100
+};
+byte bat4[8] = {
+  B11100,
+  B00100,
+  B00111,
+  B00001,
+  B00001,
+  B00111,
+  B00100,
+  B11100
+};
+byte bat5[8] = {
+  B11111,
+  B11110,
+  B11110,
+  B11110,
+  B11110,
+  B11110,
+  B11110,
+  B11111
+};
+byte bat6[8] = {
+  B11111,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11111
+};
+byte bat7[8] = {
+  B11111,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B00000,
+  B11111
+};
+byte bat8[8] = {
+  B11111,
+  B11100,
+  B11100,
+  B11100,
+  B11100,
+  B11100,
+  B11100,
+  B11111
+};
+byte bat9[8] = {
+  B11111,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11000,
+  B11111
+};
+byte bat10[8] = {
+  B11111,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B10000,
+  B11111
+};
+
 
 void TaskDisplay_1(void *arg) {
+
+  //Bateria
+  int bat_simbol = map(bateria,batMin,batMax,0,8);
+  lcd.setCursor(0, 0);
+  switch(bat_simbol){   
+    case 8: 
+      lcd.print(char(255));
+      lcd.print(char(255));
+      lcd.write(11);
+      break;
+    case 7: 
+      lcd.print(char(255));
+      lcd.print(char(255));
+      lcd.write(12);
+      break;
+    case 6: 
+      lcd.print(char(255));
+      lcd.print(char(255));
+      lcd.write(13);
+      break;
+    case 5: 
+      lcd.print(char(255));
+      lcd.write(15);
+      lcd.write(14);
+      break;  
+    case 4: 
+      lcd.print(char(255));
+      lcd.write(16);
+      lcd.write(14);
+      break;
+    case 3: 
+      lcd.print(char(255));
+      lcd.write(17);
+      lcd.write(14);
+      break;
+    case 2: 
+      lcd.write(18);
+      lcd.write(17);
+      lcd.write(14);
+      break;
+    case 1: 
+      lcd.write(19);
+      lcd.write(17);
+      lcd.write(14);
+      break;
+    case 0: 
+      lcd.write(20);
+      lcd.write(17);
+      lcd.write(14);
+      break;
+  }
+  lcd.print(" ");
+  lcd.print(bateria); 
+  lcd.print("%  ");
   
-  lcd_1.setCursor(0, 1); //MUDAR CURSOR, (PRIMEIRA COLUNA, SEGUNDA LINHA)
-  //INFORMA O VALOR DA VELOCIDADE NAS 10 PRIMEIRAS COLUNAS
-  if ((velocidade >= velMin) && (velocidade <= velMax)) {
-     lcd_1.print( velocidade ); 
-     lcd_1.print("Km/h ");
-  } else {
-     lcd_1.print("*****     ");
-  }
-  //CRIA UM GRÁFICO AUXILIAR COM AS ULTIMAS 10 COLUNAS
-  int grafico1 = map(velocidade,velMin,velMax,0,10);
-  for (int nL=0; nL < grafico1; nL++)  lcd.print(char(255));
-  for (int nL=grafico1; nL < 10; nL++) lcd.print(" ");
+  //Velocidade
+  lcd.setCursor(0, 1);
+  lcd.print( velocidade ); 
+  lcd.print("Km/h ");
 
-  lcd_1.setCursor(0, 2); //MUDAR CURSOR, (PRIMEIRA COLUNA, TERCEIRA LINHA)
-  //INFORMA O VALOR DO RPM NAS 10 PRIMEIRAS COLUNAS
-  if ((rpm >= rpmMin) && (rpm <= rpmMax)) {
-     lcd_1.print( rpm ); 
-     lcd_1.print("RPM ");
-  } else {
-     lcd_1.print("******    ");
-  }
-  //CRIA UM GRÁFICO AUXILIAR COM AS ULTIMAS 10 COLUNAS
-  int grafico2 = map(rpm,rpmMin,rpmMax,0,10);
-  for (int nL=0; nL < grafico2; nL++)  lcd.print(char(255));
-  for (int nL=grafico2; nL < 10; nL++) lcd.print(" ");
+  //QUILOMETRAGEM
+  lcd.setCursor(10, 1);
+  lcd.print( quilometragem ); 
+  lcd.print("Km ");
 
-  lcd_1.setCursor(0, 3); //MUDAR CURSOR, (PRIMEIRA COLUNA, QUARTA LINHA)
-  lcd_1.print("FUEL ");
-  //O COMBUSTIVEL SERÁ INFORMADO PELO GRÁFICO
-   if (fuel > reserva) {
-     int grafico3 = map(rpm,rpmMin,rpmMax,0,15);
-     for (int nL=0; nL < grafico3; nL++)  lcd.print(char(255));
-     for (int nL=grafico3; nL < 15; nL++) lcd.print(" ");
-  } else {
-     lcd_1.print("-- RESERVA!! --");
+  //TEMPO DE FUNCIONAMENTO
+  lcd.setCursor(0, 2);
+  lcd.print("T:");
+  lcd.print( TF ); 
+  lcd.print("min ");
+
+  //AUTONOMIA
+  lcd.setCursor(10, 2);
+  lcd.print("A:");
+  lcd.print( Autonomia ); 
+  lcd.print("min ");
+
+  //RPM
+  lcd.setCursor(0, 3);
+  int grafico_rpm = map(rpm,rpmMin,rpmMax,0,13);
+  for (int nL=0; nL < grafico_rpm; nL++)  lcd.print(char(255));
+  for (int nL=grafico_rpm; nL < 14; nL++) lcd.print(" ");
+  lcd.print(" RPM ");
+  
+  //FUEL
+  lcd.setCursor(19, 3);
+  lcd.write(10);
+  int grafico_fuel = map(fuel,fuelMin,fuelMax,0,8);
+  switch(grafico_fuel){
+    case 8: 
+      lcd.setCursor(19, 0);
+      lcd.print(char(255));
+      lcd.setCursor(19, 1);
+      lcd.print(char(255));
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 7: 
+      lcd.setCursor(19, 0);
+      lcd.write(1);
+      lcd.setCursor(19, 1);
+      lcd.print(char(255));
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 6: 
+      lcd.setCursor(19, 0);
+      lcd.write(2);
+      lcd.setCursor(19, 1);
+      lcd.print(char(255));
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 5: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.write(3);
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 4: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.write(4);
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 3: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.write(5);
+      lcd.setCursor(19, 2);
+      lcd.print(char(255));
+      break;
+    case 2: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.print(" ");
+      lcd.setCursor(19, 2);
+      lcd.write(6);
+      break;
+    case 1: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.print(" ");
+      lcd.setCursor(19, 2);
+      lcd.write(7);
+      break;
+    case 0: 
+      lcd.setCursor(19, 0);
+      lcd.print(" ");
+      lcd.setCursor(19, 1);
+      lcd.print(" ");
+      lcd.setCursor(19, 2);
+      lcd.write(8);
+      break;
   } 
-  
+  if(reserva = HIGH){
+    lcd.setCursor(10, 0);
+    lcd.print("RESERVA!");
+  }
 }
 
 void TaskDisplay_2(void *arg) {
   
-  lcd_2.setCursor(0, 1); //MUDAR CURSOR, (PRIMEIRA COLUNA, SEGUNDA LINHA)
-  lcd_2.print("AUTONOMIA     ");
-  lcd_2.print(autonomia);
-  lcd_2.print("min");
-
-  lcd_2.setCursor(0, 2); //MUDAR CURSOR, (PRIMEIRA COLUNA, TERCEIRA LINHA)
-  lcd_2.print("QUILOMETRAGEM ");
-  lcd_2.print(quilometragem);
-  lcd_2.print("Km");
-
-  lcd_2.setCursor(0, 3); //MUDAR CURSOR, (PRIMEIRA COLUNA, QUARTA LINHA)
-  lcd_2.print("AUTONOMIA R.  ");
-  lcd_2.print(autonomia_r);
-  lcd_2.print("min");
-  
+ 
 }
 
 
 void setup() {
   
-  lcd_1.init();      //INICIAR COMUNIÇÃO DO DISPLAY
-  lcd_1.backlight(); //LIGA A ILUMINAÇÃO DO DISPLAY
-  lcd_1.clear();     //LIMPA O DISPLAY 
-  lcd_1.print("---- PARAHYBAJA ----");
+  lcd.init();      //INICIAR COMUNIÇÃO DO DISPLAY
+  lcd.backlight(); //LIGA A ILUMINAÇÃO DO DISPLAY
+  lcd.clear();     //LIMPA O DISPLAY 
 
-  lcd_2.init();      
-  lcd_2.backlight(); 
-  lcd_2.clear(); 
-  lcd_2.print("---- PARAHYBAJA ----");
+  lcd.createChar(10, Fuel_Simbol);
+  lcd.createChar(1, Fuel_1);
+  lcd.createChar(2, Fuel_2;
+  lcd.createChar(3, Fuel_3);
+  lcd.createChar(4, Fuel_4);
+  lcd.createChar(5, Fuel_5);
+  lcd.createChar(6, Fuel_6);
+  lcd.createChar(7, Fuel_7);
+  lcd.createChar(8, Fuel_8);
+
+  lcd.createChar(11, bat1);
+  lcd.createChar(12, bat2);
+  lcd.createChar(13, bat3);
+  lcd.createChar(14, bat4);
+  lcd.createChar(15, bat5);
+  lcd.createChar(16, bat6);
+  lcd.createChar(17, bat7);
+  lcd.createChar(18, bat8);
+  lcd.createChar(19, bat9);
+  lcd.createChar(20, bat10);
   
   xTaskCreatePinnedToCore(TaskDisplay_1,        //Função principal da sua task.
                          "TaskDisplay_1",       //Nome para essa task.
