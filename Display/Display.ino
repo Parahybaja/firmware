@@ -8,6 +8,23 @@
 //DEFINIÇÕES
 LiquidCrystal_I2C lcd(0x27,20,4); 
 
+//VALORES PARA SIMULAÇÃO
+int bateria = 60;
+int batMin = 0;
+int batMax = 100;
+float velocidade = 16.80;
+float quilometragem = 78.6;
+int TF = 29;
+int Autonomia = 35;
+int rpm = 3000;
+int rpmMin = 0;
+int rpmMax = 3000;
+float fuel = 0.5;
+float fuelMin = 0.0;
+float fuelMax = 3.0;
+int reserva = 1;
+int Modo = 1;
+
 //CARACTERES ESPECIAIS
 byte Fuel_Simbol[8] = {
   B00000,
@@ -261,35 +278,6 @@ void TaskDisplay_1(void *arg) {
   lcd.print(bateria); 
   lcd.print("%  ");
   
-  //Velocidade
-  lcd.setCursor(0, 1);
-  lcd.print( velocidade ); 
-  lcd.print("Km/h ");
-
-  //QUILOMETRAGEM
-  lcd.setCursor(10, 1);
-  lcd.print( quilometragem ); 
-  lcd.print("Km ");
-
-  //TEMPO DE FUNCIONAMENTO
-  lcd.setCursor(0, 2);
-  lcd.print("T:");
-  lcd.print( TF ); 
-  lcd.print("min ");
-
-  //AUTONOMIA
-  lcd.setCursor(10, 2);
-  lcd.print("A:");
-  lcd.print( Autonomia ); 
-  lcd.print("min ");
-
-  //RPM
-  lcd.setCursor(0, 3);
-  int grafico_rpm = map(rpm,rpmMin,rpmMax,0,13);
-  for (int nL=0; nL < grafico_rpm; nL++)  lcd.print(char(255));
-  for (int nL=grafico_rpm; nL < 14; nL++) lcd.print(" ");
-  lcd.print(" RPM ");
-  
   //FUEL
   lcd.setCursor(19, 3);
   lcd.write(10);
@@ -368,10 +356,53 @@ void TaskDisplay_1(void *arg) {
       lcd.write(8);
       break;
   } 
-  if(reserva = HIGH){
-    lcd.setCursor(10, 0);
-    lcd.print("RESERVA!");
+  if(reserva == 1){
+    lcd.setCursor(19, 1);
+    lcd.print("E");
+  }  
+
+  if(Modo == 1){
+    //Velocidade
+    lcd.setCursor(0, 1);
+    lcd.print( velocidade ); 
+    lcd.print("Km/h ");
+  
+    //QUILOMETRAGEM
+    lcd.setCursor(10, 1);
+    lcd.print( quilometragem ); 
+    lcd.print("Km ");
+  
+    //TEMPO DE FUNCIONAMENTO
+    lcd.setCursor(0, 2);
+    lcd.print("T:");
+    lcd.print( TF ); 
+    lcd.print("min ");
+  
+    //AUTONOMIA
+    lcd.setCursor(10, 2);
+    lcd.print("A:");
+    lcd.print( Autonomia ); 
+    lcd.print("min ");
+  
+    //RPM
+    lcd.setCursor(0, 3);
+    int grafico_rpm = map(rpm,rpmMin,rpmMax,0,13);
+    for (int nL=0; nL < grafico_rpm; nL++)  lcd.print(char(255));
+    for (int nL=grafico_rpm; nL < 14; nL++) lcd.print(" ");
+    lcd.print(" RPM ");
   }
+  else if(Modo == 2){
+    lcd.setCursor(0, 1);
+    lcd.print("AUTONOMY:");
+    lcd.setCursor(0, 2);
+    lcd.print( Autonomia ); 
+    lcd.print("min ");
+  }
+  else{
+    lcd.setCursor(0, 2);
+    lcd.print("ERROR!"); 
+  }
+  
 }
 
 void TaskDisplay_2(void *arg) {
@@ -388,7 +419,7 @@ void setup() {
 
   lcd.createChar(10, Fuel_Simbol);
   lcd.createChar(1, Fuel_1);
-  lcd.createChar(2, Fuel_2;
+  lcd.createChar(2, Fuel_2);
   lcd.createChar(3, Fuel_3);
   lcd.createChar(4, Fuel_4);
   lcd.createChar(5, Fuel_5);
