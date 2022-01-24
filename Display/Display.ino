@@ -1,31 +1,31 @@
-//BIBLIOTECAS
+//LIBRARIES
 #include <Wire.h> 
 #include <LiquidCrystal_I2C.h>
 #include <Arduino.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
-//DEFINIÇÕES
+//DEFINITIONS
 LiquidCrystal_I2C lcd(0x27,20,4); 
 
-//VALORES PARA SIMULAÇÃO
-int bateria = 60;
+//SIMULATION VALUES
+int battery = 60;
 int batMin = 0;
 int batMax = 100;
-float velocidade = 16.80;
-float quilometragem = 78.6;
+float velocity = 16.80;
+float mileage = 78.6;
 int TF = 29;
-int Autonomia = 35;
+int range = 35;
 int rpm = 3000;
 int rpmMin = 0;
 int rpmMax = 3000;
 float fuel = 0.5;
 float fuelMin = 0.0;
 float fuelMax = 3.0;
-int reserva = 1;
-int Modo = 1;
+int reserve = 1;
+int mode = 1;
 
-//CARACTERES ESPECIAIS
+//SPECIAL CHARACTERS
 byte Fuel_Simbol[8] = {
   B00000,
   B11111,
@@ -37,7 +37,7 @@ byte Fuel_Simbol[8] = {
   B11111
 };
 
-//PARA O GRÁFICO DO COMBUSTIVEL
+//FOR THE FUEL GAUGE
 byte Fuel_1[8] = {
   B00000,
   B00000,
@@ -119,7 +119,7 @@ byte Fuel_8[8] = {
   B11111
 };
 
-//PARA BATERIA
+//FOR THE BATTERY
 byte bat1[8] = {
   B11100,
   B11100,
@@ -225,7 +225,7 @@ byte bat10[8] = {
 void TaskDisplay_1(void *arg) {
 
   //Bateria
-  int bat_simbol = map(bateria,batMin,batMax,0,8);
+  int bat_simbol = map(battery,batMin,batMax,0,8);
   lcd.setCursor(0, 0);
   switch(bat_simbol){   
     case 8: 
@@ -275,7 +275,7 @@ void TaskDisplay_1(void *arg) {
       break;
   }
   lcd.print(" ");
-  lcd.print(bateria); 
+  lcd.print(battery); 
   lcd.print("%  ");
   
   //FUEL
@@ -356,32 +356,32 @@ void TaskDisplay_1(void *arg) {
       lcd.write(8);
       break;
   } 
-  if(reserva == 1){
+  if(reserve == 1){
     lcd.setCursor(19, 1);
     lcd.print("E");
   }  
 
-  if(Modo == 1){
-    //Velocidade
+  if(mode == 1){
+    //VELOCITY
     lcd.setCursor(0, 1);
-    lcd.print( velocidade ); 
+    lcd.print( velocity ); 
     lcd.print("Km/h ");
   
-    //QUILOMETRAGEM
+    //MILEAGE
     lcd.setCursor(10, 1);
-    lcd.print( quilometragem ); 
+    lcd.print( mileage ); 
     lcd.print("Km ");
   
-    //TEMPO DE FUNCIONAMENTO
+    //OPERATION TIME
     lcd.setCursor(0, 2);
     lcd.print("T:");
     lcd.print( TF ); 
     lcd.print("min ");
   
-    //AUTONOMIA
+    //RANGE
     lcd.setCursor(10, 2);
     lcd.print("A:");
-    lcd.print( Autonomia ); 
+    lcd.print( range ); 
     lcd.print("min ");
   
     //RPM
@@ -391,11 +391,11 @@ void TaskDisplay_1(void *arg) {
     for (int nL=grafico_rpm; nL < 14; nL++) lcd.print(" ");
     lcd.print(" RPM ");
   }
-  else if(Modo == 2){
+  else if(mode == 2){
     lcd.setCursor(0, 1);
     lcd.print("AUTONOMY:");
     lcd.setCursor(0, 2);
-    lcd.print( Autonomia ); 
+    lcd.print( range ); 
     lcd.print("min ");
   }
   else{
@@ -413,9 +413,9 @@ void TaskDisplay_2(void *arg) {
 
 void setup() {
   
-  lcd.init();      //INICIAR COMUNIÇÃO DO DISPLAY
-  lcd.backlight(); //LIGA A ILUMINAÇÃO DO DISPLAY
-  lcd.clear();     //LIMPA O DISPLAY 
+  lcd.init();      //START COMMUNICATION WITH DISPLAY
+  lcd.backlight(); //TURN ON THE LIGHT OF DISPLAY
+  lcd.clear();     //CLEAN THE DISPLAY 
 
   lcd.createChar(10, Fuel_Simbol);
   lcd.createChar(1, Fuel_1);
@@ -438,13 +438,13 @@ void setup() {
   lcd.createChar(19, bat9);
   lcd.createChar(20, bat10);
   
-  xTaskCreatePinnedToCore(TaskDisplay_1,        //Função principal da sua task.
-                         "TaskDisplay_1",       //Nome para essa task.
-                         2048,                  //Tamanho de pilha para essa task, ou seja, espaço em bytes que essa função irá utilizar. 
-                         NULL,                  //Argumento para ser passado a task.
-                         7,                     //Prioridade dessa task,quanto maior o número, maior a prioridade, o RTOS do ESP oferece 25 níveis.
-                         NULL,                  //Local para guardar o Identificador único para essa task.
-                         PRO_CPU_NUM);          //Afinidade dessa task, podendo ter afinidade com PRO_CPU, APP_CPU ou "tskNO_AFFINITY" (RTOS decide).
+  xTaskCreatePinnedToCore(TaskDisplay_1,        //Main function of the task.
+                         "TaskDisplay_1",       //Task name.
+                         2048,                  //Task size, in other words, quantity of bytes that this function will use
+                         NULL,                  //Arguments to be passed to the task.
+                         7,                     //Task priority, bigger the number, bigger the priority. The RTOS of ESP offer 25 levels.
+                         NULL,                  //Place to store save the unique identifier (UID) of this task.
+                         PRO_CPU_NUM);          //Task affinity, can have affinity with PRO_CPU, APP_CPU or "tskNO_AFFINITY" (RTOS decide).
    
   xTaskCreatePinnedToCore(TaskDisplay_2,       
                          "TaskDisplay_2",       
