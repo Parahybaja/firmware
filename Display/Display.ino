@@ -507,7 +507,7 @@ void setup() {
      
   if (xQueue_LCD == NULL)
     {
-       Serial.println("ERROR: IT IS NOT POSSIBLE TO CREATE THE QUEUE!");
+       Serial.println("ERROR: IT IS NOT POSSIBLE TO CREATE THE QUEUE!"); 
        while(1); //Without the queue, the working of the display is impaired
     } 
 
