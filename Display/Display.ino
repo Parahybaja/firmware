@@ -24,7 +24,7 @@ int rpmMin = 0;
 int rpmMax = 3000;
 float fuelMin = 0.0;
 float fuelMax = 3.0;
-
+unsigned long millis_task = millis();
 
 //SPECIAL CHARACTERS
 byte Fuel_Simbol[8] = {
@@ -411,8 +411,14 @@ void task_lcd(void *arg) {
         break;
     } 
     if(reserve == 1){
-      lcd.setCursor(9, 0);
-      lcd.print("RESERVE");
+      lcd.setCursor(10, 0);
+      if( (millis() - millis_task) - 500 ){        
+        lcd.print("RESERVE!");
+        if((millis() - millis_task) - 1000){
+          lcd.print("        ");
+          millis_task = millis();
+        }
+      }
     }  
   
     //Mode Display 
@@ -501,7 +507,7 @@ void setup() {
      
   if (xQueue_LCD == NULL)
     {
-       Serial.println("Erro: nao e possivel criar a fila");
+       Serial.println("ERROR: IT IS NOT POSSIBLE TO CREATE THE QUEUE!");
        while(1); //Without the queue, the working of the display is impaired
     } 
 
