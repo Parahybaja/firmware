@@ -225,246 +225,249 @@ byte bat10[8] = {
 //READING TASK
 void task_readind( void *pvParameters ){
 
-  (void) pvParameters;
-  
-  //SIMULATION VALUES
-  int battery = 60;
-  float fuel = 0.5;
-  int reserve = 1;
-  int mode_display = 1;
-  int velocity = 16;
-  int mileage = 78;
-  int operating_time = 29;
-  int range = 35;
-  int rpm = 3000;
-     
-  while(1){                     
-    xQueueSend(xQueue_LCD, battery);
-    xQueueSend(xQueue_LCD, fuel);
-    xQueueSend(xQueue_LCD, reserve);
-    xQueueSend(xQueue_LCD, mode_display);
-    xQueueSend(xQueue_LCD, velocity);
-    xQueueSend(xQueue_LCD, mileage);
-    xQueueSend(xQueue_LCD, operating_time);
-    xQueueSend(xQueue_LCD, range); 
-    xQueueSend(xQueue_LCD, rpm);    
-  }
+    (void) pvParameters;
+    
+    //SIMULATION VALUES
+    int battery = 60;
+    float fuel = 0.5;
+    int reserve = 1;
+    int mode_display = 1;
+    int velocity = 16;
+    int mileage = 78;
+    int operating_time = 29;
+    int range = 35;
+    int rpm = 3000;
+        
+    while(true){                     
+        xQueueSend(xQueue_LCD, battery);
+        xQueueSend(xQueue_LCD, fuel);
+        xQueueSend(xQueue_LCD, reserve);
+        xQueueSend(xQueue_LCD, mode_display);
+        xQueueSend(xQueue_LCD, velocity);
+        xQueueSend(xQueue_LCD, mileage);
+        xQueueSend(xQueue_LCD, operating_time);
+        xQueueSend(xQueue_LCD, range); 
+        xQueueSend(xQueue_LCD, rpm);    
+
+        // add delay
+    }
 }
 
 //DISPLAY TASK
 void task_lcd(void *arg) {
 
-  (void) pvParameters;
+    (void) pvParameters;
 
-  int battery;
-  float fuel;
-  int reserve;
-  int mode_display;
-  int velocity;
-  int mileage;
-  int operating_time;
-  int range;
-  int rpm;
-  
-  while(1){
-
-    xQueueReceive(xQueue_LCD, (void *)&battery, portMAX_DELAY);
-    xQueueReceive(xQueue_LCD, (void *)&fuel, portMAX_DELAY);
-    xQueueReceive(xQueue_LCD, (void *)&reserve, portMAX_DELAY);
-    xQueueReceive(xQueue_LCD, (void *)&mode_display, portMAX_DELAY); 
-    xQueueReceive(xQueue_LCD, (void *)&velocity, portMAX_DELAY);
-    xQueueReceive(xQueue_LCD, (void *)&mileage, portMAX_DELAY); 
-    xQueueReceive(xQueue_LCD, (void *)&operating_time, portMAX_DELAY);  
-    xQueueReceive(xQueue_LCD, (void *)&range, portMAX_DELAY);  
-    xQueueReceive(xQueue_LCD, (void *)&rpm, portMAX_DELAY); 
-     
-    //BATTERY
-    int bat_simbol = map(battery,batMin,batMax,0,8);
-    lcd.setCursor(0, 0);
-    switch(bat_simbol){   
-      case 8: 
-        lcd.print(char(255));
-        lcd.print(char(255));
-        lcd.write(11);
-        break;
-      case 7: 
-        lcd.print(char(255));
-        lcd.print(char(255));
-        lcd.write(12);
-        break;
-      case 6: 
-        lcd.print(char(255));
-        lcd.print(char(255));
-        lcd.write(13);
-        break;
-      case 5: 
-        lcd.print(char(255));
-        lcd.write(15);
-        lcd.write(14);
-        break;  
-      case 4: 
-        lcd.print(char(255));
-        lcd.write(16);
-        lcd.write(14);
-        break;
-      case 3: 
-        lcd.print(char(255));
-        lcd.write(17);
-        lcd.write(14);
-        break;
-      case 2: 
-        lcd.write(18);
-        lcd.write(17);
-        lcd.write(14);
-        break;
-      case 1: 
-        lcd.write(19);
-        lcd.write(17);
-        lcd.write(14);
-        break;
-      case 0: 
-        lcd.write(20);
-        lcd.write(17);
-        lcd.write(14);
-        break;
-    }
-    lcd.print(" ");
-    lcd.print(battery); 
-    lcd.print("%  ");
+    int battery;
+    float fuel;
+    int reserve;
+    int mode_display;
+    int velocity;
+    int mileage;
+    int operating_time;
+    int range;
+    int rpm;
     
-    //FUEL
-    lcd.setCursor(19, 3);
-    lcd.write(10);
-    int grafico_fuel = map(fuel,fuelMin,fuelMax,0,8);
-    switch(grafico_fuel){
-      case 8: 
-        lcd.setCursor(19, 0);
-        lcd.print(char(255));
-        lcd.setCursor(19, 1);
-        lcd.print(char(255));
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 7: 
-        lcd.setCursor(19, 0);
-        lcd.write(1);
-        lcd.setCursor(19, 1);
-        lcd.print(char(255));
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 6: 
-        lcd.setCursor(19, 0);
-        lcd.write(2);
-        lcd.setCursor(19, 1);
-        lcd.print(char(255));
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 5: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.write(3);
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 4: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.write(4);
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 3: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.write(5);
-        lcd.setCursor(19, 2);
-        lcd.print(char(255));
-        break;
-      case 2: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.print(" ");
-        lcd.setCursor(19, 2);
-        lcd.write(6);
-        break;
-      case 1: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.print(" ");
-        lcd.setCursor(19, 2);
-        lcd.write(7);
-        break;
-      case 0: 
-        lcd.setCursor(19, 0);
-        lcd.print(" ");
-        lcd.setCursor(19, 1);
-        lcd.print(" ");
-        lcd.setCursor(19, 2);
-        lcd.write(8);
-        break;
-    } 
-    if(reserve == 1){
-      lcd.setCursor(10, 0);
-      if( (millis() - millis_task) - 500 ){        
-        lcd.print("RESERVE!");
-        if((millis() - millis_task) - 1000){
-          lcd.print("        ");
-          millis_task = millis();
+    while(true){
+
+        xQueueReceive(xQueue_LCD, (void *)&battery, portMAX_DELAY);
+        xQueueReceive(xQueue_LCD, (void *)&fuel, portMAX_DELAY);
+        xQueueReceive(xQueue_LCD, (void *)&reserve, portMAX_DELAY);
+        xQueueReceive(xQueue_LCD, (void *)&mode_display, portMAX_DELAY); 
+        xQueueReceive(xQueue_LCD, (void *)&velocity, portMAX_DELAY);
+        xQueueReceive(xQueue_LCD, (void *)&mileage, portMAX_DELAY); 
+        xQueueReceive(xQueue_LCD, (void *)&operating_time, portMAX_DELAY);  
+        xQueueReceive(xQueue_LCD, (void *)&range, portMAX_DELAY);  
+        xQueueReceive(xQueue_LCD, (void *)&rpm, portMAX_DELAY); 
+        
+        //BATTERY
+        int bat_simbol = map(battery,batMin,batMax,0,8);
+        lcd.setCursor(0, 0);
+        switch(bat_simbol){   
+            case 8: 
+                lcd.print(char(255));
+                lcd.print(char(255));
+                lcd.write(11);
+                break;
+            case 7: 
+                lcd.print(char(255));
+                lcd.print(char(255));
+                lcd.write(12);
+                break;
+            case 6: 
+                lcd.print(char(255));
+                lcd.print(char(255));
+                lcd.write(13);
+                break;
+            case 5: 
+                lcd.print(char(255));
+                lcd.write(15);
+                lcd.write(14);
+                break;  
+            case 4: 
+                lcd.print(char(255));
+                lcd.write(16);
+                lcd.write(14);
+                break;
+            case 3: 
+                lcd.print(char(255));
+                lcd.write(17);
+                lcd.write(14);
+                break;
+            case 2: 
+                lcd.write(18);
+                lcd.write(17);
+                lcd.write(14);
+                break;
+            case 1: 
+                lcd.write(19);
+                lcd.write(17);
+                lcd.write(14);
+                break;
+            case 0: 
+                lcd.write(20);
+                lcd.write(17);
+                lcd.write(14);
+                break;
         }
-      }
-    }  
-  
-    //Mode Display 
-    if(mode_display == 1){
-      
-      //VELOCITY  
-      lcd.setCursor(0, 1);
-      lcd.print( velocity ); 
-      lcd.print("Km/h ");
+
+        lcd.print(" ");
+        lcd.print(battery); 
+        lcd.print("%  ");
+        
+        //FUEL
+        lcd.setCursor(19, 3);
+        lcd.write(10);
+        int grafico_fuel = map(fuel,fuelMin,fuelMax,0,8);
+        switch(grafico_fuel){
+            case 8: 
+                lcd.setCursor(19, 0);
+                lcd.print(char(255));
+                lcd.setCursor(19, 1);
+                lcd.print(char(255));
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 7: 
+                lcd.setCursor(19, 0);
+                lcd.write(1);
+                lcd.setCursor(19, 1);
+                lcd.print(char(255));
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 6: 
+                lcd.setCursor(19, 0);
+                lcd.write(2);
+                lcd.setCursor(19, 1);
+                lcd.print(char(255));
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 5: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.write(3);
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 4: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.write(4);
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 3: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.write(5);
+                lcd.setCursor(19, 2);
+                lcd.print(char(255));
+                break;
+            case 2: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.print(" ");
+                lcd.setCursor(19, 2);
+                lcd.write(6);
+                break;
+            case 1: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.print(" ");
+                lcd.setCursor(19, 2);
+                lcd.write(7);
+                break;
+            case 0: 
+                lcd.setCursor(19, 0);
+                lcd.print(" ");
+                lcd.setCursor(19, 1);
+                lcd.print(" ");
+                lcd.setCursor(19, 2);
+                lcd.write(8);
+                break;
+        } 
+
+        if(reserve == 1){
+            lcd.setCursor(10, 0);
+            if((millis() - millis_task) - 500){        
+                lcd.print("RESERVE!");
+                if((millis() - millis_task) - 1000){
+                    lcd.print("        ");
+                    millis_task = millis();
+                }
+            }
+        }  
     
-      //MILEAGE 
-      lcd.setCursor(10, 1);
-      lcd.print( mileage ); 
-      lcd.print("Km ");
-    
-      //OPERATING TIME
-      lcd.setCursor(0, 2);
-      lcd.print("T:");
-      lcd.print( operating_time ); 
-      lcd.print("min ");
-    
-      //RANGE
-      lcd.setCursor(10, 2);
-      lcd.print("R:");
-      lcd.print( range ); 
-      lcd.print("min ");
-    
-      //RPM 
-      lcd.setCursor(0, 3);
-      int grafico_rpm = map(rpm,rpmMin,rpmMax,0,13);
-      for (int nL=0; nL < grafico_rpm; nL++)  lcd.print(char(255));
-      for (int nL=grafico_rpm; nL < 14; nL++) lcd.print(" ");
-      lcd.print(" RPM ");
+        //Mode Display 
+        if(mode_display == 1){
+            //VELOCITY  
+            lcd.setCursor(0, 1);
+            lcd.print( velocity ); 
+            lcd.print("Km/h ");
+            
+            //MILEAGE 
+            lcd.setCursor(10, 1);
+            lcd.print( mileage ); 
+            lcd.print("Km ");
+            
+            //OPERATING TIME
+            lcd.setCursor(0, 2);
+            lcd.print("T:");
+            lcd.print( operating_time ); 
+            lcd.print("min ");
+            
+            //RANGE
+            lcd.setCursor(10, 2);
+            lcd.print("R:");
+            lcd.print( range ); 
+            lcd.print("min ");
+            
+            //RPM 
+            lcd.setCursor(0, 3);
+            int grafico_rpm = map(rpm, rpmMin, rpmMax, 0, 13);
+            for (int nL = 0; nL < grafico_rpm; nL++)  lcd.print(char(255));
+            for (int nL = grafico_rpm; nL < 14; nL++) lcd.print(" ");
+            lcd.print(" RPM ");
+        }
+        else if(mode == 2){  
+            lcd.setCursor(0, 1);
+            lcd.print("RANGE:");
+            lcd.setCursor(0, 2);
+            lcd.print( range ); 
+            lcd.print("min ");
+        }
+        else{
+            lcd.setCursor(0, 2);
+            lcd.print("ERROR!"); 
+        }
     }
-    else if(mode == 2){  
-      lcd.setCursor(0, 1);
-      lcd.print("RANGE:");
-      lcd.setCursor(0, 2);
-      lcd.print( range ); 
-      lcd.print("min ");
-    }
-    else{
-      lcd.setCursor(0, 2);
-      lcd.print("ERROR!"); 
-    }
-  }
 }
 
 
