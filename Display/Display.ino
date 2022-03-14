@@ -227,7 +227,7 @@ void task_lcd(void *arg) {
 }
 
 void loop() {
-  ;
+  // Everything is executed in the tasks.
 }
 
 bool button_state(){
