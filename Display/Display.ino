@@ -5,7 +5,6 @@
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #include <queue.h>
-#include <semphr.h>
 
 //DISPLAY
 LiquidCrystal_I2C lcd(0x27,20,4); 
@@ -14,8 +13,8 @@ LiquidCrystal_I2C lcd(0x27,20,4);
 QueueHandle_t xQueue_LCD;
 
 //TASKS
-void task_lcd( void *pvParameters );
 void task_readind( void *pvParameters );
+void task_lcd( void *pvParameters );
 
 //AUXILIARY SETTINGS
 #define batMin  0
@@ -27,6 +26,7 @@ void task_readind( void *pvParameters );
 unsigned long millis_task = 0;
 
 //AUXILIARY VARIABLES, Button
+#define pin_button 32
 bool button;
 static bool buttonBefore;
 static bool buttonAux = true;
@@ -47,9 +47,13 @@ void print_batSimbol(int);
 void print_graphFuel(int);
 bool button_state();
 
+//Para testes com o potenciometro
+#define pin_pot 13
+#define max_pot 1500
+
 void setup() {
-  Serial.begin(9600);
-  while (!Serial) {
+  Serial.begin(115200);
+  while (!Serial){
     ; // Only continue when the serial be ready to work.
   }
   
@@ -57,21 +61,21 @@ void setup() {
   lcd.backlight(); //TURN ON THE LIGHT OF DISPLAY
   lcd.clear();     //CLEAN THE DISPLAY 
    
-  //Queue creation
+  //QUEUE CREATION
   xQueue_LCD = xQueue_LCD( 9, sizeof( float ) );
   if (xQueue_LCD == NULL){
     Serial.println("ERROR: IT IS NOT POSSIBLE TO CREATE THE QUEUE!"); 
-    //Without the queue, the working of the display is impaired
+    while(1); //Without the queue, the working of the display is impaired. Nothing more must be done.
   } 
 
-  //TASK CREATION
+  //CREATION OF TASKS
   xTaskCreatePinnedToCore(task_lcd,        //Main function of the task.
                          "task_lcd",       //Task name.
                          2048,             //Task size, in other words, quantity of bytes that this function will use
                          NULL,             //Arguments to be passed to the task.
                          7,                //Task priority, bigger the number, bigger the priority. The RTOS of ESP offer 25 levels.
                          NULL,             //Place to store save the unique identifier (UID) of this task.
-                         PRO_CPU_NUM);     //Task affinity, can have affinity with PRO_CPU, APP_CPU or "tskNO_AFFINITY" (RTOS decide).
+                         PRO_CPU_NUM);     //Task affinity, can have affinity with PRO_CPU, APP_CPU or "tskNO_AFFINITY" (RTOS decides).
    
   xTaskCreatePinnedToCore(task_readind,       
                          "task_readind",       
@@ -91,25 +95,34 @@ void setup() {
   lcd.createChar(8, Fuel_3);
 
 
-  pinMode(13, INPUT_PULLUP);
+  pinMode(pin_button, INPUT_PULLUP);
 }
 
 //READING TASK
 void task_readind( void *pvParameters ){
 
-  (void) pvParameters;
-  
-  int battery        = map(analogRead(A0),0,1015,batMin,batMax);
-  int fuel           = map(analogRead(A0),0,1015,fuelMin,fuelMax);
-  int velocity       = map(analogRead(A0),0,1015,0,80);
-  int odometer       = map(analogRead(A0),0,1015,0,150);
-  int operating_time = map(analogRead(A0),0,1015,0,150);
-  int range          = map(analogRead(A0),0,1015,0,150);
-  int rpm            = map(analogRead(A0),0,1015,rpmMin,rpmMax);
-  int reserve        = button_state();
-  int mode_display   = button_state();
-     
-  while(1){                     
+    int battery;
+    int fuel;
+    int velocity;
+    int odometer;      
+    int operating_time; 
+    int range;     
+    int rpm;          
+    int reserve;      
+    int mode_display;
+    
+  while(1){    
+   
+    battery        = map(analogRead(pin_pot),0,max_pot,batMin,batMax);
+    fuel           = map(analogRead(pin_pot),0,max_pot,fuelMin,fuelMax);
+    velocity       = map(analogRead(pin_pot),0,max_pot,0,80);
+    odometer       = map(analogRead(pin_pot),0,max_pot,0,150);
+    operating_time = map(analogRead(pin_pot),0,max_pot,0,150);
+    range          = map(analogRead(pin_pot),0,max_pot,0,150);
+    rpm            = map(analogRead(pin_pot),0,max_pot,rpmMin,rpmMax);
+    reserve        = button_state();
+    mode_display   = button_state();
+                  
     xQueueSendToBack(xQueue_LCD, battery);
     xQueueSendToBack(xQueue_LCD, fuel);
     xQueueSendToBack(xQueue_LCD, velocity);
@@ -119,14 +132,14 @@ void task_readind( void *pvParameters ){
     xQueueSendToBack(xQueue_LCD, rpm);
     xQueueSendToBack(xQueue_LCD, reserve); 
     xQueueSendToBack(xQueue_LCD, mode_display);    
+
+    vTaskDelay(pdMS_TO_TICKS(500));
   }
 }
 
 //DISPLAY TASK
-void task_lcd(void *arg) {
-
-  (void) pvParameters;
-
+void task_lcd(void *pvParameters) {
+ 
   int battery;
   float fuel;
   int reserve;
@@ -232,7 +245,7 @@ void loop() {
 
 bool button_state(){
   if((millis() - delayButton) > 50){
-    button = digitalRead(13);
+    button = digitalRead(pin_button);
     if(button && (button != buttonBefore)){
       buttonAux = !buttonAux;
       delayButton = millis();
