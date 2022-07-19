@@ -18,3 +18,4 @@
 * 1x sensor indutivo
 * 1x sensor capacitivo
 * 5m termoretrátil
+* 1x esp32
