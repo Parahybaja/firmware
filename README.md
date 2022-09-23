@@ -2,6 +2,10 @@
 
 ![display](https://user-images.githubusercontent.com/77392769/150213288-1d468784-25bb-448d-8827-183f61399e22.png)
 
+# ECU1 schematic
+
+![ECU1 schematic](https://github.com/Parahybaja/embedded_system/blob/main/hardware_ECU1/schematic.jpg)
+
 # Lista de compras
 
 * 3x baterias recarregáveis 9v
