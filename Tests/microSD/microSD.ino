@@ -2,7 +2,10 @@
 #include "SD.h"
 #include "SPI.h"
 
-// default pins
+// alive signal pin
+#define PIN_LED_ALIVE 12
+
+// SPI pins
 #define VSPI_CLK  18
 #define VSPI_MISO 19
 #define VSPI_MOSI 23
@@ -11,7 +14,7 @@
 #define HSPI_CLK  27
 #define HSPI_MISO 14
 #define HSPI_MOSI 13
-#define HSPI_SS   15
+#define HSPI_SS   04
 
 SPIClass * vspi = NULL;
 SPIClass * hspi = NULL;
@@ -28,7 +31,17 @@ void deleteFile(fs::FS&, const char*);
 void testFileIO(fs::FS&, const char*);
 
 void setup(){
+    pinMode(PIN_LED_ALIVE, OUTPUT);
+
     Serial.begin(115200);
+    Serial.setDebugOutput(true);
+    Serial.println();
+    Serial.println("|-----------------------------|");
+    Serial.println("|                             |");
+    Serial.println("|        micro SD test        |");
+    Serial.println("|                             |");
+    Serial.println("|-----------------------------|");
+    Serial.println();
 
     vspi = new SPIClass(VSPI);
     hspi = new SPIClass(HSPI);
@@ -79,11 +92,22 @@ void setup(){
     testFileIO(SD, "/test.txt");
     Serial.printf("Total space: %lluMB\n", SD.totalBytes() / (1024 * 1024));
     Serial.printf("Used space: %lluMB\n", SD.usedBytes() / (1024 * 1024));
-    Serial.println("test ended");
+    
+    Serial.println();
+    Serial.println("|--------------------------|");
+    Serial.println("|                          |");
+    Serial.println("|        test ended        |");
+    Serial.println("|                          |");
+    Serial.println("|--------------------------|");
+    Serial.println();
 }
 
 void loop(){
-
+    // alive signal
+    digitalWrite(PIN_LED_ALIVE, HIGH);
+    delay(100);
+    digitalWrite(PIN_LED_ALIVE, LOW);
+    delay(1000);
 }
 
 void listDir(fs::FS &fs, const char * dirname, uint8_t levels){
