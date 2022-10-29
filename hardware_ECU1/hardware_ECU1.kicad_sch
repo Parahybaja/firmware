@@ -2208,7 +2208,7 @@
   (symbol (lib_id "power:PWR_FLAG") (at 200.66 86.36 270) (unit 1)
     (in_bom yes) (on_board yes)
     (uuid 78c58950-0050-4443-94fc-285094f433b5)
-    (property "Reference" "#FLG0101" (id 0) (at 202.565 86.36 0)
+    (property "Reference" "#FLG03" (id 0) (at 202.565 86.36 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "PWR_FLAG" (id 1) (at 204.47 81.28 0)
@@ -2490,7 +2490,7 @@
       (reference "#FLG02") (unit 1) (value "PWR_FLAG") (footprint "")
     )
     (path "/78c58950-0050-4443-94fc-285094f433b5"
-      (reference "#FLG0101") (unit 1) (value "PWR_FLAG") (footprint "")
+      (reference "#FLG03") (unit 1) (value "PWR_FLAG") (footprint "")
     )
     (path "/e6716b01-b543-48cf-afc3-e4e381c816d9"
       (reference "#PWR01") (unit 1) (value "+12V") (footprint "")
