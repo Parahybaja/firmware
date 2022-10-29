@@ -7,7 +7,7 @@
   (title_block
     (title "ECU1")
     (date "2022-09-23")
-    (rev "v2.0.1")
+    (rev "v2.0.5")
     (company "Parahybaja")
     (comment 1 "demo version (only pinout)")
   )

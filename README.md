@@ -4,7 +4,7 @@
 
 # ECU1 schematic
 
-![ECU1 schematic](https://github.com/Parahybaja/embedded_system/blob/main/hardware_ECU1/schematic.jpg)
+![ECU1 schematic](https://github.com/Parahybaja/embedded_system/blob/main/hardware/ECU1/schematic.jpg)
 
 # Lista de compras
 
