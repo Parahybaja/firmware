@@ -53,6 +53,7 @@ char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";
 char mqtt_passwork[] = "6d350b9f302a61c659578279262ae22a73c5047e";
 char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
 
+int randomNumber;
 
 void setup() {
 
@@ -66,6 +67,11 @@ void setup() {
 
 void loop() {
   Cayenne.loop(); // Função que precisa ta no loop
+  randomNumber = random(60);
+  Cayenne.virtualWrite(CANAL_CYN_00, randomNumber);
+  Cayenne.virtualWrite(CANAL_CYN_06, random(4000));
+  Cayenne.virtualWrite(CANAL_CYN_07, random(1));
+  Cayenne.virtualWrite(CANAL_CYN_10, randomNumber);
 }
 
 CAYENNE_IN(CANAL_CYN_02){ 
@@ -118,8 +124,8 @@ CAYENNE_IN(CANAL_CYN_12){
 
 CAYENNE_OUT_DEFAULT() // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
 {
-  Cayenne.virtualWrite(CANAL_CYN_01, FUEL);
-  Cayenne.virtualWrite(CANAL_CYN_05, TEMP);
+  Cayenne.virtualWrite(CANAL_CYN_01, random(100));
+  Cayenne.virtualWrite(CANAL_CYN_05, random(40));
 }
 
 // Modelo
