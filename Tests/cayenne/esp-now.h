@@ -9,13 +9,16 @@ void init_espnow(void){
         ESP.restart();
         delay(1);
     }
-
-    esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
-
+    uint8_t receiverAddress[] = {0x5C, 0xCF, 0x7F, 0xB1, 0x2A, 0xE6};
+    
     esp_now_register_send_cb(OnDataSent);
     
-    esp_now_add_peer(address_sender, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
-    esp_now_add_peer(address_receiver, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
+    // register peer
+    esp_now_peer_info_t peerInfo;
+    peerInfo.channel = 0;  
+    peerInfo.encrypt = false;
+    // register first peer  
+    memcpy(peerInfo.peer_addr, address_receiver, 6);
     
     esp_now_register_recv_cb(OnDataRecv); 
 }

@@ -1,20 +1,19 @@
 #include <CayenneMQTTESP32.h>
 #include <esp_now.h>
-#include <WiFi.h>
 
 // -----include external files-----
-#include "configs.h"      // general configs - falta fazer as configs
-#include "var_global.h"   // global variables must be declared before functions definitions
+//#include "configs.h"      // general configs - falta fazer as configs
+//#include "var_global.h"   // global variables must be declared before functions definitions
 //#include "prototypes.h"   // functions prototypes must be explicitly declared 
 // #include "tasks.h"     // task functions definitions
-#include "system.h"       // system functions
-#include "esp-now.h"      // esp-now functions
+//#include "system.h"       // system functions
+//#include "esp-now.h"      // esp-now functions
 
 // As funcaos estão do lado dos defines com o que elas são e como chama-las. Para usa-las a minha ideia seria usar [ Cayenne.virtualWrite(CANAL, VALOR); ]
 // No esp-now. Assim quando o valor fosse recebido por esp now ainda no OnRecv podemos mandar os dados para a dashboard para ser o mais precio possivel. 
 
 #define CANAL_CYN_00   0 // Speed Graphic - Cayenne.virtualWrite(CANAL_CYN_00, value);
-#define CANAL_CYN_01   1 // FUEL - Cayenne.virtualWrite(CANAL_CYN_01, value);
+#define CANAL_CYN_01   1 // Emergency Fuel - Cayenne.virtualWrite(CANAL_CYN_01, value);
 #define CANAL_CYN_02   2 // Timer 
 #define CANAL_CYN_03   3 // New
 #define CANAL_CYN_04   4 // Restart
@@ -57,12 +56,11 @@ int randomNumber;
 
 void setup() {
 
-  init_system();
+//  init_system();
     
-  init_espnow();
+//  init_espnow();
   
   Cayenne.begin(username, mqtt_passwork, client_id, ssid, password);
-  CAYENNE_PRINT.println("Teste");
 }
 
 void loop() {
@@ -72,9 +70,11 @@ void loop() {
   Cayenne.virtualWrite(CANAL_CYN_06, random(4000));
   Cayenne.virtualWrite(CANAL_CYN_07, random(1));
   Cayenne.virtualWrite(CANAL_CYN_10, randomNumber);
+
+  delay(1000);
 }
 
-CAYENNE_IN(CANAL_CYN_02){ 
+/*CAYENNE_IN(CANAL_CYN_02){ 
    int value = getValue.asInt();  
 
    //falta como vai ser o codigo para o timer em si, como ta um slide pode passar qualquer valor para o codigo do display
@@ -112,7 +112,7 @@ CAYENNE_IN(CANAL_CYN_12){
 
     Serial.println("\n\n----- start command sent -----");
    }
-   else (value == 0) {
+   else if (value == 0) {
     cmd_t config = {BOARDID, CMD_STOP};
     esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
     esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
@@ -121,10 +121,10 @@ CAYENNE_IN(CANAL_CYN_12){
    }
 }
 
-
+*/
 CAYENNE_OUT_DEFAULT() // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
 {
-  Cayenne.virtualWrite(CANAL_CYN_01, random(100));
+  Cayenne.virtualWrite(CANAL_CYN_01, random(1));
   Cayenne.virtualWrite(CANAL_CYN_05, random(40));
 }
 
