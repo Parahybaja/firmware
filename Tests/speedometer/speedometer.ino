@@ -14,8 +14,8 @@
 #include <freertos/task.h>
 
 // -----pinout-----
-#define PIN_LED_ALIVE   2
-#define PIN_SPEEDOMETER 4
+#define PIN_LED_ALIVE   02
+#define PIN_SPEEDOMETER 17
 
 // -----tasks config-----
 #define TASK_SPDMT_SEND_RATE_Hz  1           // task send rate in hertz
