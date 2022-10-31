@@ -13,18 +13,38 @@
 #include <TwoMPU6050.h>
 #include "Wire.h"
 
-// alive signal pin
+/**
+ * GYRO_CONFIG_[0,1,2,3] range = +- [250, 500,1000,2000] °/s
+ *                       sensi =    [131,65.5,32.8,16.4] bit/(°/s)
+ *
+ * ACC_CONFIG_[0,1,2,3] range = +- [    2,   4,   8,  16] times the gravity (9.81m/s²)
+ *                      sensi =    [16384,8192,4096,2048] bit/gravity
+ */
+
+// -----pinout-----
 #define PIN_LED_ALIVE 12
 
-MPU6050 mpu(Wire, 0x68);
+// -----MPU6050 configs-----
+#define MPU_ADDR        0x68
+#define MPU_GYRO_CONFIG 3
+#define MPU_ACC_CONFIG  3
 
-long timer = 0;
+MPU6050 mpu(Wire, MPU_ADDR);
 
+uint32_t timer = false;
+float gyro_offset[3], acc_offset[3]; // [0]=x, [1]=y, [2]=z
+
+/**
+ * @brief alive signal
+ * 
+ * @param arg void arg
+ */
 void task_alive(void *arg){
     (void)arg;
     
+    pinMode(PIN_LED_ALIVE, OUTPUT);
+
     while (true){
-        // alive signal
         digitalWrite(PIN_LED_ALIVE, HIGH);
         vTaskDelay(100 / portTICK_PERIOD_MS);
         digitalWrite(PIN_LED_ALIVE, LOW);
@@ -33,8 +53,6 @@ void task_alive(void *arg){
 }
 
 void setup() {
-    pinMode(PIN_LED_ALIVE, OUTPUT);
-
     Serial.begin(115200);
     Wire.begin();
 
@@ -52,15 +70,30 @@ void setup() {
     Serial.println("|                            |");
     Serial.println("|----------------------------|");
     Serial.println();
-    
-    byte status = mpu.begin();
+
+    byte status = mpu.begin(MPU_GYRO_CONFIG, MPU_ACC_CONFIG);
     Serial.print(F("MPU6050 status: "));
     Serial.println(status);
     while(status!=0){ } // stop everything if could not connect to MPU6050
     
     Serial.println(F("Calculating offsets, do not move MPU6050"));
     delay(1000);
-    mpu.calcOffsets(true,true); // gyro and accelero
+    mpu.calcOffsets(true, true); // gyro and acc
+
+    gyro_offset[0] = mpu.getGyroXoffset();
+    gyro_offset[1] = mpu.getGyroYoffset();
+    gyro_offset[2] = mpu.getGyroZoffset();
+
+    acc_offset[0] = mpu.getAccXoffset();
+    acc_offset[1] = mpu.getAccYoffset();
+    acc_offset[2] = mpu.getAccZoffset();
+
+    Serial.printf("Gyro offset: x=%f, y=%f, z=%f\n", gyro_offset[0], gyro_offset[1], gyro_offset[2]);
+    Serial.printf("Acc offset: x=%f, y=%f, z=%f\n", acc_offset[0], acc_offset[1], acc_offset[2]);
+
+    mpu.setGyroOffsets(gyro_offset[0], gyro_offset[1], gyro_offset[2]);
+    mpu.setAccOffsets(acc_offset[0], acc_offset[1], acc_offset[2]);
+
     Serial.println("Done!\n");
   
 }
