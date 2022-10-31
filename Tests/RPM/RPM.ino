@@ -1,7 +1,7 @@
 /**
  * @file RPM.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
- * @brief RPM sensor test (inductive)
+ * @brief RPM sensor test (zener circuit)
  * @version 0.1
  * @date 2022-10-30
  * 
@@ -11,22 +11,35 @@
 
 // -----FreeRTOS includes-----
 #include <freertos/FreeRTOS.h>
-#include <freertos/semphr.h>
 #include <freertos/task.h>
 
+// -----pinout-----
 #define PIN_LED_ALIVE          02
 #define PIN_RPM                04
+
+// -----tasks config-----
 #define TASK_RPM_SEND_RATE_Hz  1           // task 1 send rate in hertz
 #define TASK_RPM_SEND_RATE_ms  (int(1000.0 / float(TASK_RPM_SEND_RATE_Hz))) // rate perido in milliseconds
 #define TASK_RPM_SEND_RATE_min (float(1.0 / (float(TASK_RPM_SEND_RATE_Hz) * 60.0))) // rate perido in min
 
+// -----FreeRTOS objects-----
 TaskHandle_t th_rpm;
 TaskHandle_t th_alive;
 
+// -----global counter variable-----
 volatile uint16_t rpm_counter;
 
-void IRAM_ATTR isr_rpm(){ rpm_counter++; }
+/**
+ * @brief RPM interrupt service routine
+ * 
+ */
+void IRAM_ATTR isr_rpm(void){ rpm_counter++; }
 
+/**
+ * @brief Read, calculate and print the RPM
+ * 
+ * @param arg void arg
+ */
 void task_RPM(void *arg){
     (void)arg;
 
@@ -65,13 +78,17 @@ void task_RPM(void *arg){
     }
 }
 
+/**
+ * @brief alive signal
+ * 
+ * @param arg void arg
+ */
 void task_alive(void *arg){
     (void)arg;
 
     pinMode(PIN_LED_ALIVE, OUTPUT); 
     
     while (true){
-        // alive signal
         digitalWrite(PIN_LED_ALIVE, HIGH);
         vTaskDelay(100 / portTICK_PERIOD_MS);
         digitalWrite(PIN_LED_ALIVE, LOW);
@@ -99,5 +116,6 @@ void setup(){
 }
 
 void loop(){
-    
+    // -----delete loop-----
+    vTaskDelete(NULL);
 }
