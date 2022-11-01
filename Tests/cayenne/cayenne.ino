@@ -22,18 +22,18 @@
 // As funcaos estão do lado dos defines com o que elas são e como chama-las. Para usa-las a minha ideia seria usar [ Cayenne.virtualWrite(CANAL, VALOR); ]
 // No esp-now. Assim quando o valor fosse recebido por esp now ainda no OnRecv podemos mandar os dados para a dashboard para ser o mais precio possivel. 
 
-#define CANAL_CYN_00   0 // Speed Graphic - Cayenne.virtualWrite(CANAL_CYN_00, value);
+#define CANAL_CYN_00   0 
 #define CANAL_CYN_01   1 // Emergency Fuel - Cayenne.virtualWrite(CANAL_CYN_01, value);
-#define CANAL_CYN_02   2 // Timer 
+#define CANAL_CYN_02   2 // 
 #define CANAL_CYN_03   3 // New
 #define CANAL_CYN_04   4 // Restart
 #define CANAL_CYN_05   5 // Temperature - Cayenne.virtualWrite(CANAL_CYN_05, value);
 #define CANAL_CYN_06   6 // RPM - Cayenne.virtualWrite(CANAL_CYN_06, value);
 #define CANAL_CYN_07   7 // Rollover - Cayenne.virtualWrite(CANAL_CYN_07, value);
-#define CANAL_CYN_08   8 // Tilt Angle
+#define CANAL_CYN_08   8 
 #define CANAL_CYN_09   9 // Battery
 #define CANAL_CYN_10   10 // DINAMIC SPEED
-#define CANAL_CYN_11   11
+#define CANAL_CYN_11   11 
 #define CANAL_CYN_12   12 // Start/Stop
 #define CANAL_CYN_13   13
 #define CANAL_CYN_14   14
@@ -42,7 +42,7 @@
 #define CANAL_CYN_17   17
 #define CANAL_CYN_18   18
 #define CANAL_CYN_19   19
-#define CANAL_CYN_20   20
+#define CANAL_CYN_20   20 // Speed Graphic - Cayenne.virtualWrite(CANAL_CYN_20, value);
 #define CANAL_CYN_21   21
 #define CANAL_CYN_22   22
 #define CANAL_CYN_23   23
@@ -66,6 +66,7 @@ char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
 
 int randomNumber;
 uint32_t timer_cayenne;
+uint32_t timer_cayenne2;
 
 //---------ESPNOW Structs and Address---------------
 uint8_t address_base[] = {0x94, 0xB5, 0x55, 0x2D, 0x1E, 0x0C};
@@ -86,6 +87,8 @@ void setup() {
 //  init_system();
     
 //  init_espnow();
+
+Serial.begin(115200);
 
 // -----ESPNOW settings-----
   WiFi.mode(WIFI_STA);
@@ -110,50 +113,42 @@ void setup() {
 
   // init timer
   timer_cayenne = millis();
+  timer_cayenne2 = millis();
 }
 
 void loop() {
-  Cayenne.loop(); // Função que precisa ta no loop
+  Cayenne.loop(100); // Função que precisa ta no loop
 
-  if ((millis() - timer_cayenne) > 1000){
-    timer_cayenne += 1000;
-    
-    randomNumber = random(60);
-    Cayenne.virtualWrite(CANAL_CYN_00, randomNumber);
+  if ((millis() - timer_cayenne) > 2200){
+    timer_cayenne += 2200;
+    //3158
     Cayenne.virtualWrite(CANAL_CYN_06, random(4000));
-    Cayenne.virtualWrite(CANAL_CYN_07, random(1));
-    Cayenne.virtualWrite(CANAL_CYN_10, randomNumber);
-    Cayenne.virtualWrite(CANAL_CYN_01, random(1));
+    Cayenne.virtualWrite(CANAL_CYN_10, random(60));
+  }
+
+  if ((millis() - timer_cayenne2) > 60000){
+    
+    timer_cayenne2 += 60000;
     Cayenne.virtualWrite(CANAL_CYN_05, random(40));
+    Cayenne.virtualWrite(CANAL_CYN_09, random(100));
+    Serial.println("Teste");
   }
 }
 
-CAYENNE_IN(CANAL_CYN_02){ 
-
-   //falta como vai ser o codigo para o timer em si, como ta um slide pode passar qualquer valor para o codigo do display
-}
-
 CAYENNE_IN(CANAL_CYN_03){ // Quando se usa o botao com o nome New do dashboard, toda vez essa função é chamada e é feito o que esta entre colchetes
-   if (getValue.asInt() == 1) {
-     set_up config = {BOARDID_01, CMD_NEW_FILE};
-     esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
-   }
-   Serial.println("\n\n----- new file command sent -----");
-
-   delay(1000);
-   Cayenne.virtualWrite(CANAL_CYN_03, 0);
-
+  if (getValue.asInt() == 1) {
+    set_up config = {BOARDID_01, CMD_NEW_FILE};
+    esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
+    Serial.println("\n\n----- new file command sent -----");
+  }
 }
 
 CAYENNE_IN(CANAL_CYN_04){ 
-   if (getValue.asInt() == 1) {
-     set_up config = {BOARDID_01, CMD_RESTART};
-     esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
-   }
-   Serial.println("\n\n----- restart command sent -----");
-
-   delay(1000);
-   Cayenne.virtualWrite(CANAL_CYN_04, 0);
+  if (getValue.asInt() == 1) {
+    set_up config = {BOARDID_01, CMD_RESTART};
+    esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
+    Serial.println("\n\n----- restart command sent -----");
+  }
 }
 
 
@@ -162,7 +157,7 @@ CAYENNE_IN(CANAL_CYN_12){
    if (getValue.asInt() == 1) {
     set_up config = {BOARDID_01, CMD_START};
     esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
-
+    
     Serial.println("\n\n----- start command sent -----");
    }
    else if (getValue.asInt() == 0) {
@@ -172,7 +167,6 @@ CAYENNE_IN(CANAL_CYN_12){
     Serial.println("\n\n----- stop command sent -----");
    }
 }
-
 
 /*CAYENNE_OUT_DEFAULT() { // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
   Cayenne.virtualWrite(CANAL_CYN_01, random(1));
