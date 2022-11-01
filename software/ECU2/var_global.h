@@ -1,6 +1,8 @@
 // -----FreeRTOS objects-----
-TaskHandle_t TaskHandle_sensor_1; // sensor 1 data task handler
-TaskHandle_t TaskHandle_sensor_2; // sensor2 data task handler
+TaskHandle_t th_alive; // LED alive task handler
+TaskHandle_t th_rpm;   // RPM task handler
+TaskHandle_t th_spdmt; // speedometer task handler
+TaskHandle_t th_fuel;  // emergency fuel task handler
 
 // -----command lookup table-----
 typedef enum {
@@ -48,3 +50,6 @@ typedef struct {
     sensors_t type;
     float value;  // sensor data must be float due to a bug in writing to the sd card
 } sensor_t;
+
+// -----interrupts global variables-----
+volatile uint16_t counter_rpm, counter_spdmt;

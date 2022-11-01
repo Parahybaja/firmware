@@ -1,7 +1,11 @@
 // -----tasks functions-----
 
-void task_sensor_1(void*);
-void task_sensor_2(void*);
+void task_alive(void*);
+void isr_rpm(void);
+void task_RPM(void*);
+void isr_spdmt(void);
+void task_speedometer(void*);
+void task_fuel_emer(void*);
 
 
 
@@ -17,6 +21,7 @@ void OnDataRecv(const uint8_t*, const uint8_t*, int);
 
 void init_system(void);
 void init_system_handlers(void);
+void init_tasks(void);
 void ERROR(char*);
 void ERROR(char*, bool);
 void INFO(const char*);

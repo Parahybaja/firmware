@@ -11,11 +11,11 @@ void init_system(void){
     while (!Serial){}; // wait until is initialized
 
     // -----header-----
-    Serial.println("|----------------------|");
-    Serial.println("|                      |");
-    Serial.println("|        sender        |");
-    Serial.println("|                      |");
-    Serial.println("|----------------------|");
+    Serial.println("|--------------------|");
+    Serial.println("|                    |");
+    Serial.println("|        ECU2        |");
+    Serial.println("|                    |");
+    Serial.println("|--------------------|");
 }
 
 /**
@@ -25,6 +25,40 @@ void init_system(void){
 void init_system_handlers(void){
     INFO("INFO_2: no system handlers", false);
     delay(50);
+}
+
+/**
+ * @brief init run time tasks
+ * 
+ */
+void init_tasks(void){
+    xTaskCreate(task_alive,     // task function
+                "alive_signal", // task name
+                2048,           // stack size
+                NULL,           // parameters
+                10,             // priority
+                &th_alive);     // handler 
+
+    xTaskCreate(task_RPM,   // task function
+                "task_RPM", // task name
+                2048,       // stack size
+                NULL,       // parameters
+                10,         // priority
+                &th_rpm);   // handler 
+
+    xTaskCreate(task_speedometer,   // task function
+                "task_speedometer", // task name
+                2048,               // stack size
+                NULL,               // parameters
+                10,                 // priority
+                &th_spdmt);         // handler 
+
+    xTaskCreate(task_fuel_emer,   // task function
+                "task_fuel_emer", // task name
+                2048,             // stack size
+                NULL,             // parameters
+                10,               // priority
+                &th_fuel);        // handler 
 }
 
 /**

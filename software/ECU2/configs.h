@@ -8,16 +8,26 @@
 #define ESPNOW_BUFFER_SIZE    64          // espnow buffer char array size
 
 // -----tasks configs-----
-#define TASK1_SEND_RATE_Hz    1           // task 1 send rate in hertz
-#define TASK1_READING_RATE_Hz 5           // reading rate in hertz (must be greater then send rate)
-#define TASK2_SEND_RATE_Hz    1           // task 2 send rate in hertz
-#define TASK2_READING_RATE_Hz 5           // reading rate in hertz (must be greater then send rate)
+#define TASK_RPM_SEND_RATE_Hz   1 // RPM task send rate in hertz
+#define TASK_SPDMT_SEND_RATE_Hz 1 // speedometer task send rate in hertz
+#define TASK_F_EMER_SEND_RATE_Hz  1           // task send rate in hertz
 
 // -----convertions-----
-#define TASK1_SEND_RATE_ms    (int(1000.0 / float(TASK1_SEND_RATE_Hz)))    // rate perido in milliseconds
-#define TASK1_READING_RATE_ms (int(1000.0 / float(TASK1_READING_RATE_Hz))) // rate perido in milliseconds
-#define TASK2_SEND_RATE_ms    (int(1000.0 / float(TASK2_SEND_RATE_Hz)))    // rate perido in milliseconds
-#define TASK2_READING_RATE_ms (int(1000.0 / float(TASK2_READING_RATE_Hz))) // rate perido in milliseconds
+#define TASK_RPM_SEND_RATE_ms     (int(1000.0 / float(TASK_RPM_SEND_RATE_Hz))) // rate perido in milliseconds
+#define TASK_RPM_SEND_RATE_min    (float(1.0 / (float(TASK_RPM_SEND_RATE_Hz) * 60.0))) // rate perido in min
+#define TASK_SPDMT_SEND_RATE_ms   (int( 1000.0 / float(TASK_SPDMT_SEND_RATE_Hz))) // rate perido in milliseconds
+#define TASK_SPDMT_SEND_RATE_s    (float (1.0 / float(TASK_SPDMT_SEND_RATE_Hz))) // rate perido in seconds
+#define TASK_SPDMT_SEND_RATE_min  (float(1.0 / (float(TASK_SPDMT_SEND_RATE_Hz) * 60.0))) // rate perido in min
+#define TASK_F_EMER_SEND_RATE_ms  (int( 1000.0 / float(TASK_F_EMER_SEND_RATE_Hz))) // rate perido in milliseconds
+#define TASK_F_EMER_SEND_RATE_s   (float (1.0 / float(TASK_F_EMER_SEND_RATE_Hz))) // rate perido in seconds
+#define TASK_F_EMER_SEND_RATE_min (float(1.0 / (float(TASK_F_EMER_SEND_RATE_Hz) * 60.0))) // rate perido in min
+
+// -----constants-----
+#define PI          3.1415
+#define ms2kmh      3.6
+#define WHEEL_DIA   0.4              // diameter in meters
+#define WHEEL_CIRC  (PI * WHEEL_DIA) // wheel circumference
+#define WHEEL_EDGES 6                // 6 edges per revolution
 
 // -----pinout-----
 #define PIN_LED_ALIVE      02 // esp32 v1 builtin lED
