@@ -22,9 +22,9 @@
 // As funcaos estão do lado dos defines com o que elas são e como chama-las. Para usa-las a minha ideia seria usar [ Cayenne.virtualWrite(CANAL, VALOR); ]
 // No esp-now. Assim quando o valor fosse recebido por esp now ainda no OnRecv podemos mandar os dados para a dashboard para ser o mais precio possivel. 
 
-#define CANAL_CYN_00   0 
+#define CANAL_CYN_00   0 // Timer Viewer
 #define CANAL_CYN_01   1 // Emergency Fuel - Cayenne.virtualWrite(CANAL_CYN_01, value);
-#define CANAL_CYN_02   2 // 
+#define CANAL_CYN_02   2 // Timer Definer
 #define CANAL_CYN_03   3 // New
 #define CANAL_CYN_04   4 // Restart
 #define CANAL_CYN_05   5 // Temperature - Cayenne.virtualWrite(CANAL_CYN_05, value);
@@ -42,7 +42,7 @@
 #define CANAL_CYN_17   17
 #define CANAL_CYN_18   18
 #define CANAL_CYN_19   19
-#define CANAL_CYN_20   20 // Speed Graphic - Cayenne.virtualWrite(CANAL_CYN_20, value);
+#define CANAL_CYN_20   20 
 #define CANAL_CYN_21   21
 #define CANAL_CYN_22   22
 #define CANAL_CYN_23   23
@@ -64,7 +64,7 @@ char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";
 char mqtt_passwork[] = "6d350b9f302a61c659578279262ae22a73c5047e";
 char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
 
-int randomNumber;
+int timer;
 uint32_t timer_cayenne;
 uint32_t timer_cayenne2;
 
@@ -114,6 +114,7 @@ Serial.begin(115200);
   // init timer
   timer_cayenne = millis();
   timer_cayenne2 = millis();
+  timer = 0;
 }
 
 void loop() {
@@ -132,7 +133,21 @@ void loop() {
     Cayenne.virtualWrite(CANAL_CYN_05, random(40));
     Cayenne.virtualWrite(CANAL_CYN_09, random(100));
     Serial.println("Teste");
+    if (timer >= 1){
+      timer = timer - 1;
+      Cayenne.virtualWrite(CANAL_CYN_00, timer);
+    }
   }
+}
+
+CAYENNE_IN(CANAL_CYN_02){ 
+  
+  int value = getValue.asInt();
+  //comando do ESPNOW (A fazer)
+  //esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
+  Serial.println("\n\n----- new time command sent -----");
+  //Altera valor na dash
+  timerNewValue(value);
 }
 
 CAYENNE_IN(CANAL_CYN_03){ // Quando se usa o botao com o nome New do dashboard, toda vez essa função é chamada e é feito o que esta entre colchetes
@@ -168,11 +183,6 @@ CAYENNE_IN(CANAL_CYN_12){
    }
 }
 
-/*CAYENNE_OUT_DEFAULT() { // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
-  Cayenne.virtualWrite(CANAL_CYN_01, random(1));
-  Cayenne.virtualWrite(CANAL_CYN_05, random(40));
-}*/
-
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 #if DEBUG_MODE
     Serial.print("Send status:\t");
@@ -186,27 +196,10 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
         Serial.println(len);
     #endif
 }
-// Modelo
-/* void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
-    if (len ==  sizeof(sensor_t)){
-        sensor_t sensor = {};
-        memcpy(&sensor, incomingData, sizeof(sensor));
 
-        if (sensor.type == SENSOR_01){
-            // -----send sensor 1 data through queue-----
-            xQueueSend(qh_sensor_1, &sensor, pdMS_TO_TICKS(0));
-            Cayenne.virtualWrite(CANAL_CYN_sensor_1, sensor_1);
-        }
-        else if (sensor.type == SENSOR_02){
-            // -----send sensor 2 data through queue-----
-            xQueueSend(qh_sensor_2, &sensor, pdMS_TO_TICKS(0));
-            ayenne.virtualWrite(CANAL_CYN_sensor_2, sensor_2);
-        }
-        else {
-            INFO("INFO_1: unknown sensor type");
-        }
-    }
-    else {
-        INFO("INFO_1: unknown incoming data");
-    }
-}*/
+void timerNewValue(int value){
+  Cayenne.virtualWrite(CANAL_CYN_00, value);
+  Serial.print(value);
+  Serial.println("---Valor do slide");
+  timer = value;
+}
