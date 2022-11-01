@@ -31,7 +31,7 @@
 #define CANAL_CYN_06   6 // RPM - Cayenne.virtualWrite(CANAL_CYN_06, value);
 #define CANAL_CYN_07   7 // Rollover - Cayenne.virtualWrite(CANAL_CYN_07, value);
 #define CANAL_CYN_08   8 // Tilt Angle
-#define CANAL_CYN_09   9
+#define CANAL_CYN_09   9 // Battery
 #define CANAL_CYN_10   10 // DINAMIC SPEED
 #define CANAL_CYN_11   11
 #define CANAL_CYN_12   12 // Start/Stop
@@ -65,6 +65,7 @@ char mqtt_passwork[] = "6d350b9f302a61c659578279262ae22a73c5047e";
 char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
 
 int randomNumber;
+uint32_t timer_cayenne;
 
 //---------ESPNOW Structs and Address---------------
 uint8_t address_base[] = {0x94, 0xB5, 0x55, 0x2D, 0x1E, 0x0C};
@@ -106,17 +107,25 @@ void setup() {
 
 // -----Cayenne settings-----  
   Cayenne.begin(username, mqtt_passwork, client_id, ssid, password);
+
+  // init timer
+  timer_cayenne = millis();
 }
 
 void loop() {
   Cayenne.loop(); // Função que precisa ta no loop
-  randomNumber = random(60);
-  Cayenne.virtualWrite(CANAL_CYN_00, randomNumber);
-  Cayenne.virtualWrite(CANAL_CYN_06, random(4000));
-  Cayenne.virtualWrite(CANAL_CYN_07, random(1));
-  Cayenne.virtualWrite(CANAL_CYN_10, randomNumber);
 
-  delay(1000);
+  if ((millis() - timer_cayenne) > 1000){
+    timer_cayenne += 1000;
+    
+    randomNumber = random(60);
+    Cayenne.virtualWrite(CANAL_CYN_00, randomNumber);
+    Cayenne.virtualWrite(CANAL_CYN_06, random(4000));
+    Cayenne.virtualWrite(CANAL_CYN_07, random(1));
+    Cayenne.virtualWrite(CANAL_CYN_10, randomNumber);
+    Cayenne.virtualWrite(CANAL_CYN_01, random(1));
+    Cayenne.virtualWrite(CANAL_CYN_05, random(40));
+  }
 }
 
 CAYENNE_IN(CANAL_CYN_02){ 
@@ -165,10 +174,10 @@ CAYENNE_IN(CANAL_CYN_12){
 }
 
 
-CAYENNE_OUT_DEFAULT() { // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
+/*CAYENNE_OUT_DEFAULT() { // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
   Cayenne.virtualWrite(CANAL_CYN_01, random(1));
   Cayenne.virtualWrite(CANAL_CYN_05, random(40));
-}
+}*/
 
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 #if DEBUG_MODE
