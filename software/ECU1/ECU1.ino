@@ -3,20 +3,12 @@
  * @file ECU1.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief 
- * @version 0.1
- * @date 2022-10-30
+ * @version 0.2
+ * @date 2022-10-31
  * 
  * @copyright Copyright (c) 2022
  * 
  */
-
-/* 
-    command list
-- start: start writing data
-- stop: stop writing data
-- new: create new file
-- restart: restart base esp
-*/
 
 // -----FreeRTOS includes-----
 #include <freertos/FreeRTOS.h>
@@ -33,10 +25,6 @@
 #include <FS.h>
 #include <SPI.h>
 #include <SD.h>
-
-// -----external modules includes-----
-//
-//
 
 // -----include external files-----
 #include "configs.h"    // general configs
@@ -66,9 +54,6 @@ void setup(){
 }
 
 void loop(){
-    // alive signal
-    digitalWrite(PIN_LED_ALIVE, HIGH);
-    delay(100);
-    digitalWrite(PIN_LED_ALIVE, LOW);
-    delay(1000);
+    // delete loop
+    vTaskDelete()
 }

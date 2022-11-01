@@ -10,17 +10,11 @@
 #define QUEUE_TIMEOUT 1000            // queue timeout in millisecond
 
 // -----tasks configs-----
-#define TASK3_SEND_RATE_Hz    1           // task 3 send rate in hertz
-#define TASK3_SEND_RATE_ms    (int(1000.0 / float(TASK3_SEND_RATE_Hz)))    // rate perido in milliseconds
-#define TASK3_READING_RATE_Hz 5           // reading rate in hertz (must be greater then send rate)
-#define TASK3_READING_RATE_ms (int(1000.0 / float(TASK3_READING_RATE_Hz))) // rate perido in milliseconds
-#define TASK4_SEND_RATE_Hz    1           // task 4 send rate in hertz
-#define TASK4_SEND_RATE_ms    (int(1000.0 / float(TASK4_SEND_RATE_Hz)))    // rate perido in milliseconds
-#define TASK4_READING_RATE_Hz 5           // reading rate in hertz (must be greater then send rate)
-#define TASK4_READING_RATE_ms (int(1000.0 / float(TASK4_READING_RATE_Hz))) // rate perido in milliseconds
 #define TASK_SD_RATE_Hz       1           // reading rate in hertz (must be greater then send rate)
-#define TASK_SD_RATE_ms       (int(1000.0 / float(TASK_SD_RATE_Hz))) // rate perido in milliseconds
 #define TASK_SENDPACK_RATE_Hz 1           // reading rate in hertz (must be greater then send rate)
+
+// -----convertions-----
+#define TASK_SD_RATE_ms       (int(1000.0 / float(TASK_SD_RATE_Hz))) // rate perido in milliseconds
 #define TASK_SENDPACK_RATE_ms (int(1000.0 / float(TASK_SENDPACK_RATE_Hz))) // rate perido in milliseconds
 
 // -----VSPI pinout-----
