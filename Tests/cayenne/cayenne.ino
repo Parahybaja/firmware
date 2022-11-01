@@ -1,11 +1,21 @@
 #include <CayenneMQTTESP32.h>
 #include <esp_now.h>
 
+#define DEBUG_MODE         true
+#define BOARDID_01         1
+#define ESPNOW_BUFFER_SIZE 48
+
+// -----command lookup table-----
+#define CMD_START    0x01
+#define CMD_STOP     0x02
+#define CMD_NEW_FILE 0x03
+#define CMD_RESTART  0X04
+
 // -----include external files-----
 //#include "configs.h"      // general configs - falta fazer as configs
 //#include "var_global.h"   // global variables must be declared before functions definitions
 //#include "prototypes.h"   // functions prototypes must be explicitly declared 
-// #include "tasks.h"     // task functions definitions
+//#include "tasks.h"     // task functions definitions
 //#include "system.h"       // system functions
 //#include "esp-now.h"      // esp-now functions
 
@@ -20,7 +30,7 @@
 #define CANAL_CYN_05   5 // Temperature - Cayenne.virtualWrite(CANAL_CYN_05, value);
 #define CANAL_CYN_06   6 // RPM - Cayenne.virtualWrite(CANAL_CYN_06, value);
 #define CANAL_CYN_07   7 // Rollover - Cayenne.virtualWrite(CANAL_CYN_07, value);
-#define CANAL_CYN_08   8 
+#define CANAL_CYN_08   8 // Tilt Angle
 #define CANAL_CYN_09   9
 #define CANAL_CYN_10   10 // DINAMIC SPEED
 #define CANAL_CYN_11   11
@@ -45,21 +55,56 @@
 #define CANAL_CYN_30   30
 #define CANAL_CYN_31   31
 
+//---------WiFi----------
 char ssid[] = "PARAHYBAJA";
 char password[] = "parahybaja98";
 
+//---------Cayenne Device------------
 char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";
 char mqtt_passwork[] = "6d350b9f302a61c659578279262ae22a73c5047e";
 char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
 
 int randomNumber;
 
+//---------ESPNOW Structs and Address---------------
+uint8_t address_base[] = {0x94, 0xB5, 0x55, 0x2D, 0x1E, 0x0C};
+
+typedef struct set_up {
+    uint8_t id;
+    uint8_t command;
+} set_up;
+
+typedef struct debug_data{
+    uint8_t id;
+    char msg[ESPNOW_BUFFER_SIZE];
+} debug_data;
+
+
 void setup() {
 
 //  init_system();
     
 //  init_espnow();
-  
+
+// -----ESPNOW settings-----
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+  if (esp_now_init() != ESP_OK)    // check if was initialized successfully
+      Serial.println("Error initializing ESP-NOW");
+  esp_now_register_send_cb(OnDataSent);
+
+  // register peer
+  esp_now_peer_info_t peerInfo = {};
+  peerInfo.channel = 0;
+  peerInfo.encrypt = false;
+  memcpy(peerInfo.peer_addr, address_base, 6);
+  if (esp_now_add_peer(&peerInfo) != ESP_OK)
+      Serial.println("ERROR: Failed to add peer");
+  Serial.println("INFO: Peer added");
+  delay(50); // give time to send the espnow message
+  esp_now_register_recv_cb(OnDataRecv);
+
+// -----Cayenne settings-----  
   Cayenne.begin(username, mqtt_passwork, client_id, ssid, password);
 }
 
@@ -74,60 +119,70 @@ void loop() {
   delay(1000);
 }
 
-/*CAYENNE_IN(CANAL_CYN_02){ 
-   int value = getValue.asInt();  
+CAYENNE_IN(CANAL_CYN_02){ 
 
    //falta como vai ser o codigo para o timer em si, como ta um slide pode passar qualquer valor para o codigo do display
 }
 
 CAYENNE_IN(CANAL_CYN_03){ // Quando se usa o botao com o nome New do dashboard, toda vez essa função é chamada e é feito o que esta entre colchetes
-   cmd_t config = {BOARDID, CMD_NEW_FILE};
-   esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-   esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
-
+   if (getValue.asInt() == 1) {
+     set_up config = {BOARDID_01, CMD_NEW_FILE};
+     esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
+   }
    Serial.println("\n\n----- new file command sent -----");
 
+   delay(1000);
    Cayenne.virtualWrite(CANAL_CYN_03, 0);
+
 }
 
 CAYENNE_IN(CANAL_CYN_04){ 
-
-   cmd_t config = {BOARDID, CMD_RESTART};
-   esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-   esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
-
+   if (getValue.asInt() == 1) {
+     set_up config = {BOARDID_01, CMD_RESTART};
+     esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
+   }
    Serial.println("\n\n----- restart command sent -----");
 
+   delay(1000);
    Cayenne.virtualWrite(CANAL_CYN_04, 0);
 }
 
 
 CAYENNE_IN(CANAL_CYN_12){ 
-   int value = getValue.asInt();
 
-   if (value == 1) {
-    cmd_t config = {BOARDID, CMD_START};
-    esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-    esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
+   if (getValue.asInt() == 1) {
+    set_up config = {BOARDID_01, CMD_START};
+    esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
 
     Serial.println("\n\n----- start command sent -----");
    }
-   else if (value == 0) {
-    cmd_t config = {BOARDID, CMD_STOP};
-    esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-    esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
+   else if (getValue.asInt() == 0) {
+    set_up config = {BOARDID_01, CMD_STOP};
+    esp_err_t result = esp_now_send(address_base, (uint8_t *) &config, sizeof(set_up));
 
     Serial.println("\n\n----- stop command sent -----");
    }
 }
 
-*/
-CAYENNE_OUT_DEFAULT() // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
-{
+
+CAYENNE_OUT_DEFAULT() { // envia dados periodicamente, usamos essa função para manter os dados que nao precisam ser atualizados constantemente 
   Cayenne.virtualWrite(CANAL_CYN_01, random(1));
   Cayenne.virtualWrite(CANAL_CYN_05, random(40));
 }
 
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
+#if DEBUG_MODE
+    Serial.print("Send status:\t");
+    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+#endif
+}
+
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
+    #if DEBUG_MODE
+        Serial.print("packet received size: ");
+        Serial.println(len);
+    #endif
+}
 // Modelo
 /* void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
     if (len ==  sizeof(sensor_t)){

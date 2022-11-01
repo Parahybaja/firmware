@@ -2,6 +2,7 @@
  * @brief 
  * 
  */
+
 void init_system(void){
     Serial.begin(74880);
 
@@ -18,3 +19,19 @@ void init_system(void){
     Serial.println("new     - create new file");
     Serial.println("restart - restart board\n");
 }
+
+/*
+    print ERROR messages on serial and through esp-now:
+    - const char returnMsg[]: message to be sent
+
+
+/*
+    print INFO messages on serial and through esp-now:
+    - const char[]: message to be sent
+*/
+
+/*
+    print INFO messages on serial and through esp-now:
+    - const char[]: message to be sent
+    - bool: esp-now active flag
+*/
