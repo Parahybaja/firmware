@@ -1,6 +1,7 @@
 // -----FreeRTOS objects-----
-TaskHandle_t th_battery;         // sensor 3 task handler
-TaskHandle_t th_sensor_4;         // sensor 4 task handler
+TaskHandle_t th_alive;            // LED alive task handler
+TaskHandle_t th_rollover;
+TaskHandle_t th_battery;          // sensor 3 task handler
 TaskHandle_t th_display_control;  // display control task handler
 TaskHandle_t th_SD;               // 
 TaskHandle_t th_send_pack;        // 
@@ -47,17 +48,17 @@ typedef enum {
 } sensors_t;
 
 typedef struct {
-    boardID_t id,
-    float rpm,
-    float speed,
-    float fuel_level,
-    float fuel_emer,
-    float battery,
-    float temp,
-    float rollover,
-    float tilt_x,
-    float tilt_y,
-    float tilt_z,
+    boardID_t id;
+    float rpm;
+    float speed;
+    float fuel_level;
+    float fuel_emer;
+    float battery;
+    float temp;
+    float rollover;
+    float tilt_x;
+    float tilt_y;
+    float tilt_z;
 } system_t;
 
 // -----debug data type definition-----

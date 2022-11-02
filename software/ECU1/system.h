@@ -57,6 +57,13 @@ void init_system_handlers(void){
  * 
  */
 void init_tasks(void){
+    xTaskCreate(task_alive,   // task function
+                "task_alive", // task name
+                2048,         // stack size
+                NULL,         // parameters
+                10,           // priority
+                &th_alive);   // handler 
+
     xTaskCreate(task_display_control, // task function
                 "display control",    // task name
                 2048,                 // stack size
@@ -71,12 +78,12 @@ void init_tasks(void){
                 10,             // priority
                 &th_battery);   // handler  
 
-    // xTaskCreate(task_sensor_4, // task function
-    //             "sensor 4",    // task name
-    //             2048,          // stack size
-    //             NULL,          // parameters
-    //             10,            // priority
-    //             &th_sensor_4); // handler 
+    xTaskCreate(task_rollover,  // task function
+                "task_rollover",// task name
+                2048,           // stack size
+                NULL,           // parameters
+                10,             // priority
+                &th_rollover);  // handler 
 
     xTaskCreate(task_send_pack, // task function
                 "send pack",    // task name
@@ -155,7 +162,7 @@ void send_debug(const char returnMsg[]){
         debug_t msg_data;
         msg_data.id = BOARDID;
         strcpy(msg_data.msg, returnMsg);
-        esp_now_send(address_control, (uint8_t *) &msg_data, sizeof(msg_data));
+        esp_now_send(address_ECUBOX, (uint8_t *) &msg_data, sizeof(msg_data));
     }
     else
         Serial.println("ERROR_1: espnow buffer overflow");

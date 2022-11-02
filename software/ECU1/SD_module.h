@@ -88,10 +88,16 @@ String data_to_string(system_t database[]){
     
     for(int i = 0; i < BUFFER_SIZE; i++){
         return_msg += 
-            String(database[i].sensor_1, 2) + "," +
-            String(database[i].sensor_2, 2) + "," +
-            String(database[i].sensor_3, 2) + "," +
-            String(database[i].sensor_4, 2) + "\r\n"; // convert float to string with 2 decimal places
+            String(millis()) + "," +
+            String(database[i].speed, 2) + "," +
+            String(database[i].rpm, 2) + "," +
+            String(database[i].fuel_emer, 2) + "," +
+            String(database[i].battery, 2) + "," +
+            String(database[i].temp, 2) + "," +
+            String(database[i].rollover, 2) + "," +
+            String(database[i].tilt_x, 2) + "," +
+            String(database[i].tilt_y, 2) + "," +
+            String(database[i].tilt_z, 2) + "\r\n"; // convert float to string with 2 decimal places
     }
 
     return return_msg;

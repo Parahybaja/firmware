@@ -1,4 +1,22 @@
 /**
+ * @brief alive signal
+ * 
+ * @param arg void arg
+ */
+void task_alive(void *arg){
+    (void)arg;
+
+    pinMode(PIN_LED_ALIVE, OUTPUT); 
+    
+    while (true){
+        digitalWrite(PIN_LED_ALIVE, HIGH);
+        vTaskDelay(100 / portTICK_PERIOD_MS);
+        digitalWrite(PIN_LED_ALIVE, LOW);
+        vTaskDelay(1000 / portTICK_PERIOD_MS);
+    }
+}
+
+/**
  * @brief battery level task example
  * 
  * @param arg void arg
@@ -53,7 +71,7 @@ void task_battery(void *arg){
 }
 
 /**
- * @brief sensor 4 task example
+ * @brief MPU6050 rollover sensor task
  * 
  * @param arg void arg
  */
@@ -61,14 +79,15 @@ void task_rollover(void *arg){
     (void)arg;
 
     // -----create local variables-----
-    uint32_t timer_read, timer_send;
-    uint16_t buffer_count = 0;
-    float sum;
+    uint32_t timer_send;
+    float roll_last;
     byte status;
     sensor_t rollover = {BOARDID, ROLLOVER, 0.0};
     sensor_t tilt_x = {BOARDID, TILT_X, 0.0};
     sensor_t tilt_y = {BOARDID, TILT_Y, 0.0};
     sensor_t tilt_z = {BOARDID, TILT_Z, 0.0};
+    MPU6050 mpu(Wire, MPU_ADDR);
+
 
 #if DEBUG_MODE
     // see the remaining space of this task
@@ -96,7 +115,7 @@ void task_rollover(void *arg){
     mpu.setAccOffsets(acc_offset[0], acc_offset[1], acc_offset[2]);
 
     // -----update timer-----
-    timer_read = timer_send = millis();
+    timer_send = millis();
 
     while (true){
         // -----update mpu-----
@@ -112,20 +131,21 @@ void task_rollover(void *arg){
             tilt_y.value = mpu.getAngleX();
             tilt_z.value = mpu.getAngleZ();
 
-            if ((abs(tilt_x.value) > 45) || (abs(tilt_y.value) > 45)){
+            if ((abs(tilt_x.value) > 45) || (abs(tilt_y.value) > 45))
                 rollover.value = 1.0;
-                
-                // send msg to ECUBOX
-
+            else
                 rollover.value = 0.0;
-            }
+
+            if (rollover.value != roll_last)
+                esp_now_send(address_ECUBOX, (uint8_t *) &rollover, sizeof(rollover));
+            
+            roll_last = rollover.value;
 
             // -----send tilt data through queue-----
             xQueueSend(qh_tilt_x, &tilt_x, pdMS_TO_TICKS(0));
             xQueueSend(qh_tilt_y, &tilt_y, pdMS_TO_TICKS(0)); 
             xQueueSend(qh_tilt_z, &tilt_z, pdMS_TO_TICKS(0)); 
         }
-
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
@@ -305,7 +325,7 @@ void task_send_pack(void *arg){
             xSemaphoreGive(sh_global_vars);
 
             // -----send system data through esp-now-----
-            esp_now_send(address_control, (uint8_t *) &system_copy, sizeof(system_copy));
+            esp_now_send(address_ECUBOX, (uint8_t *) &system_copy, sizeof(system_copy));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }

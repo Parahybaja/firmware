@@ -3,8 +3,8 @@
  * @file ECU1.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief 
- * @version 0.2
- * @date 2022-11-01
+ * @version 0.3
+ * @date 2022-11-02
  * 
  * @copyright Copyright (c) 2022
  * 
@@ -25,6 +25,9 @@
 #include <FS.h>
 #include <SPI.h>
 #include <SD.h>
+
+// -----external modules-----
+#include <TwoMPU6050.h>
 
 // -----include external files-----
 #include "configs.h"    // general configs
