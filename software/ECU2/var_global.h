@@ -25,6 +25,7 @@ typedef enum {
     SPEEDOMETER,
     FUEL_LEVEL,
     FUEL_EMERGENCY,
+    BATTERY,
     AMBIENT_TEMP,
     ROLLOVER,
     TILT_X,

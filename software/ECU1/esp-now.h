@@ -86,17 +86,17 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
         sensor_t sensor = {};
         memcpy(&sensor, incomingData, sizeof(sensor));
 
-        if (sensor.type == SENSOR_01){
-            // -----send sensor 1 data through queue-----
-            xQueueSend(qh_sensor_1, &sensor, pdMS_TO_TICKS(0));
-        }
-        else if (sensor.type == SENSOR_02){
-            // -----send sensor 2 data through queue-----
-            xQueueSend(qh_sensor_2, &sensor, pdMS_TO_TICKS(0));
-        }
-        else {
-            INFO("INFO_1: unknown sensor type");
-        }
+        // if (sensor.type == SENSOR_01){
+        //     // -----send sensor 1 data through queue-----
+        //     xQueueSend(qh_sensor_1, &sensor, pdMS_TO_TICKS(0));
+        // }
+        // else if (sensor.type == SENSOR_02){
+        //     // -----send sensor 2 data through queue-----
+        //     xQueueSend(qh_sensor_2, &sensor, pdMS_TO_TICKS(0));
+        // }
+        // else {
+        //     INFO("INFO_1: unknown sensor type");
+        // }
     }
     else {
         INFO("INFO_1: unknown incoming data");

@@ -3,21 +3,17 @@
  * 
  */
 void init_system(void){
-    // -----setup pin mode----- (always start setup with pinMode)
-    pinMode(PIN_EXAMPLE3, INPUT); 
-    pinMode(PIN_EXAMPLE4, INPUT); 
-
     // -----Serial initiallization-----
     Serial.begin(SERIAL_FREQ);
     while (!Serial){}; // wait until is initialized
     Wire.begin();
 
     // -----header-----
-    Serial.println("|------------------------|");
-    Serial.println("|                        |");
-    Serial.println("|        receiver        |");
-    Serial.println("|                        |");
-    Serial.println("|------------------------|");
+    Serial.println("|--------------------|");
+    Serial.println("|                    |");
+    Serial.println("|        ECU1        |");
+    Serial.println("|                    |");
+    Serial.println("|--------------------|");
 
     // -----both SPI inittialization-----
     vspi = new SPIClass(VSPI);
@@ -45,10 +41,15 @@ void init_system_handlers(void){
         ERROR("ERROR_1: global vars Semaphore init failed", false);
 
     // -----create queues-----
-    qh_sensor_1 = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_sensor_2 = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_sensor_3 = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_sensor_4 = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rpm        = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_speed      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_fuel_level = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_fuel_emer  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_battery    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rollover   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_x     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_y     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_z     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 /**
@@ -63,26 +64,26 @@ void init_tasks(void){
                 10,                   // priority
                 &th_display_control); // handler 
 
-    xTaskCreate(task_sensor_3, // task function
-                "sensor 3",    // task name
-                2048,          // stack size
-                NULL,          // parameters
-                10,            // priority
-                &th_sensor_3); // handler  
+    xTaskCreate(task_battery,   // task function
+                "task_battery", // task name
+                2048,           // stack size
+                NULL,           // parameters
+                10,             // priority
+                &th_battery);   // handler  
 
-    xTaskCreate(task_sensor_4, // task function
-                "sensor 4",    // task name
-                2048,          // stack size
-                NULL,          // parameters
-                10,            // priority
-                &th_sensor_4); // handler 
+    // xTaskCreate(task_sensor_4, // task function
+    //             "sensor 4",    // task name
+    //             2048,          // stack size
+    //             NULL,          // parameters
+    //             10,            // priority
+    //             &th_sensor_4); // handler 
 
     xTaskCreate(task_send_pack, // task function
-                "send pack",     // task name
-                2048,            // stack size
-                NULL,            // parameters
-                10,              // priority
-                &th_send_pack);  // handler 
+                "send pack",    // task name
+                2048,           // stack size
+                NULL,           // parameters
+                10,             // priority
+                &th_send_pack); // handler 
 
     xTaskCreate(task_write_SD, // task function
                 "write to SD", // task name

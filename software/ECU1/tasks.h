@@ -1,18 +1,18 @@
 /**
- * @brief sensor 3 task example
+ * @brief battery level task example
  * 
  * @param arg void arg
  */
-void task_sensor_3(void *arg){
+void task_battery(void *arg){
     (void)arg;
 
     // -----create local variables-----
-    uint32_t timer_read, timer_send;
-    uint16_t buffer_count = 0;
-    float sum;
-    sensor_t sensor3 = {
+    uint32_t timer_send;
+    uint16_t adc_read;
+    float voltage_read, voltage_bat;
+    sensor_t bat = {
         .id = BOARDID, 
-        .type = SENSOR_03, 
+        .type = BATTERY, 
         .value = 0.0
     };
 
@@ -25,38 +25,28 @@ void task_sensor_3(void *arg){
     snprintf(
         info, 
         ESPNOW_BUFFER_SIZE,
-        "INFO_1: %d bytes remaining of the sensor 3 task space", 
+        "INFO_1: %d bytes remaining of the battery task space", 
         uxHighWaterMark); 
     INFO(info);
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
 #endif
 
     // -----update timer-----
-    timer_read = timer_send = millis();
+    timer_send = millis();
 
     while (true){
-        if ((millis() - timer_read) >= TASK3_READING_RATE_ms){
+        if ((millis() - timer_send) >= TASK_BATTERY_RATE_ms){
             // -----add to timer-----
-            timer_read += TASK3_READING_RATE_ms;
-
-            // -----read sensors-----
-            sum += analogRead(PIN_EXAMPLE3) * 1,234;
-
-            // -----update buffer-----
-            buffer_count++;
-        }
-        if ((millis() - timer_send) >= TASK3_SEND_RATE_ms){
-            // -----add to timer-----
-            timer_send += TASK3_SEND_RATE_ms;
+            timer_send += TASK_BATTERY_RATE_ms;
 
             // -----calculate average-----
-            sensor3.value = float(sum / buffer_count);
+            adc_read = analogRead(PIN_BATTERY);
+            voltage_read = (3.3 * adc_read) / 4095.0;
+            voltage_bat = voltage_read / (R2 / (R1 + R2));
+            bat.value = voltage_bat;
 
-            // -----clear buffer-----
-            buffer_count = false;
-
-            // -----send sensor 3 data through queue-----
-            xQueueSend(qh_sensor_3, &sensor3, pdMS_TO_TICKS(0));
+            // -----send bat data through queue-----
+            xQueueSend(qh_battery, &bat, pdMS_TO_TICKS(0));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
@@ -67,18 +57,18 @@ void task_sensor_3(void *arg){
  * 
  * @param arg void arg
  */
-void task_sensor_4(void *arg){
+void task_rollover(void *arg){
     (void)arg;
 
     // -----create local variables-----
     uint32_t timer_read, timer_send;
     uint16_t buffer_count = 0;
     float sum;
-    sensor_t sensor4 = {
-        .id = BOARDID, 
-        .type = SENSOR_04, 
-        .value = 0.0
-    };
+    byte status;
+    sensor_t rollover = {BOARDID, ROLLOVER, 0.0};
+    sensor_t tilt_x = {BOARDID, TILT_X, 0.0};
+    sensor_t tilt_y = {BOARDID, TILT_Y, 0.0};
+    sensor_t tilt_z = {BOARDID, TILT_Z, 0.0};
 
 #if DEBUG_MODE
     // see the remaining space of this task
@@ -95,33 +85,47 @@ void task_sensor_4(void *arg){
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
 #endif
 
+    // config MPU
+    status = mpu.begin(MPU_GYRO_CONFIG, MPU_ACC_CONFIG);
+    while(status!=0){ 
+        INFO("INFO_1: erro initializating MPU6050");
+        vTaskDelay(5000 / portTICK_PERIOD_MS);
+    } // stop everything if could not connect to MPU6050
+
+    mpu.setGyroOffsets(gyro_offset[0], gyro_offset[1], gyro_offset[2]);
+    mpu.setAccOffsets(acc_offset[0], acc_offset[1], acc_offset[2]);
+
     // -----update timer-----
     timer_read = timer_send = millis();
 
     while (true){
-        if ((millis() - timer_read) >= TASK4_READING_RATE_ms){
+        // -----update mpu-----
+        mpu.update();
+
+        // read data
+        if ((millis() - timer_send) >= TASK_ROLLOVER_RATE_ms){
             // -----add to timer-----
-            timer_read += TASK4_READING_RATE_ms;
+            timer_send += TASK_ROLLOVER_RATE_ms;
 
-            // -----read sensors-----
-            sum += analogRead(PIN_EXAMPLE4) * 4,321;
+            // correct the assembly mounting
+            tilt_x.value = -1*mpu.getAngleY();
+            tilt_y.value = mpu.getAngleX();
+            tilt_z.value = mpu.getAngleZ();
 
-            // -----update buffer-----
-            buffer_count++;
+            if ((abs(tilt_x.value) > 45) || (abs(tilt_y.value) > 45)){
+                rollover.value = 1.0;
+                
+                // send msg to ECUBOX
+
+                rollover.value = 0.0;
+            }
+
+            // -----send tilt data through queue-----
+            xQueueSend(qh_tilt_x, &tilt_x, pdMS_TO_TICKS(0));
+            xQueueSend(qh_tilt_y, &tilt_y, pdMS_TO_TICKS(0)); 
+            xQueueSend(qh_tilt_z, &tilt_z, pdMS_TO_TICKS(0)); 
         }
-        if ((millis() - timer_send) >= TASK4_SEND_RATE_ms){
-            // -----add to timer-----
-            timer_send += TASK4_SEND_RATE_ms;
 
-            // -----calculate average-----
-            sensor4.value = float(sum / buffer_count);
-
-            // -----clear buffer-----
-            buffer_count = false;
-
-            // -----send sensor 4 data through queue-----
-            xQueueSend(qh_sensor_4, &sensor4, pdMS_TO_TICKS(0));  
-        }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
@@ -135,10 +139,7 @@ void task_display_control(void *arg){
     (void)arg;
 
     // -----create local variables-----
-    sensor_t recv_sensor1 = {BOARDID, SENSOR_01, 0.0};
-    sensor_t recv_sensor2 = {BOARDID, SENSOR_02, 0.0};
-    sensor_t recv_sensor3 = {BOARDID, SENSOR_03, 0.0};
-    sensor_t recv_sensor4 = {BOARDID, SENSOR_04, 0.0};
+    sensor_t recv_bat = {BOARDID, BATTERY, 0.0};
 
     //init_display(); 
 
@@ -158,42 +159,42 @@ void task_display_control(void *arg){
 #endif
 
     while (true){
-        if (xQueueReceive(qh_sensor_1, &recv_sensor1, pdMS_TO_TICKS(1))){
+        if (xQueueReceive(qh_battery, &recv_bat, pdMS_TO_TICKS(1))){
             // display function simulation
-            Serial.print("sensor1:");
-            Serial.println(recv_sensor1.value);
+            Serial.print("bat (V):");
+            Serial.println(recv_bat.value);
 
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.sensor_1 = recv_sensor1.value;
+                system_global.rpm = recv_bat.value;
             xSemaphoreGive(sh_global_vars);
         }
-        if (xQueueReceive(qh_sensor_2, &recv_sensor2, pdMS_TO_TICKS(1))){
-            // display function simulation
-            Serial.print("sensor2:");
-            Serial.println(recv_sensor2.value);
+        // if (xQueueReceive(qh_sensor_2, &recv_sensor2, pdMS_TO_TICKS(1))){
+        //     // display function simulation
+        //     Serial.print("sensor2:");
+        //     Serial.println(recv_sensor2.value);
 
-            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.sensor_2 = recv_sensor2.value;
-            xSemaphoreGive(sh_global_vars);
-        }
-        if (xQueueReceive(qh_sensor_3, &recv_sensor3, pdMS_TO_TICKS(1))){
-            // display function simulation
-            Serial.print("sensor3:");
-            Serial.println(recv_sensor3.value);
+        //     xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //         system_global.sensor_2 = recv_sensor2.value;
+        //     xSemaphoreGive(sh_global_vars);
+        // }
+        // if (xQueueReceive(qh_sensor_3, &recv_sensor3, pdMS_TO_TICKS(1))){
+        //     // display function simulation
+        //     Serial.print("sensor3:");
+        //     Serial.println(recv_sensor3.value);
 
-            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.sensor_3 = recv_sensor3.value;
-            xSemaphoreGive(sh_global_vars);
-        }
-        if (xQueueReceive(qh_sensor_4, &recv_sensor4, pdMS_TO_TICKS(1))){
-            // display function simulation
-            Serial.print("sensor4:");
-            Serial.println(recv_sensor4.value);
+        //     xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //         system_global.sensor_3 = recv_sensor3.value;
+        //     xSemaphoreGive(sh_global_vars);
+        // }
+        // if (xQueueReceive(qh_sensor_4, &recv_sensor4, pdMS_TO_TICKS(1))){
+        //     // display function simulation
+        //     Serial.print("sensor4:");
+        //     Serial.println(recv_sensor4.value);
 
-            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.sensor_4 = recv_sensor4.value;
-            xSemaphoreGive(sh_global_vars);
-        }
+        //     xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //         system_global.sensor_4 = recv_sensor4.value;
+        //     xSemaphoreGive(sh_global_vars);
+        // }
         
         vTaskDelay(1 / portTICK_PERIOD_MS); // give time to send the espnow message
     }
