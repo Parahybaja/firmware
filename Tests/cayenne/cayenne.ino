@@ -1,9 +1,6 @@
-#include <CayenneMQTTESP32.h>
-#include <esp_now.h>
-
-#define DEBUG_MODE         true
-#define BOARDID_01         1
-#define ESPNOW_BUFFER_SIZE 48
+// -----include external files-----
+#include "configs.h"      // general configs - falta fazer as configs
+#include "cayennelib.h"
 
 // -----command lookup table-----
 #define CMD_START    0x01
@@ -11,62 +8,9 @@
 #define CMD_NEW_FILE 0x03
 #define CMD_RESTART  0X04
 
-// -----include external files-----
-//#include "configs.h"      // general configs - falta fazer as configs
-//#include "var_global.h"   // global variables must be declared before functions definitions
-//#include "prototypes.h"   // functions prototypes must be explicitly declared 
-//#include "tasks.h"     // task functions definitions
-//#include "system.h"       // system functions
-//#include "esp-now.h"      // esp-now functions
-
 // As funcaos estão do lado dos defines com o que elas são e como chama-las. Para usa-las a minha ideia seria usar [ Cayenne.virtualWrite(CANAL, VALOR); ]
 // No esp-now. Assim quando o valor fosse recebido por esp now ainda no OnRecv podemos mandar os dados para a dashboard para ser o mais precio possivel. 
 
-#define CANAL_CYN_00   0 // Timer Viewer
-#define CANAL_CYN_01   1 // Emergency Fuel - Cayenne.virtualWrite(CANAL_CYN_01, value);
-#define CANAL_CYN_02   2 // Timer Definer
-#define CANAL_CYN_03   3 // New
-#define CANAL_CYN_04   4 // Restart
-#define CANAL_CYN_05   5 // Temperature - Cayenne.virtualWrite(CANAL_CYN_05, value);
-#define CANAL_CYN_06   6 // RPM - Cayenne.virtualWrite(CANAL_CYN_06, value);
-#define CANAL_CYN_07   7 // Rollover - Cayenne.virtualWrite(CANAL_CYN_07, value);
-#define CANAL_CYN_08   8 
-#define CANAL_CYN_09   9 // Battery
-#define CANAL_CYN_10   10 // DINAMIC SPEED
-#define CANAL_CYN_11   11 
-#define CANAL_CYN_12   12 // Start/Stop
-#define CANAL_CYN_13   13
-#define CANAL_CYN_14   14
-#define CANAL_CYN_15   15
-#define CANAL_CYN_16   16
-#define CANAL_CYN_17   17
-#define CANAL_CYN_18   18
-#define CANAL_CYN_19   19
-#define CANAL_CYN_20   20 
-#define CANAL_CYN_21   21
-#define CANAL_CYN_22   22
-#define CANAL_CYN_23   23
-#define CANAL_CYN_24   24
-#define CANAL_CYN_25   25
-#define CANAL_CYN_26   26
-#define CANAL_CYN_27   27
-#define CANAL_CYN_28   28
-#define CANAL_CYN_29   29
-#define CANAL_CYN_30   30
-#define CANAL_CYN_31   31
-
-//---------WiFi----------
-char ssid[] = "PARAHYBAJA";
-char password[] = "parahybaja98";
-
-//---------Cayenne Device------------
-char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";
-char mqtt_passwork[] = "6d350b9f302a61c659578279262ae22a73c5047e";
-char client_id[] = "71438170-551f-11ed-bf0a-bb4ba43bd3f6";
-
-int timer;
-uint32_t timer_cayenne;
-uint32_t timer_cayenne2;
 
 //---------ESPNOW Structs and Address---------------
 uint8_t address_base[] = {0x94, 0xB5, 0x55, 0x2D, 0x1E, 0x0C};
@@ -84,13 +28,14 @@ typedef struct debug_data{
 
 void setup() {
 
-//  init_system();
+  //  init_system();
     
-//  init_espnow();
+  //  init_espnow();
+  init_cayenne();
 
-Serial.begin(115200);
+  Serial.begin(115200);
 
-// -----ESPNOW settings-----
+  // -----ESPNOW settings-----
   WiFi.mode(WIFI_STA);
   WiFi.disconnect();
   if (esp_now_init() != ESP_OK)    // check if was initialized successfully
@@ -108,13 +53,6 @@ Serial.begin(115200);
   delay(50); // give time to send the espnow message
   esp_now_register_recv_cb(OnDataRecv);
 
-// -----Cayenne settings-----  
-  Cayenne.begin(username, mqtt_passwork, client_id, ssid, password);
-
-  // init timer
-  timer_cayenne = millis();
-  timer_cayenne2 = millis();
-  timer = 0;
 }
 
 void loop() {
@@ -195,11 +133,4 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
         Serial.print("packet received size: ");
         Serial.println(len);
     #endif
-}
-
-void timerNewValue(int value){
-  Cayenne.virtualWrite(CANAL_CYN_00, value);
-  Serial.print(value);
-  Serial.println("---Valor do slide");
-  timer = value;
 }
