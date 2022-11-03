@@ -2,14 +2,15 @@
 
 void setup(void) {
   display_setup();
+  display_sponsors();
 }
 
 void loop(void) {
-  delay(10000);
+  delay(5000);
   
-  //display_RPM(random(40));
+  display_RPM(random(40));
 
-  //display_speed(random(60));
+  display_speed(random(60));
   
   display_temp(random(40));
 
