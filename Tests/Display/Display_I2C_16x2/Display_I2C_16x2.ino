@@ -5,7 +5,7 @@
 
 //LiquidCrystal_I2C lcd(0x27, 16, 2); //RPM_Speed_Display
 
-LiquidCrystal_I2C lcd2(0x27, 16, 2); //Temp_Timer_Battery_Display
+LiquidCrystal_I2C lcd2(0x26, 16, 2); //Temp_Timer_Battery_Display
 
 //------Bits-----
 
@@ -29,15 +29,15 @@ void setup() {
 void loop() {
   // ------------- Display Speed/RPM -----------
   // Speed
-  lcd.setCursor(0,0);
-  lcd.print(random(59));
-  lcd.print(" km/h");
+  //lcd.setCursor(0,0);
+  //lcd.print(random(59));
+  //lcd.print(" km/h");
   // Draws bargraph on the second line of the LCD
-  lcd.setCursor(0, 1);
-  int grafico = map(random(40),0,max_rpm,0,16);
-  for (int nL=0; nL < grafico; nL++)  lcd.print(char(255));
-  for (int nL=grafico; nL < 16; nL++) lcd.print(" ");
-  delay(500);
+  //lcd.setCursor(0, 1);
+  //int grafico = map(random(40),0,max_rpm,0,16);
+  //for (int nL=0; nL < grafico; nL++)  lcd.print(char(255));
+  //for (int nL=grafico; nL < 16; nL++) lcd.print(" ");
+  //delay(500);
   
   // ------------- Display Temp/Battery/Tempo total -----------
   // First Line
