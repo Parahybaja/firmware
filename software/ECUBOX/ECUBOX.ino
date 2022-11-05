@@ -8,9 +8,8 @@
  * @copyright Copyright (c) 2022
  * 
  */
-
-#include <ESP8266WiFi.h>
-#include <espnow.h>
+#include <CayenneMQTTESP32.h>
+#include <esp_now.h>
 
 // -----include external files-----
 #include "configs.h"      // general configs
@@ -19,6 +18,7 @@
 // #include "tasks.h"        // task functions definitions
 #include "system.h"       // system functions
 #include "esp-now.h"      // esp-now functions
+#include "cayennelib.h"   // cayenne-configs
  
 void setup() {
     init_system();
@@ -27,51 +27,17 @@ void setup() {
 }
 
 void loop(){
-    while(Serial.available()) 
-        msg += Serial.readString();
-    
-    if (msg == "start\n"){
-        //clean all variables
-        msg = "";
-        
-        cmd_t config = {BOARDID, CMD_START};
-        esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-        esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
+  Cayenne.loop(100); // Função que precisa ta no loop
 
-        Serial.println("\n\n----- start command sent -----");
-    }
-    else if (msg == "stop\n"){
-        //clean all variables
-        msg = "";
-        
-        cmd_t config = {BOARDID, CMD_STOP};
-        esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-        esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
+  if ((millis() - timer_cayenne) > 2200){
+    timer_cayenne += 2200;
+    Cayenne.virtualWrite(CANAL_CYN_06, random(4000));// RPM
+    Cayenne.virtualWrite(CANAL_CYN_10, random(60));  // Speed
+  }
 
-        Serial.println("\n\n----- stop command sent -----");
-    }
-    else if (msg == "new\n"){
-        //clean all variables
-        msg = "";
-        
-        cmd_t config = {BOARDID, CMD_NEW_FILE};
-        esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-        esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));;
-
-        Serial.println("\n\n----- new file command sent -----");
-    }
-    else if (msg == "restart\n"){
-        //clean all variables
-        msg = "";
-        
-        cmd_t config = {BOARDID, CMD_RESTART};
-        esp_now_send(address_sender, (uint8_t *) &config, sizeof(cmd_t));
-        esp_now_send(address_receiver, (uint8_t *) &config, sizeof(cmd_t));
-
-        Serial.println("\n\n----- restart command sent -----");
-    }
-    else if (msg != "") {
-        msg = "";
-        Serial.println("\n\n----- command does not exist -----");
-    }
+  if ((millis() - timer_cayenne2) > 60000){
+    timer_cayenne2 += 60000;
+    Cayenne.virtualWrite(CANAL_CYN_05, random(40)); // Temp
+    Cayenne.virtualWrite(CANAL_CYN_09, random(100));// Battery
+  }
 }

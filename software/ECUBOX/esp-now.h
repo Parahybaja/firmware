@@ -14,14 +14,20 @@ void init_espnow(void){
         delay(1);
     }
 
-    esp_now_set_self_role(ESP_NOW_ROLE_COMBO);
-
     esp_now_register_send_cb(OnDataSent);
+
+    // register peer
+    esp_now_peer_info_t peerInfo = {};
+    peerInfo.channel = 0;
+    peerInfo.encrypt = false;
+    memcpy(peerInfo.peer_addr, address_ECU1, 6);
     
-    esp_now_add_peer(address_sender, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
-    esp_now_add_peer(address_receiver, ESP_NOW_ROLE_COMBO, 1, NULL, 0);
+    if (esp_now_add_peer(&peerInfo) != ESP_OK)
+      Serial.println("ERROR: Failed to add peer");
+    Serial.println("INFO: Peer added");
+    delay(50); // give time to send the espnow message
     
-    esp_now_register_recv_cb(OnDataRecv); 
+    esp_now_register_recv_cb(OnDataRecv);
 }
 
 /**
@@ -30,13 +36,11 @@ void init_espnow(void){
  * @param mac_addr device MAC address
  * @param status esp-now status
  */
-void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
 #if DEBUG_MODE
     Serial.print("\r\nLast Packet Send Status: ");
-    if (sendStatus == 0)
-        Serial.println("Delivery success");
-    else
-        Serial.println("Delivery fail");
+    Serial.print("Send status:\t");
+    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
 #endif
 }
 
@@ -47,7 +51,7 @@ void OnDataSent(uint8_t *mac_addr, uint8_t sendStatus) {
  * @param incomingData data received
  * @param len array size
  */
-void OnDataRecv(uint8_t * mac_addr, uint8_t *incomingData, uint8_t len) {
+void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
     #if DEBUG_MODE
         Serial.print("packet received size: ");
         Serial.println(len);
