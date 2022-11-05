@@ -19,6 +19,19 @@ typedef struct {
     commands_t command;
 } cmd_t;
 
+typedef enum {
+    RPM,
+    SPEEDOMETER,
+    FUEL_LEVEL,
+    FUEL_EMERGENCY,
+    BATTERY,
+    AMBIENT_TEMP,
+    ROLLOVER,
+    TILT_X,
+    TILT_Y,
+    TILT_Z
+} sensors_t;
+
 typedef struct {
     boardID_t id;
     char msg[ESPNOW_BUFFER_SIZE];
@@ -26,10 +39,16 @@ typedef struct {
 
 typedef struct {
     boardID_t id;
-    float sensor_1;
-    float sensor_2;
-    float sensor_3;
-    float sensor_4;
+    float rpm;
+    float speed;
+    float fuel_level;
+    float fuel_emer;
+    float battery;
+    float temp;
+    float rollover;
+    float tilt_x;
+    float tilt_y;
+    float tilt_z;
 } system_t;
 
 String msg;

@@ -27,17 +27,17 @@ void setup() {
 }
 
 void loop(){
-  Cayenne.loop(100); // Função que precisa ta no loop
+    Cayenne.loop(100); // Função que precisa ta no loop
 
-  if ((millis() - timer_cayenne) > 2200){
-    timer_cayenne += 2200;
-    Cayenne.virtualWrite(CANAL_CYN_06, random(4000));// RPM
-    Cayenne.virtualWrite(CANAL_CYN_10, random(60));  // Speed
-  }
+//   if ((millis() - timer_cayenne) > 2200){
+//     timer_cayenne += 2200;
+//     Cayenne.virtualWrite(CANAL_CYN_06, random(4000));// RPM
+//     Cayenne.virtualWrite(CANAL_CYN_10, random(60));  // Speed
+//   }
 
-  if ((millis() - timer_cayenne2) > 60000){
-    timer_cayenne2 += 60000;
-    Cayenne.virtualWrite(CANAL_CYN_05, random(40)); // Temp
-    Cayenne.virtualWrite(CANAL_CYN_09, random(100));// Battery
-  }
+//   if ((millis() - timer_cayenne2) > 60000){
+//     timer_cayenne2 += 60000;
+//     Cayenne.virtualWrite(CANAL_CYN_05, random(40)); // Temp
+//     Cayenne.virtualWrite(CANAL_CYN_09, random(100));// Battery
+//   }
 }
