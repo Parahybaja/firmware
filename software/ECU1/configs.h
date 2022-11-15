@@ -2,7 +2,7 @@
 #define BOARDID              BOARD_02 //
 #define SERIAL_FREQ          115200   // serial monitor baud rate
 #define DEBUG_DELAY          5000     // delay between debug messages
-#define DEBUG_MODE           true     // config if debug mode is active
+#define DEBUG_MODE           true    // config if debug mode is active
 #define REBOOT_ON_ERROR      false    // reboot on error flag
 #define REBOOT_ON_DISCONNECT false    // reboot on disconnect flag
 #define ESPNOW_BUFFER_SIZE   64       // espnow buffer char array size
@@ -65,7 +65,6 @@ float gyro_offset[] = {0.0, 0.0, 0.0};
 float acc_offset[]  = {0.0, 0.0, 0.0};
 
 // -----esp-now addresses-----
-uint8_t address_ECUBOX[] = {0x5C, 0xCF, 0x7F, 0x65, 0xF1, 0x9E};
-uint8_t address_ECU1[]   = {0x7C, 0x9E, 0xBD, 0xED, 0x52, 0x70};
-//uint8_t address_ECU1[] = {0x94, 0xB9, 0x7E, 0xC0, 0x27, 0xA8};
-uint8_t address_ECU2[]   = {0x94, 0xB5, 0x5, 0x2D, 0x1E, 0x0C};
+uint8_t address_ECUBOX[] = {0x94, 0xB5, 0x55, 0x2D, 0x1E, 0x0C};
+uint8_t address_ECU1[]   = {0x0C, 0xB8, 0x15, 0xC3, 0xF0, 0x50};
+uint8_t address_ECU2[]   = {0x7C, 0x9E, 0xBD, 0xED, 0x52, 0x70};

@@ -71,19 +71,19 @@ void init_tasks(void){
                 10,                   // priority
                 &th_display_control); // handler 
 
-    xTaskCreate(task_battery,   // task function
-                "task_battery", // task name
-                2048,           // stack size
-                NULL,           // parameters
-                10,             // priority
-                &th_battery);   // handler  
+    // xTaskCreate(task_battery,   // task function
+    //             "task_battery", // task name
+    //             2048,           // stack size
+    //             NULL,           // parameters
+    //             10,             // priority
+    //             &th_battery);   // handler  
 
-    xTaskCreate(task_rollover,  // task function
-                "task_rollover",// task name
-                2048,           // stack size
-                NULL,           // parameters
-                10,             // priority
-                &th_rollover);  // handler 
+    // xTaskCreate(task_rollover,  // task function
+    //             "task_rollover",// task name
+    //             2048,           // stack size
+    //             NULL,           // parameters
+    //             10,             // priority
+    //             &th_rollover);  // handler 
 
     xTaskCreate(task_send_pack, // task function
                 "send pack",    // task name
@@ -92,12 +92,12 @@ void init_tasks(void){
                 10,             // priority
                 &th_send_pack); // handler 
 
-    xTaskCreate(task_write_SD, // task function
-                "write to SD", // task name
-                8048,          // stack size
-                NULL,          // parameters
-                10,            // priority
-                &th_SD);       // handler
+    // xTaskCreate(task_write_SD, // task function
+    //             "write to SD", // task name
+    //             8048,          // stack size
+    //             NULL,          // parameters
+    //             10,            // priority
+    //             &th_SD);       // handler
 }
 
 /**

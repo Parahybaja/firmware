@@ -7,6 +7,7 @@ TaskHandle_t th_SD;               //
 TaskHandle_t th_send_pack;        // 
 SemaphoreHandle_t sh_SD;          //
 SemaphoreHandle_t sh_global_vars; //
+SemaphoreHandle_t sh_i2c;         //
 QueueHandle_t qh_rpm;             //
 QueueHandle_t qh_speed;           //
 QueueHandle_t qh_fuel_level;      //

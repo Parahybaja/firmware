@@ -27,6 +27,8 @@ void task_battery(void *arg){
     // -----create local variables-----
     uint32_t timer_send;
     uint16_t adc_read;
+    const float bat_max = 13.0;
+    const float bat_min = 11.8;
     float voltage_read, voltage_bat;
     sensor_t bat = {
         .id = BOARDID, 
@@ -63,6 +65,17 @@ void task_battery(void *arg){
             voltage_bat = voltage_read / (R2 / (R1 + R2));
             bat.value = voltage_bat;
 
+            // -----convert to %-----
+            if (bat.value > bat_max){
+                bat.value = 100.0;
+            }
+            else if (bat.value < bat_min) {
+                bat.value = 0.0;
+            }
+            else {
+                bat.value = ((bat.value - bat_min) / (bat_max - bat_min)) * 100.0; 
+            }
+            
             // -----send bat data through queue-----
             xQueueSend(qh_battery, &bat, pdMS_TO_TICKS(0));
         }
@@ -104,6 +117,7 @@ void task_rollover(void *arg){
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
 #endif
 
+    xSemaphoreTake(sh_i2c, portMAX_DELAY);    
     // config MPU
     status = mpu.begin(MPU_GYRO_CONFIG, MPU_ACC_CONFIG);
     while(status!=0){ 
@@ -114,11 +128,14 @@ void task_rollover(void *arg){
     mpu.setGyroOffsets(gyro_offset[0], gyro_offset[1], gyro_offset[2]);
     mpu.setAccOffsets(acc_offset[0], acc_offset[1], acc_offset[2]);
 
+    xSemaphoreGive(sh_i2c);
+
     // -----update timer-----
     timer_send = millis();
 
     while (true){
         // -----update mpu-----
+        xSemaphoreTake(sh_i2c, portMAX_DELAY);
         mpu.update();
 
         // read data
@@ -146,6 +163,7 @@ void task_rollover(void *arg){
             xQueueSend(qh_tilt_y, &tilt_y, pdMS_TO_TICKS(0)); 
             xQueueSend(qh_tilt_z, &tilt_z, pdMS_TO_TICKS(0)); 
         }
+        xSemaphoreGive(sh_i2c);
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
 }
@@ -161,7 +179,10 @@ void task_display_control(void *arg){
     // -----create local variables-----
     sensor_t recv_bat = {BOARDID, BATTERY, 0.0};
 
-    //init_display(); 
+    // xSemaphoreTake(sh_i2c, portMAX_DELAY);
+        display_setup(); 
+        display_sponsors();
+    // xSemaphoreGive(sh_i2c);
 
 #if DEBUG_MODE
     // see the remaining space of this task
@@ -180,13 +201,13 @@ void task_display_control(void *arg){
 
     while (true){
         if (xQueueReceive(qh_battery, &recv_bat, pdMS_TO_TICKS(1))){
-            // display function simulation
-            Serial.print("bat (V):");
-            Serial.println(recv_bat.value);
-
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                 system_global.rpm = recv_bat.value;
             xSemaphoreGive(sh_global_vars);
+
+            // xSemaphoreTake(sh_i2c, portMAX_DELAY);
+            display_battery(recv_bat.value);
+            // xSemaphoreGive(sh_i2c);
         }
         // if (xQueueReceive(qh_sensor_2, &recv_sensor2, pdMS_TO_TICKS(1))){
         //     // display function simulation
