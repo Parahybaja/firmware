@@ -34,8 +34,8 @@
 #define CANAL_CYN_31   31
 
 //---------WiFi configs----------
-char ssid[] = "PARAHYBAJA";
-char password[] = "parahybaja98";
+char ssid[] = "CIMATEC PARK - VISITANTE";
+char password[] = "";
 
 //---------Cayenne Device------------
 char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";
