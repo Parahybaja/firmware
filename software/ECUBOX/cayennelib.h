@@ -8,10 +8,10 @@
 #define CANAL_CYN_05   5 // Temperature - Cayenne.virtualWrite(CANAL_CYN_05, value);
 #define CANAL_CYN_06   6 // RPM - Cayenne.virtualWrite(CANAL_CYN_06, value);
 #define CANAL_CYN_07   7 // Rollover - Cayenne.virtualWrite(CANAL_CYN_07, value);
-#define CANAL_CYN_08   8 
+#define CANAL_CYN_08   8 // Tilt Angle X
 #define CANAL_CYN_09   9 // Battery
 #define CANAL_CYN_10   10 // DINAMIC SPEED
-#define CANAL_CYN_11   11 
+#define CANAL_CYN_11   11 // Tilt Angle Y
 #define CANAL_CYN_12   12 // Start/Stop
 #define CANAL_CYN_13   13
 #define CANAL_CYN_14   14
@@ -34,8 +34,8 @@
 #define CANAL_CYN_31   31
 
 //---------WiFi configs----------
-char ssid[] = "CIMATEC PARK - VISITANTE";
-char password[] = "";
+char ssid[] = "PARAHYBAJA";
+char password[] = "parahybaja98";
 
 //---------Cayenne Device------------
 char username[] = "4ad99150-53b2-11ed-bf0a-bb4ba43bd3f6";

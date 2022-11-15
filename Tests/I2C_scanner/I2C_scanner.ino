@@ -11,6 +11,7 @@ void task_alive(void *arg){
     
     while (true){
         // alive signal
+        Serial.println("alive");
         digitalWrite(PIN_LED_ALIVE, HIGH);
         vTaskDelay(100 / portTICK_PERIOD_MS);
         digitalWrite(PIN_LED_ALIVE, LOW);

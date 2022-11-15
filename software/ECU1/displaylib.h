@@ -140,7 +140,7 @@ void display_sponsors(){
   lcd.setCursor(0,0);
   lcd.print("PARAHYBAJA");
 
-  // vTaskDelay(500 / portTICK_PERIOD_MS);
+  vTaskDelay(500 / portTICK_PERIOD_MS);
   
   lcd.clear();
   lcd2.clear();
@@ -151,8 +151,7 @@ void display_sponsors(){
       display_battery(nL*2);
       display_temp(nL*2);
       display_timer(nL*2);
-      // vTaskDelay(300 / portTICK_PERIOD_MS);
-      delay(300);
+      vTaskDelay(300 / portTICK_PERIOD_MS);
   }  
 
   lcd.clear();

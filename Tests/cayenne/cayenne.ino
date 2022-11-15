@@ -1,6 +1,13 @@
+#include <CayenneMQTTESP32.h>
+#include <esp_now.h>
+
 // -----include external files-----
 #include "configs.h"      // general configs - falta fazer as configs
 #include "cayennelib.h"
+
+#define DEBUG_MODE         true
+#define BOARDID_01         1
+#define ESPNOW_BUFFER_SIZE 48
 
 // -----command lookup table-----
 #define CMD_START    0x01
