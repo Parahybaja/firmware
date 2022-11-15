@@ -17,16 +17,16 @@ void init_espnow(){
     peerInfo.encrypt = false;
     
     // control peer
-    memcpy(peerInfo.peer_addr, address_control, 6);
+    memcpy(peerInfo.peer_addr, address_ECUBOX, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK)
-        ERROR("ERROR_2: Failed to add control peer", false); // DO NOT send through esp-now
+        ERROR("ERROR_2: Failed to add ECUBOX peer", false); // DO NOT send through esp-now
     INFO("INFO_2: control peer added");
     delay(50); // give time to send the espnow message
 
     // receiver peer
-    memcpy(peerInfo.peer_addr, address_receiver, 6);
+    memcpy(peerInfo.peer_addr, address_ECU1, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK)
-        ERROR("ERROR_2: Failed to add receiver peer", false); // DO NOT send through esp-now
+        ERROR("ERROR_2: Failed to add ECU1 peer", false); // DO NOT send through esp-now
     INFO("INFO_2: receiver peer added");
     delay(50); // give time to send the espnow message
 

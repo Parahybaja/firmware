@@ -6,7 +6,8 @@
 void task_alive(void *arg){
     (void)arg;
 
-    pinMode(PIN_LED_ALIVE, OUTPUT); 
+    // -----setup pin mode-----
+    pinMode(PIN_LED_ALIVE, OUTPUT);
     
     while (true){
         digitalWrite(PIN_LED_ALIVE, HIGH);
@@ -69,7 +70,7 @@ void task_RPM(void *arg){
             rpm.value /= 2; // compensate for the double peak of the signal
 
             // -----send RPM data through esp-now to receiver-----
-            esp_now_send(address_receiver, (uint8_t *) &rpm, sizeof(rpm));
+            esp_now_send(address_ECU1, (uint8_t *) &rpm, sizeof(rpm));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
@@ -111,7 +112,7 @@ void task_speedometer(void *arg){
 
     // -----attachISR-----
     pinMode(PIN_SPEEDOMETER, INPUT);
-    attachInterrupt(PIN_SPEEDOMETER, isr_spdmt, CHANGE);
+    // attachInterrupt(PIN_SPEEDOMETER, isr_spdmt, CHANGE);
 
     // -----update timer-----
     timer_send = millis();
@@ -132,8 +133,10 @@ void task_speedometer(void *arg){
             spdmt.value = meters / TASK_SPDMT_SEND_RATE_s; // in meter/second
             spdmt.value *= ms2kmh;
 
+            spdmt.value = 12.3;            
+
             // -----send spped data through esp-now to receiver-----
-            esp_now_send(address_receiver, (uint8_t *) &spdmt, sizeof(spdmt));
+            esp_now_send(address_ECU1, (uint8_t *) &spdmt, sizeof(spdmt));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
@@ -180,8 +183,10 @@ void task_fuel_emer(void *arg){
             // -----read raw data-----
             fuel_emer.value = float(!digitalRead(PIN_FUEL_EMERGENCY));
 
+            fuel_emer.value = 0.0;
+
             // -----send spped data through esp-now to receiver-----
-            esp_now_send(address_receiver, (uint8_t *) &fuel_emer, sizeof(fuel_emer));
+            esp_now_send(address_ECU1, (uint8_t *) &fuel_emer, sizeof(fuel_emer));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }

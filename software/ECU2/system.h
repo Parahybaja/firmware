@@ -3,9 +3,6 @@
  * 
  */
 void init_system(void){
-    // -----setup pin mode-----
-    pinMode(PIN_LED_ALIVE, OUTPUT);
-
     // -----Serial initiallization-----
     Serial.begin(SERIAL_FREQ);
     while (!Serial){}; // wait until is initialized
@@ -123,7 +120,7 @@ void send_debug(const char returnMsg[]){
         debug_t msg_data;
         msg_data.id = BOARDID;
         strcpy(msg_data.msg, returnMsg);
-        esp_now_send(address_control, (uint8_t *) &msg_data, sizeof(msg_data));
+        esp_now_send(address_ECUBOX, (uint8_t *) &msg_data, sizeof(msg_data));
     }
     else
         Serial.println("ERROR_2: espnow buffer overflow");

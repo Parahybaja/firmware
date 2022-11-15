@@ -2,8 +2,8 @@
  * @file ECU2.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief 
- * @version 0.2
- * @date 2022-10-31
+ * @version 0.3
+ * @date 2022-11-04
  * 
  * @copyright Copyright (c) 2022
  * 
