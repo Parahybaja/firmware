@@ -1,0 +1,12 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"name": "ECU_Front",
+			"path": "software/ECU_Front"
+		}
+	],
+    "settings": {}
+}
