@@ -1,5 +1,7 @@
-#ifndef DEFINITIONS_H
-#define DEFINITIONS_H
+#ifndef __DEFINITIONS_H__
+#define __DEFINITIONS_H__
+
+#include "configs.h"
 
 // -----command lookup table-----
 typedef enum {
@@ -9,13 +11,6 @@ typedef enum {
     CMD_NEW_FILE, /*new file command*/
     CMD_RESTART   /*restart command*/
 } commands_t;
-
-// -----board ID secret values-----
-typedef enum {
-    BOARD_01 = 0x7CE, /*1998*/
-    BOARD_02 = 0x7CF, /*1998 + 1*/
-    BOARD_03 = 0x7D0  /*1998 + 2*/
-} boardID_t;
 
 typedef enum {
     RPM,
@@ -31,7 +26,6 @@ typedef enum {
 } sensors_t;
 
 typedef struct {
-    boardID_t id;
     float rpm;
     float speed;
     float fuel_level;
@@ -44,21 +38,18 @@ typedef struct {
     float tilt_z;
 } system_t;
 
-// // -----debug data type definition-----
-// typedef struct {
-//     boardID_t id;
-//     char msg[ESPNOW_BUFFER_SIZE];
-// } debug_t;
+// -----debug data type definition-----
+typedef struct {
+    char msg[ESPNOW_BUFFER_SIZE];
+} debug_t;
 
 // -----espnow command data type
 typedef struct {
-    boardID_t id;
     commands_t command;
 } cmd_t;
 
 // -----sensor data type definition-----
 typedef struct {
-    boardID_t id;
     sensors_t type;
     float value;  // sensor data must be float due to a bug in writing to the sd card
 } sensor_t;
@@ -67,7 +58,6 @@ typedef struct {
 system_t system_global = {
     .rpm = 0.0,
     .speed = 0.0,
-    .fuel_level = 0.0,
     .fuel_emer = 0.0,
     .battery = 0.0,
     .temp = 0.0,
@@ -81,7 +71,7 @@ system_t system_global = {
 TaskHandle_t th_alive;            // LED alive task handler
 TaskHandle_t th_rollover;
 TaskHandle_t th_battery;          // sensor 3 task handler
-TaskHandle_t th_display_control;  // display control task handler
+TaskHandle_t th_display;          // display control task handler
 TaskHandle_t th_SD;               // 
 TaskHandle_t th_send_pack;        // 
 SemaphoreHandle_t sh_SD;          //
@@ -98,4 +88,4 @@ QueueHandle_t qh_tilt_x;          //
 QueueHandle_t qh_tilt_y;          //
 QueueHandle_t qh_tilt_z;          //
 
-#endif // DEFINITIONS_H
+#endif // __DEFINITIONS_H__
