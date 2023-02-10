@@ -80,9 +80,6 @@ void on_error(const char*, bool);
 
 
 void init_system(void){
-    // LED alive config
-    pinMode(PIN_LED_ALIVE, OUTPUT); 
-
     #if DEBUG_MODE
         // time to platformIO switch tabs
         vTaskDelay(3000 / portTICK_PERIOD_MS);
