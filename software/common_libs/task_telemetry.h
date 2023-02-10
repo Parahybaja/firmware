@@ -1,17 +1,26 @@
+/**
+ * @file task_telemetry.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief telemetry task, functions and configs
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __TELEMETRY_H__
 #define __TELEMETRY_H__
 
 #include "communication.h"
-
-#define TASK_SENDPACK_RATE_Hz 1 // reading rate in hertz (must be greater then send rate)
-
-void task_send_pack(void*);
 
 /**
  * @brief read from the global vars and send pack to BOXECU
  * 
  * @param arg void arg
  */
+void task_send_pack(void*);
+
 void task_send_pack(void *arg){
     (void)arg;
 

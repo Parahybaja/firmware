@@ -1,21 +1,31 @@
+/**
+ * @file task_display.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief display task, functions and configs
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __DISPLAY_H__
 #define __DISPLAY_H__
 
 #include "communication.h"
-
-void task_display(void*);
 
 /**
  * @brief display control task
  * 
  * @param arg void arg
  */
+void task_display(void*);
+
 void task_display(void *arg){
     (void)arg;
 
     // -----create local variables-----
     sensor_t recv_bat = {BATTERY, 0.0};
-
 
 #if DEBUG_MODE
     // see the remaining space of this task

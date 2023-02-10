@@ -1,10 +1,21 @@
-#ifndef COMMUNICATION_H
-#define COMMUNICATION_H
+/**
+ * @file communication.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief basic esp-now communication functions
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
+#ifndef __COMMUNICATION_H__
+#define __COMMUNICATION_H__
 
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include <freertos/task.h>
-#include "soc/rtc_wdt.h"
+#include <soc/rtc_wdt.h>
 #include <esp_now.h>
 #include <WiFi.h>
 #include <Wire.h>
@@ -12,21 +23,62 @@
 #include "configs.h"
 #include "definitions.h"
 
-void init_system(void);
-void init_espnow();
-void OnDataSent(const uint8_t*, esp_now_send_status_t);
-void OnDataRecv(const uint8_t*, const uint8_t*, int);
-void ERROR(const char*);
-void ERROR(const char*, bool);
-void INFO(const char*);
-void INFO(const char*, bool);
-void send_debug(const char*);
-void on_error(const char*, bool);
-
 /**
  * @brief init system general modules (pinMode, Serial and SPI)
- * 
  */
+void init_system(void);
+
+/**
+ * @brief init esp-now
+ */
+void init_espnow(void);
+
+/**
+ * @brief print ERROR messages on serial and through esp-now:
+ * 
+ * @param returnMsg const *char: message to be sent
+ */
+void ERROR(const char*);
+
+/**
+ * @brief print ERROR messages on serial and through esp-now:
+ * 
+ * @param returnMsg const *char: message to be sent
+ * @param espnow_active bool: esp-now active flag
+ */
+void ERROR(const char*, bool);
+
+/**
+ * @brief print INFO messages on serial and through esp-now:
+ * 
+ * @param returnMsg const *char: message to be sent
+ */
+void INFO(const char*);
+
+/**
+ * @brief print INFO messages on serial and through esp-now:
+ * 
+ * @param returnMsg const *char: message to be sent
+ * @param espnow_active bool: esp-now active flag
+ */
+void INFO(const char*, bool);
+
+/**
+ * @brief send debug messages through esp-now
+ * 
+ * @param returnMsg const *char: message to be sent
+ */
+void send_debug(const char*);
+
+/**
+ * @brief send error messages through esp-now with option
+ * 
+ * @param returnMsg const *char: message to be sent
+ * @param espnow_active bool: esp-now active flag
+ */
+void on_error(const char*, bool);
+
+
 void init_system(void){
     // LED alive config
     pinMode(PIN_LED_ALIVE, OUTPUT); 
@@ -42,11 +94,7 @@ void init_system(void){
     Wire.begin();
 }
 
-
-/**
- * @brief init esp-now
- */
-void init_espnow(){    
+void init_espnow(void){
     // -----ESPNOW settings-----
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
@@ -75,12 +123,6 @@ void init_espnow(){
     delay(50); // give time to send the espnow message
 }
 
-
-/**
- * @brief print ERROR messages on serial and through esp-now:
- * 
- * @param returnMsg const *char: message to be sent
- */
 void ERROR(const char returnMsg[]){
     Serial.println();
     Serial.println(returnMsg);
@@ -89,12 +131,6 @@ void ERROR(const char returnMsg[]){
     on_error(returnMsg, true);
 }
 
-/**
- * @brief print ERROR messages on serial and through esp-now:
- * 
- * @param returnMsg const *char: message to be sent
- * @param espnow_active bool: esp-now active flag
- */
 void ERROR(const char returnMsg[], bool espnow_active){
     Serial.println();
     Serial.println(returnMsg);
@@ -104,23 +140,12 @@ void ERROR(const char returnMsg[], bool espnow_active){
     on_error(returnMsg, espnow_active);
 }
 
-/**
- * @brief print INFO messages on serial and through esp-now:
- * 
- * @param returnMsg const *char: message to be sent
- */
 void INFO(const char returnMsg[]){
     Serial.println();
     Serial.println(returnMsg);
     send_debug(returnMsg);
 }
 
-/**
- * @brief print INFO messages on serial and through esp-now:
- * 
- * @param returnMsg const *char: message to be sent
- * @param espnow_active bool: esp-now active flag
- */
 void INFO(const char returnMsg[], bool espnow_active){
     Serial.println();
     Serial.println(returnMsg);
@@ -128,11 +153,6 @@ void INFO(const char returnMsg[], bool espnow_active){
         send_debug(returnMsg);
 }
 
-/**
- * @brief send debug messages through esp-now
- * 
- * @param returnMsg const *char: message to be sent
- */
 void send_debug(const char returnMsg[]){
     if (strlen(returnMsg) <= ESPNOW_BUFFER_SIZE){
         // mudar para char*
@@ -145,12 +165,6 @@ void send_debug(const char returnMsg[]){
         Serial.println("ERROR_1: espnow buffer overflow");
 }
 
-/**
- * @brief send error messages through esp-now with option
- * 
- * @param returnMsg const *char: message to be sent
- * @param espnow_active bool: esp-now active flag
- */
 void on_error(const char returnMsg[], bool espnow_active){
     if (REBOOT_ON_ERROR){
         ESP.restart();
@@ -168,4 +182,4 @@ void on_error(const char returnMsg[], bool espnow_active){
     }
 }
 
-#endif // COMMUNICATION_H
+#endif // __COMMUNICATION_H__

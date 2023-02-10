@@ -1,8 +1,20 @@
+/**
+ * @file task_rollover.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief accelerometer task, functions and configs
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __ROLLOVER_H__
 #define __ROLLOVER_H__
 
 #include <TwoMPU6050.h>
-#include "Wire.h"
+#include <Wire.h>
+
 #include "communication.h"
 
 // -----MPU configs-----
@@ -21,13 +33,13 @@
 float gyro_offset[] = {0.0, 0.0, 0.0};
 float acc_offset[]  = {0.0, 0.0, 0.0};
 
-void task_rollover(void*);
-
 /**
  * @brief MPU6050 rollover sensor task
  * 
  * @param arg void arg
  */
+void task_rollover(void*);
+
 void task_rollover(void *arg){
     (void)arg;
 
@@ -40,7 +52,6 @@ void task_rollover(void *arg){
     sensor_t tilt_y = {TILT_Y, 0.0};
     sensor_t tilt_z = {TILT_Z, 0.0};
     MPU6050 mpu(Wire, MPU_ADDR);
-
 
 #if DEBUG_MODE
     // see the remaining space of this task

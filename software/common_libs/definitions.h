@@ -1,3 +1,14 @@
+/**
+ * @file definitions.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief general types definitions
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __DEFINITIONS_H__
 #define __DEFINITIONS_H__
 

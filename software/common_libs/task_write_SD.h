@@ -1,19 +1,27 @@
+/**
+ * @file task_write_SD.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief SD task, functions and configs
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __WRITE_SD_H__
 #define __WRITE_SD_H__
 
 #include "communication.h"
 #include "SD_module.h"
 
-#define TASK_SD_RATE_Hz 1 // reading rate in hertz (must be greater then send rate)
-#define TASK_SD_RATE_ms (int(1000.0 / float(TASK_SD_RATE_Hz))) // rate perido in milliseconds
-
-void task_write_SD(void*);
-
 /**
  * @brief read from the global vars and write to SD card
  * 
  * @param arg void arg
  */
+void task_write_SD(void*);
+
 void task_write_SD(void *arg){
     (void)arg;
 

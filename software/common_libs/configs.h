@@ -1,3 +1,14 @@
+/**
+ * @file configs.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief general configuration file
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __CONFIGS_H__
 #define __CONFIGS_H__
 
@@ -12,11 +23,14 @@
 #define QUEUE_TIMEOUT        1000     // queue timeout in millisecond
 
 // -----tasks configs-----
-#define TASK_ROLLOVER_RATE_Hz 1       // reading rate in hertz (must be greater then send rate)
+#define TASK_ROLLOVER_RATE_Hz 1 // reading rate in hertz (must be greater then send rate)
+#define TASK_SENDPACK_RATE_Hz 1 // reading rate in hertz (must be greater then send rate)
+#define TASK_SD_RATE_Hz       1 // reading rate in hertz (must be greater then send rate)
 
 // -----convertions-----
 #define TASK_SENDPACK_RATE_ms (int(1000.0 / float(TASK_SENDPACK_RATE_Hz))) // rate perido in milliseconds
 #define TASK_ROLLOVER_RATE_ms (int(1000.0 / float(TASK_ROLLOVER_RATE_Hz))) // rate perido in milliseconds
+#define TASK_SD_RATE_ms (int(1000.0 / float(TASK_SD_RATE_Hz))) // rate perido in milliseconds
 
 // -----general pinout-----
 #define PIN_LED_ALIVE 12

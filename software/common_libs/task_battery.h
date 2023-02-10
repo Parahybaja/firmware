@@ -1,3 +1,14 @@
+/**
+ * @file task_battery.h
+ * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @brief battery task, functions and configs
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __BATTERY_H__
 #define __BATTERY_H__
 
@@ -12,13 +23,13 @@
 #define BAT_MAX 13.0
 #define BAT_MIN 11.8
 
-void task_battery(void*);
-
 /**
  * @brief battery level task example
  * 
  * @param arg void arg
  */
+void task_battery(void*);
+
 void task_battery(void *arg){
     (void)arg;
 
