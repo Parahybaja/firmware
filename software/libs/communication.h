@@ -40,13 +40,6 @@ void init_system(void){
     Serial.begin(SERIAL_FREQ);
     while (!Serial){}; // wait until is initialized
     Wire.begin();
-
-    // -----header-----
-    Serial.println("|-------------------------|");
-    Serial.println("|                         |");
-    Serial.println("|        ECU_Front        |");
-    Serial.println("|                         |");
-    Serial.println("|-------------------------|");
 }
 
 
