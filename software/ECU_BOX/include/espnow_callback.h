@@ -26,7 +26,7 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
  */
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
     #if DEBUG_MODE
-        Serial.print("packet received size: ");
+        Serial.print("DEBUG: packet received size: ");
         Serial.println(len);
     #endif
 
@@ -42,6 +42,7 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
         memcpy(&system, incomingData, sizeof(system));
 
         String payload = 
+            "DATA:" +
             String(system.rpm, 2) + "," +
             String(system.speed, 2) + "," +
             String(system.fuel_emer, 2) + "," +
