@@ -1,12 +1,16 @@
 {
 	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"name": "ECU_Front",
-			"path": "software/ECU_Front"
-		}
-	],
+        {
+            "path": "."
+        },
+        {
+            "name": "ECU_Front",
+            "path": "software/ECU_Front"
+        },
+        {
+            "name": "ECU_BOX",
+            "path": "software/ECU_BOX"
+        }
+    ],
     "settings": {}
 }
