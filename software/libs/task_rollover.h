@@ -5,6 +5,18 @@
 #include "Wire.h"
 #include "communication.h"
 
+// -----MPU configs-----
+#define MPU_ADDR        0x68
+#define MPU_GYRO_CONFIG 3
+#define MPU_ACC_CONFIG  3
+/**
+ * GYRO_CONFIG_[0,1,2,3] range = +- [250, 500,1000,2000] °/s
+ *                       sensi =    [131,65.5,32.8,16.4] bit/(°/s)
+ *
+ *  ACC_CONFIG_[0,1,2,3] range = +- [    2,   4,   8,  16] times the gravity (9.81m/s²)
+ *                       sensi =    [16384,8192,4096,2048] bit/gravity
+ */
+
 // -----MPU6050 configs-----
 float gyro_offset[] = {0.0, 0.0, 0.0};
 float acc_offset[]  = {0.0, 0.0, 0.0};
