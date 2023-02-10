@@ -9,13 +9,7 @@
  * @param mac_addr device MAC address
  * @param status esp-now status
  */
-void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
-#if DEBUG_MODE
-    // -----check if the data was delivered-----
-    Serial.print("Send status:\t");
-    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
-#endif
-}
+void OnDataSent(const uint8_t*, esp_now_send_status_t);
 
 /**
  * @brief ESP-NOW on data receive callback
@@ -24,6 +18,16 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
  * @param incomingData data received
  * @param len array size 
  */
+void OnDataRecv(const uint8_t*, const uint8_t*, int);
+
+void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
+#if DEBUG_MODE
+    // -----check if the data was delivered-----
+    Serial.print("Send status:\t");
+    Serial.println(status == ESP_NOW_SEND_SUCCESS ? "Delivery Success" : "Delivery Fail");
+#endif
+}
+
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
     // if (len ==  sizeof(cmd_t)){
     //     cmd_t config = {};
