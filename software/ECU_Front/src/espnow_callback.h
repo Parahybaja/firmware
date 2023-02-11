@@ -1,3 +1,14 @@
+/**
+ * @file espnow_callback.h
+ * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
+ * @brief local espnow callback functions 
+ * @version 0.1
+ * @date 2023-02-10
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
+
 #ifndef __ESPNOW_CALLBACK_H__
 #define __ESPNOW_CALLBACK_H__
 
@@ -29,57 +40,61 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 }
 
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
-    // if (len ==  sizeof(cmd_t)){
-    //     cmd_t config = {};
-    //     memcpy(&config, incomingData, sizeof(config));
+    if (len ==  sizeof(cmd_t)){
+        cmd_t config = {};
+        memcpy(&config, incomingData, sizeof(config));
 
-    //     if (config.command == CMD_START){
-    //         INFO("INFO_1: start writing data");
-    //         delay(50); // give time to send the espnow message
-    //     }
-    //     else if (config.command == CMD_STOP){
-    //         INFO("INFO_1: stop writing data");
-    //         delay(50); // give time to send the espnow message
-    //     }
-    //     else if (config.command == CMD_NEW_FILE){ 
-    //         INFO("INFO_1: new file created");
-    //         delay(50); // give time to send the espnow message
-    //     }
-    //     else if (config.command == CMD_RESTART){
-    //         INFO("INFO_1: restarting . . .\n----------------------");
-    //         delay(50); // give time to send the espnow message
+        if (config.command == CMD_START){
+            INFO("INFO_1: start writing data");
+            delay(50); // give time to send the espnow message
+        }
+        else if (config.command == CMD_STOP){
+            INFO("INFO_1: stop writing data");
+            delay(50); // give time to send the espnow message
+        }
+        else if (config.command == CMD_NEW_FILE){ 
+            INFO("INFO_1: new file created");
+            delay(50); // give time to send the espnow message
+        }
+        else if (config.command == CMD_RESTART){
+            INFO("INFO_1: restarting . . .\n----------------------");
+            delay(50); // give time to send the espnow message
 
-    //         ESP.restart();
-    //     }
-    //     else{
-    //         INFO("INFO_1: command does not exist");
-    //         delay(50); // give time to send the espnow message
-    //     }
-    // }
-    // else if (len ==  sizeof(sensor_t)){
-    //     sensor_t sensor = {};
-    //     memcpy(&sensor, incomingData, sizeof(sensor));
+            ESP.restart();
+        }
+        else{
+            INFO("INFO_1: command does not exist");
+            delay(50); // give time to send the espnow message
+        }
+    }
+    else if (len ==  sizeof(sensor_t)){
+        sensor_t sensor = {};
+        memcpy(&sensor, incomingData, sizeof(sensor));
 
-    //     if (sensor.type == RPM){
-    //         // -----send RPM data through queue-----
-    //         Serial.println("RPM in");
-    //         xQueueSend(qh_rpm, &sensor, pdMS_TO_TICKS(0));
-    //     }
-    //     else if (sensor.type == SPEEDOMETER){
-    //         // -----send speed data through queue-----
-    //         xQueueSend(qh_speed, &sensor, pdMS_TO_TICKS(0));
-    //     }
-    //     else if (sensor.type == FUEL_EMERGENCY){
-    //         // -----send speed data through queue-----
-    //         xQueueSend(qh_fuel_emer, &sensor, pdMS_TO_TICKS(0));
-    //     }
-    //     else {
-    //         INFO("INFO_1: unknown sensor type");
-    //     }
-    // }
-    // else {
-    //     INFO("INFO_1: unknown incoming data");
-    // }
+        if (sensor.type == BATTERY){
+            // -----send RPM data through queue-----
+            xQueueSend(qh_battery, &sensor, pdMS_TO_TICKS(0));
+        }
+        else if (sensor.type == RPM){
+            // -----send RPM data through queue-----
+            Serial.println("RPM in");
+            xQueueSend(qh_rpm, &sensor, pdMS_TO_TICKS(0));
+        }
+        else if (sensor.type == SPEEDOMETER){
+            // -----send speed data through queue-----
+            xQueueSend(qh_speed, &sensor, pdMS_TO_TICKS(0));
+        }
+        else if (sensor.type == FUEL_EMERGENCY){
+            // -----send speed data through queue-----
+            xQueueSend(qh_fuel_emer, &sensor, pdMS_TO_TICKS(0));
+        }
+        else {
+            INFO("INFO_1: unknown sensor type");
+        }
+    }
+    else {
+        INFO("INFO_1: unknown incoming data");
+    }
 }
 
 #endif // __ESPNOW_CALLBACK_H__
