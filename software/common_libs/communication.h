@@ -105,18 +105,25 @@ void init_espnow(void){
     peerInfo.channel = 0;
     peerInfo.encrypt = false;
     
-    // control peer
+    // ECU BOX peer
     memcpy(peerInfo.peer_addr, address_ECU_BOX, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK)
-        ERROR("ERROR_1: Failed to add control peer", false); // DO NOT send through esp-now
-    INFO("INFO_1: control peer added");
+        ERROR("ERROR_1: Failed to add ECU BOX  peer", false); // DO NOT send through esp-now
+    INFO("INFO_1: ECU BOX  peer added");
     delay(50); // give time to send the espnow message
 
-    // sender peer
+    // ECU Front peer
     memcpy(peerInfo.peer_addr, address_ECU_Front, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK)
-        ERROR("ERROR_1: Failed to add sender peer", false); // DO NOT send through esp-now
-    INFO("INFO_1: sender peer added");
+        ERROR("ERROR_1: Failed to add ECU Front peer", false); // DO NOT send through esp-now
+    INFO("INFO_1: ECU Front peer added");
+    delay(50); // give time to send the espnow message
+
+    // ECU Rear peer
+    memcpy(peerInfo.peer_addr, address_ECU_Rear, 6);
+    if (esp_now_add_peer(&peerInfo) != ESP_OK)
+        ERROR("ERROR_1: Failed to add ECU Rear peer", false); // DO NOT send through esp-now
+    INFO("INFO_1: ECU Rear peer added");
     delay(50); // give time to send the espnow message
 }
 
