@@ -13,11 +13,9 @@
 
 #include "communication.h"
 #include "espnow_callback.h"
+#include "task_alive.h"
 
 void setup(){
-    // multiple SPI config
-    // pre_config_SPI();
-
     // init system general modules (pinMode and Serial)
     init_system();
 
@@ -37,11 +35,17 @@ void setup(){
     // -----final confirmation-----
     INFO("INFO_1: it's all configured!");
     delay(50); // give time to send the espnow message
+
+    xTaskCreatePinnedToCore(
+        task_alive_LED, // task function
+        "alive LED",    // task name
+        1024,           // stack size
+        NULL,           // parameters
+        5,              // priority
+        &th_alive,      // handler
+        APP_CPU_NUM);   // core number
 }
 
 void loop(){
-    digitalWrite(PIN_LED_ALIVE, HIGH);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    digitalWrite(PIN_LED_ALIVE, LOW);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelete(NULL);
 }
