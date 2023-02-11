@@ -4,12 +4,17 @@
             "path": "."
         },
         {
+            "name": "ECU_BOX",
+            "path": "software/ECU_BOX"
+        },
+        {
             "name": "ECU_Front",
             "path": "software/ECU_Front"
         },
+        
         {
-            "name": "ECU_BOX",
-            "path": "software/ECU_BOX"
+            "name": "ECU_Rear",
+            "path": "software/ECU_Rear"
         }
     ],
     "settings": {}
