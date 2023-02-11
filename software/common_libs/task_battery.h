@@ -85,9 +85,9 @@ void task_battery(void *arg){
             // else {
             //     bat.value = ((bat.value - bat_min) / (bat_max - bat_min)) * 100.0; 
             // }
-            
-            // -----send bat data through queue-----
-            xQueueSend(qh_battery, &bat, pdMS_TO_TICKS(0));
+
+            // -----send system data through esp-now-----
+            esp_now_send(address_ECU_Front, (uint8_t *) &bat, sizeof(bat));
         }
         vTaskDelay(1 / portTICK_PERIOD_MS);
     }
