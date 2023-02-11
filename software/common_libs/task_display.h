@@ -46,7 +46,7 @@ void task_display(void *arg){
         if (xQueueReceive(qh_battery, &recv_bat, pdMS_TO_TICKS(1))){
             // update global system var
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.rpm = recv_bat.value;
+                system_global.battery = recv_bat.value;
             xSemaphoreGive(sh_global_vars);
 
             // print to display
