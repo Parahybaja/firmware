@@ -1,7 +1,7 @@
 /**
  * @file ECU_Front.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
- * @brief 
+ * @brief Parahybaja's embedded system: Front ECU
  * @version 3.0
  * @date 2023-02-05
  * 
@@ -16,11 +16,9 @@
 #include "task_telemetry.h"
 #include "task_battery.h"
 #include "task_display.h"
+#include "task_alive.h"
 
 void setup(){
-    // LED alive config
-    pinMode(PIN_LED_ALIVE, OUTPUT); 
-
     // init system general modules (pinMode and Serial)
     init_system();
 
@@ -51,42 +49,38 @@ void setup(){
     delay(50); // give time to send the espnow message
 
     // -----fire up tasks-----
-    xTaskCreate(
+    xTaskCreatePinnedToCore(
         task_display,      // task function
         "display control", // task name
         2048,              // stack size
         NULL,              // parameters
         10,                // priority
-        &th_display        // handler 
+        &th_display,       // handler 
+        APP_CPU_NUM        // core number
     );
 
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
-
-    xTaskCreate(
-        task_battery,   // task function
-        "task_battery", // task name
-        2048,           // stack size
-        NULL,           // parameters
-        10,             // priority
-        &th_battery     // handler
-    ); 
-
-    vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
     
-    xTaskCreate(
+    xTaskCreatePinnedToCore(
         task_send_pack, // task function
         "send pack",    // task name
         2048,           // stack size
         NULL,           // parameters
         10,             // priority
-        &th_send_pack   // handler 
+        &th_send_pack,  // handler 
+        APP_CPU_NUM     // core number
     );
+
+    xTaskCreatePinnedToCore(
+        task_alive_LED, // task function
+        "alive LED",    // task name
+        1024,           // stack size
+        NULL,           // parameters
+        5,              // priority
+        &th_alive,      // handler
+        APP_CPU_NUM);   // core number
 }
 
 void loop(){
-    // alive LED
-    digitalWrite(PIN_LED_ALIVE, HIGH);
-    vTaskDelay(100 / portTICK_PERIOD_MS);
-    digitalWrite(PIN_LED_ALIVE, LOW);
-    vTaskDelay(1000 / portTICK_PERIOD_MS);
+    vTaskDelete(NULL);
 }
