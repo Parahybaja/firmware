@@ -13,7 +13,9 @@
 
 #include "communication.h"
 #include "espnow_callback.h"
+#include "task_speedometer.h"
 #include "task_battery.h"
+#include "task_RPM.h"
 #include "task_alive.h"
 
 void setup(){
@@ -52,13 +54,38 @@ void setup(){
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
     
     xTaskCreatePinnedToCore(
+        task_RPM,   // task function
+        "task RPM", // task name
+        2048,       // stack size
+        NULL,       // parameters
+        10,         // priority
+        &th_RPM,    // handler
+        APP_CPU_NUM // core number
+    ); 
+
+    vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
+
+    xTaskCreatePinnedToCore(
+        task_speedometer,   // task function
+        "task speedometer", // task name
+        2048,               // stack size
+        NULL,               // parameters
+        10,                 // priority
+        &th_speedometer,    // handler
+        APP_CPU_NUM         // core number
+    ); 
+
+    vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
+    
+    xTaskCreatePinnedToCore(
         task_alive_LED, // task function
         "alive LED",    // task name
         1024,           // stack size
         NULL,           // parameters
         5,              // priority
         &th_alive,      // handler
-        APP_CPU_NUM);   // core number
+        APP_CPU_NUM     // core number
+    );   
 }
 
 void loop(){
