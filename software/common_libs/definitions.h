@@ -83,8 +83,11 @@ TaskHandle_t th_alive;            // LED alive task handler
 TaskHandle_t th_rollover;
 TaskHandle_t th_battery;          // sensor 3 task handler
 TaskHandle_t th_display;          // display control task handler
+TaskHandle_t th_display_LCD;      // display control task handler
 TaskHandle_t th_SD;               // 
 TaskHandle_t th_send_pack;        // 
+TaskHandle_t th_RPM;              // 
+TaskHandle_t th_speedometer;      // 
 SemaphoreHandle_t sh_SD;          //
 SemaphoreHandle_t sh_global_vars; //
 SemaphoreHandle_t sh_i2c;         //
