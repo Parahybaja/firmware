@@ -15,7 +15,7 @@
 #include "espnow_callback.h"
 #include "task_telemetry.h"
 #include "task_battery.h"
-#include "task_display.h"
+#include "task_display_LCD.h"
 #include "task_alive.h"
 
 void setup(){
@@ -35,7 +35,10 @@ void setup(){
         ERROR("ERROR_1: global vars Semaphore init failed", false);
 
     // -----create queues-----
-    qh_battery = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_speed     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rpm       = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_fuel_emer = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_battery   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 
     // init system handlers such as queues and semaphores
     init_espnow();
@@ -50,13 +53,13 @@ void setup(){
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
-        task_display,      // task function
-        "display control", // task name
-        2048,              // stack size
-        NULL,              // parameters
-        10,                // priority
-        &th_display,       // handler 
-        APP_CPU_NUM        // core number
+        task_display_LCD,      // task function
+        "display LCD control", // task name
+        2048,                  // stack size
+        NULL,                  // parameters
+        10,                    // priority
+        &th_display_LCD,       // handler 
+        APP_CPU_NUM            // core number
     );
 
     vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
