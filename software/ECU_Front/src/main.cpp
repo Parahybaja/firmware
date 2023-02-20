@@ -14,11 +14,13 @@
 // common libs
 #include "communication.h"
 #include "tasks/task_telemetry.h"
-#include "tasks/task_battery.h"
 #include "tasks/task_display_LCD.h"
 #include "tasks/task_alive.h"
 
 #include "espnow_callback.h"
+
+// ----- pinout -----
+const uint8_t pin_alive_LED = 33;
 
 void setup(){
     // init system general modules (pinMode and Serial)
@@ -26,6 +28,8 @@ void setup(){
 
     // -----header-----
     log_i("embedded system: ECU Front");
+
+    pinMode(pin_alive_LED, OUTPUT);
 
     // -----create semaphores-----
     sh_global_vars = xSemaphoreCreateMutex();
@@ -47,7 +51,6 @@ void setup(){
 
     // -----final confirmation-----
     INFO("it's all configured!");
-    delay(50); // give time to send the espnow message
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
@@ -59,27 +62,26 @@ void setup(){
         &th_display_LCD,       // handler 
         APP_CPU_NUM            // core number
     );
-
-    vTaskDelay(50 / portTICK_PERIOD_MS); // give time to send the espnow message
     
     xTaskCreatePinnedToCore(
-        task_send_pack, // task function
-        "send pack",    // task name
+        task_telemetry, // task function
+        "telemetry",    // task name
         2048,           // stack size
         NULL,           // parameters
-        10,             // priority
-        &th_send_pack,  // handler 
+        11,             // priority
+        &th_telemetry,  // handler 
         APP_CPU_NUM     // core number
     );
 
     xTaskCreatePinnedToCore(
         task_alive_LED, // task function
         "alive LED",    // task name
-        1024,           // stack size
+        2048,           // stack size
         NULL,           // parameters
         5,              // priority
         &th_alive,      // handler
-        APP_CPU_NUM);   // core number
+        APP_CPU_NUM     // core number
+    );
 }
 
 void loop(){
