@@ -1,7 +1,7 @@
 # Graphic display layout: main and backup
 
-<img alt="display Nextion" height="300" src="HMI_v0.1.0.png"/>
-<img alt="display LCD" height="300" src="display_LCD.jpeg"/>
+<img alt="display Nextion" height="250" src="HMI_v0.1.0.png"/>
+<img alt="display LCD" height="250" src="display_LCD.jpeg"/>
 
 # Embedded system workflow
 
