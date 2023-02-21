@@ -2,8 +2,8 @@
  * @file ECU_BOX.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief 
- * @version 3.0
- * @date 2023-02-05
+ * @version 3.1
+ * @date 2023-02-19
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -15,16 +15,17 @@
 #include "espnow_callback.h"
 #include "task_alive.h"
 
+// ----- pinout -----
+const uint8_t pin_alive_LED = 33;
+
 void setup(){
     // init system general modules (pinMode and Serial)
     init_system();
 
     // -----header-----
-    Serial.println("|-----------------------|");
-    Serial.println("|                       |");
-    Serial.println("|        ECU_BOX        |");
-    Serial.println("|                       |");
-    Serial.println("|-----------------------|");
+    log_i("embedded system: ECU BOX");
+
+    pinMode(pin_alive_LED, OUTPUT);
 
     // init system handlers such as queues and semaphores
     init_espnow();
@@ -33,8 +34,7 @@ void setup(){
     esp_now_register_recv_cb(OnDataRecv);
 
     // -----final confirmation-----
-    INFO("INFO_1: it's all configured!");
-    delay(50); // give time to send the espnow message
+    INFO("it's all configured!");
 
     xTaskCreatePinnedToCore(
         task_alive_LED, // task function
@@ -43,7 +43,8 @@ void setup(){
         NULL,           // parameters
         5,              // priority
         &th_alive,      // handler
-        APP_CPU_NUM);   // core number
+        APP_CPU_NUM     // core number
+    );   
 }
 
 void loop(){
