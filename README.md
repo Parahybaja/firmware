@@ -1,15 +1,16 @@
-# Graphic display layout
+# Graphic display layout: main and backup
 
-![display](hardware/ECU1/layout_main.jpg)
+<img alt="display Nextion" height="300" src="HMI_v0.1.0.png"/>
+<img alt="display LCD" height="300" src="display_LCD.jpeg"/>
 
-# Workflow
+# Embedded system workflow
 
-![ECU1 schematic](software/workflow.jpg)
+![workflow](software/workflow.jpg)
 
-# ECU1 schematic
+# ECU Front schematic
 
-![ECU1 schematic](hardware/ECU1/schematic.jpg)
+![ECU Front schematic](hardware/ECU1/schematic.jpg)
 
-# ECU2 schematic
+# ECU Rear schematic
 
-![ECU2 schematic](hardware/ECU2/schematic.jpg)
+![ECU Rear schematic](hardware/ECU2/schematic.jpg)
