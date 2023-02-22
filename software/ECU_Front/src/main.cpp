@@ -14,7 +14,8 @@
 // common libs
 #include "communication.h"
 #include "tasks/task_telemetry.h"
-#include "tasks/task_display_LCD.h"
+#include "tasks/task_display.h"
+// #include "tasks/task_display_LCD.h" // backup
 #include "tasks/task_alive.h"
 
 #include "espnow_callback.h"
@@ -41,6 +42,7 @@ void setup(){
     qh_rpm       = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_fuel_emer = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_battery   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_temp      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 
     // init system handlers such as queues and semaphores
     init_espnow();
@@ -54,14 +56,25 @@ void setup(){
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
-        task_display_LCD,      // task function
-        "display LCD control", // task name
-        2048,                  // stack size
-        NULL,                  // parameters
-        10,                    // priority
-        &th_display_LCD,       // handler 
-        APP_CPU_NUM            // core number
+        task_display,      // task function
+        "display control", // task name
+        2048,              // stack size
+        NULL,              // parameters
+        10,                // priority
+        &th_display,       // handler 
+        APP_CPU_NUM        // core number
     );
+    
+    // ----- backup -----
+    // xTaskCreatePinnedToCore( 
+    //     task_display_LCD,      // task function
+    //     "display LCD control", // task name
+    //     2048,                  // stack size
+    //     NULL,                  // parameters
+    //     10,                    // priority
+    //     &th_display_LCD,       // handler 
+    //     APP_CPU_NUM            // core number
+    // );
     
     xTaskCreatePinnedToCore(
         task_telemetry, // task function
