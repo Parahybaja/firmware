@@ -58,7 +58,7 @@ void setup(){
     xTaskCreatePinnedToCore(
         task_display,      // task function
         "display control", // task name
-        2048,              // stack size
+        4096,              // stack size
         NULL,              // parameters
         10,                // priority
         &th_display,       // handler 
