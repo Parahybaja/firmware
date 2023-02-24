@@ -2,8 +2,8 @@
  * @file ECU_Front.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief Parahybaja's embedded system: Front ECU
- * @version 3.1
- * @date 2023-02-18
+ * @version 3.2
+ * @date 2023-02-23
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -14,6 +14,7 @@
 // common libs
 #include "communication.h"
 #include "tasks/task_telemetry.h"
+#include "tasks/task_rollover.h"
 #include "tasks/task_display.h"
 // #include "tasks/task_display_LCD.h" // backup
 #include "tasks/task_alive.h"
@@ -43,6 +44,9 @@ void setup(){
     qh_fuel_emer = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_battery   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_temp      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_x    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 
     // init system handlers such as queues and semaphores
     init_espnow();
@@ -76,6 +80,16 @@ void setup(){
     //     APP_CPU_NUM            // core number
     // );
     
+    xTaskCreatePinnedToCore(
+        task_rollover, // task function
+        "rollover",    // task name
+        4096,          // stack size
+        NULL,          // parameters
+        9,             // priority
+        &th_rollover,  // handler 
+        APP_CPU_NUM    // core number
+    );
+
     xTaskCreatePinnedToCore(
         task_telemetry, // task function
         "telemetry",    // task name
