@@ -13,7 +13,7 @@
 
 #include "communication.h"
 #include "espnow_callback.h"
-#include "task_alive.h"
+#include "tasks/task_alive.h"
 
 // ----- pinout -----
 const uint8_t pin_alive_LED = 33;
