@@ -20,17 +20,19 @@
 
 #include <Arduino.h>
 
+#include "system.h"
+#include "module_afv.h"
+#include "task/battery.h"
+
 #define DEBUG true
 
 #define BOARD_ID 1
 #define PIN_SENSOR 32
 #define SIGNAL_DELAY 5000
 
-#include "module_afv.h"
-
 setup_t setup_board;
 volatile board_t board; 
-volatile uint32_t last_time = false;
+volatile uint32_t last_time = false; 
 
 // prototypes
 void IRAM_ATTR ISR_send_signal();                        // function prototype
@@ -53,6 +55,21 @@ void setup() {
 
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(OnDataRecv);
+
+
+    battery_config_t battery_config;
+    battery_config.R1 = 100000.0;
+    battery_config.R2 = 22000.0;
+
+       xTaskCreatePinnedToCore(
+        task_battery,      // task function
+        "battery voltage", // task name
+        4096,              // stack size
+        NULL,              // parameters
+        10,                // priority
+        &th_battery,       // handler 
+        APP_CPU_NUM        // core number
+    );
 }
 
 void loop() {
