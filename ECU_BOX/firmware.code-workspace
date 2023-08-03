@@ -1,0 +1,26 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../ECU_Front"
+		},
+		{
+			"path": "../ECU_Rear"
+		},
+		{
+			"path": "../module_1"
+		},
+		{
+			"path": "../module_2"
+		},
+		{
+			"path": "../module_3"
+		}
+	],
+    "settings": {}
+}
