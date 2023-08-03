@@ -18,12 +18,18 @@
 #define TASK_BATTERY_RATE_ms (int(1000.0 / float(TASK_BATTERY_RATE_Hz))) // rate perido in milliseconds
 
 // ----- battery configs -----
-#define R1    (float(108800)) // voltage divider R1 calibrated value
-#define R2     (float(20000)) // voltage divider R2 calibrated value
 #define AS_PERCENT      false // convert voltage to percent
 #define BAT_AVERAGE_POINTS 30 // read average total points
 #define ADC_VOLTAGE       3.3 // esp32 ADC voltage reference
-#define ADC_RESOLUTION 4095.0 // esp32 ADC resolution
+#define ADC_RESOLUTION float(4095) // esp32 ADC resolution
+
+// Structure to store the values of R1 and R2
+struct battery_config_t {
+
+    float R1;
+    float R2;
+};
+
 
 // ----- pinout -----
 extern const uint8_t pin_battery;
@@ -36,7 +42,12 @@ extern const uint8_t pin_battery;
 void task_battery(void*);
 
 void task_battery(void *arg){
-    (void)arg;
+
+   battery_config_t* battery_config = (battery_config_t*)arg;
+
+    float R1 = battery_config->R1;
+    float R2 = battery_config->R2;
+
 
     // -----create local variables-----
     uint32_t sum;
@@ -46,6 +57,8 @@ void task_battery(void *arg){
         .type = BATTERY, 
         .value = 0.0
     };
+
+
 
 #if DEBUG_MODE
     // see the remaining space of this task
