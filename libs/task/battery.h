@@ -25,7 +25,7 @@
 
 // Structure to store the values of R1 and R2
 struct battery_config_t {
-
+    uint8_t mac[6] ;
     float R1;
     float R2;
 };
@@ -43,11 +43,10 @@ void task_battery(void*);
 
 void task_battery(void *arg){
 
-   battery_config_t* battery_config = (battery_config_t*)arg;
+    battery_config_t* battery_config = (battery_config_t*)arg;
 
     float R1 = battery_config->R1;
     float R2 = battery_config->R2;
-
 
     // -----create local variables-----
     uint32_t sum;
@@ -57,8 +56,6 @@ void task_battery(void *arg){
         .type = BATTERY, 
         .value = 0.0
     };
-
-
 
 #if DEBUG_MODE
     // see the remaining space of this task
@@ -100,8 +97,7 @@ void task_battery(void *arg){
     #endif
         
         // -----send system data through esp-now-----
-        log_d("send bat");
-        esp_now_send(address_ECU_Front, (uint8_t *) &bat, sizeof(bat));
+        esp_now_send(address_ECU_Front, (uint8_t *) &bat, sizeof(sensor_t));
 
         vTaskDelay(TASK_BATTERY_RATE_ms / portTICK_PERIOD_MS);
     }
