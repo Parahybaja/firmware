@@ -19,20 +19,23 @@
  */
 #include <Arduino.h>
 
+#include"system.h"
+#include "module/AV.h"
+#include "task/battery.h"
+
 #define DEBUG false
 
-#define BOARD_ID     3
 #define PIN_SENSOR1  32
 #define PIN_SENSOR2  33
 #define MS2KMH       3.6
 #define SIGNAL_DELAY 5000
 
-#include "module_afv.h"
+const uint8_t pin_battery = 2;
+const uint8_t board_id = 3;
+
 
 setup_t setup_board;  
 volatile board_t board; // use volatile to all variables used inside Interrupt Service Routine
-volatile uint32_t initial_time = false;
-volatile uint32_t final_time   = false;
 volatile uint32_t last_initial = false;
 volatile uint32_t last_final   = false;
 
@@ -59,6 +62,21 @@ void setup() {
 
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(OnDataRecv);
+
+    battery_config_t battery_config;
+    battery_config.R1 = 330;
+    battery_config.R2 = 220;
+    memcpy(battery_config.mac, address_ECU_BOX, sizeof(address_ECU_BOX));
+
+    xTaskCreatePinnedToCore(
+         task_battery,      // task function
+         "battery voltage", // task name
+         4096,              // stack size
+         &battery_config,   // parameters
+         10,                // priority
+         &th_battery,       // handler 
+         APP_CPU_NUM        // core number
+     );
 }
 
 void loop() {

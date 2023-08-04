@@ -21,14 +21,16 @@
 #include <Arduino.h>
 
 #include "system.h"
-#include "module_afv.h"
+#include "module/AV.h"
 #include "task/battery.h"
 
 #define DEBUG true
 
-#define BOARD_ID 1
 #define PIN_SENSOR 32
 #define SIGNAL_DELAY 5000
+
+const uint8_t pin_battery = 4;
+const uint8_t board_id = 1;
 
 setup_t setup_board;
 volatile board_t board; 
@@ -60,12 +62,13 @@ void setup() {
     battery_config_t battery_config;
     battery_config.R1 = 100000.0;
     battery_config.R2 = 22000.0;
+    memcpy(battery_config.mac, address_ECU_BOX, sizeof(address_ECU_BOX));
 
-       xTaskCreatePinnedToCore(
+    xTaskCreatePinnedToCore(
         task_battery,      // task function
         "battery voltage", // task name
         4096,              // stack size
-        NULL,              // parameters
+        &battery_config,   // parameters
         10,                // priority
         &th_battery,       // handler 
         APP_CPU_NUM        // core number
