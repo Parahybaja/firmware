@@ -24,8 +24,9 @@
 #define BOARD_03 3
 #define CMD_NEWLINE 'Z'
 
-#define BOARD_ID 0      // ID of this board
 #define DEFAULT_DIST 50 // default distance between sensors in cm
+
+extern const uint8_t board_id;
 
 typedef enum {
     AFV_START,  /*empty command*/
@@ -39,8 +40,8 @@ typedef struct setup_t {
 } setup_t;
 
 typedef struct board_t {
-    uint8_t id = BOARD_ID;
-    afv_mode_t mode = afv_mode_t(BOARD_ID - 1);
+    uint8_t id = board_id;
+    afv_mode_t mode = afv_mode_t(board_id - 1);
     float speed;
 } board_t;
 
