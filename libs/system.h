@@ -4,9 +4,9 @@
  * @brief system's general types definitions and basic esp-now communication functions
  * @version 1.0
  * @date 2023-02-10
- * 
+ *
  * @copyright Copyright (c) 2023
- * 
+ *
  * Version   Modified By   Date        Comments
  * -------  -------------  ----------  -----------
  *  0.1.0    Jefferson L.  10/02/2023  first version
@@ -18,13 +18,13 @@
 
 #include <Arduino.h>
 
+#include <WiFi.h>
+#include <Wire.h>
+#include <esp_now.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #include <freertos/task.h>
 #include <soc/rtc_wdt.h>
-#include <esp_now.h>
-#include <WiFi.h>
-#include <Wire.h>
 
 #include "configs.h"
 
@@ -71,7 +71,7 @@ typedef struct {
 // -----sensor data type definition-----
 typedef struct {
     sensor_type_t type;
-    float value;  // sensor data must be float due to a bug in writing to the sd card
+    float value; // sensor data must be float due to a bug in writing to the sd card
 } sensor_t;
 
 // -----system run time data-----
@@ -84,21 +84,20 @@ system_t system_global = {
     .rollover = 0.0,
     .tilt_x = 0.0,
     .tilt_y = 0.0,
-    .tilt_z = 0.0
-};
+    .tilt_z = 0.0};
 
 // -----FreeRTOS objects-----
-TaskHandle_t th_alive;            // LED alive task handler
+TaskHandle_t th_alive; // LED alive task handler
 TaskHandle_t th_rollover;
 TaskHandle_t th_battery;          // sensor 3 task handler
 TaskHandle_t th_display;          // display control task handler
 TaskHandle_t th_display_LCD;      // display control task handler
-TaskHandle_t th_blink_LCD;        // 
-TaskHandle_t th_SD;               // 
-TaskHandle_t th_telemetry;        // 
-TaskHandle_t th_RPM;              // 
-TaskHandle_t th_fuel;             // 
-TaskHandle_t th_speedometer;      // 
+TaskHandle_t th_blink_LCD;        //
+TaskHandle_t th_SD;               //
+TaskHandle_t th_telemetry;        //
+TaskHandle_t th_RPM;              //
+TaskHandle_t th_fuel;             //
+TaskHandle_t th_speedometer;      //
 SemaphoreHandle_t sh_SD;          //
 SemaphoreHandle_t sh_global_vars; //
 SemaphoreHandle_t sh_i2c;         //
@@ -125,70 +124,71 @@ void init_espnow(void);
 
 /**
  * @brief print ERROR messages on serial and through esp-now:
- * 
+ *
  * @param returnMsg const *char: message to be sent
  */
-void ERROR(const char*);
+void ERROR(const char *);
 
 /**
  * @brief print ERROR messages on serial and through esp-now:
- * 
+ *
  * @param returnMsg const *char: message to be sent
  * @param espnow_active bool: esp-now active flag
  */
-void ERROR(const char*, bool);
+void ERROR(const char *, bool);
 
 /**
  * @brief print INFO messages on serial and through esp-now:
- * 
+ *
  * @param returnMsg const *char: message to be sent
  */
-void INFO(const char*);
+void INFO(const char *);
 
 /**
  * @brief print INFO messages on serial and through esp-now:
- * 
+ *
  * @param returnMsg const *char: message to be sent
  * @param espnow_active bool: esp-now active flag
  */
-void INFO(const char*, bool);
+void INFO(const char *, bool);
 
 /**
  * @brief send debug messages through esp-now
- * 
+ *
  * @param returnMsg const *char: message to be sent
  */
-void send_debug(const char*);
+void send_debug(const char *);
 
 /**
  * @brief send error messages through esp-now with option
- * 
+ *
  * @param returnMsg const *char: message to be sent
  * @param espnow_active bool: esp-now active flag
  */
-void on_error(const char*, bool);
+void on_error(const char *, bool);
 
-void init_system(void){
+void init_system(void) {
     // -----Serial initiallization-----
     Serial.begin(SERIAL_FREQ);
-    while (!Serial){}; // wait until is initialized
+    while (!Serial) {
+    }; // wait until is initialized
     Wire.begin();
 }
 
-void init_espnow(void){
+void init_espnow(void) {
     // -----ESPNOW settings-----
     WiFi.mode(WIFI_STA);
     WiFi.disconnect();
-    if (esp_now_init() != ESP_OK)    // check if was initialized successfully
+    if (esp_now_init() != ESP_OK)             // check if was initialized successfully
         ERROR("initializing ESP-NOW", false); // DO NOT send through esp-now
     INFO("Done initializing ESP-NOW", false); // DO NOT send through esp-now
-    delay(50); // give time to send the espnow message
+    delay(50);                                // give time to send the espnow message
 
     // register peer
     esp_now_peer_info_t peerInfo = {};
     peerInfo.channel = 0;
     peerInfo.encrypt = false;
-    
+
     // ECU BOX peer
     memcpy(peerInfo.peer_addr, address_ECU_BOX, 6);
     if (esp_now_add_peer(&peerInfo) != ESP_OK)
@@ -232,58 +232,67 @@ void init_espnow(void){
     delay(50); // give time to send the espnow message
 }
 
-void ERROR(const char returnMsg[]){
+void ERROR(const char returnMsg[]) {
     log_e("%s", returnMsg);
     send_debug(returnMsg);
 
     on_error(returnMsg, true);
 }
 
-void ERROR(const char returnMsg[], bool espnow_active){
+void ERROR(const char returnMsg[], bool espnow_active) {
     log_e("%s", returnMsg);
     if (espnow_active)
         send_debug(returnMsg);
-    
+
     on_error(returnMsg, espnow_active);
 }
 
-void INFO(const char returnMsg[]){
+void INFO(const char returnMsg[]) {
     log_i("%s", returnMsg);
     send_debug(returnMsg);
 }
 
-void INFO(const char returnMsg[], bool espnow_active){
+void INFO(const char returnMsg[], bool espnow_active) {
     log_i("%s", returnMsg);
     if (espnow_active)
         send_debug(returnMsg);
 }
 
-void send_debug(const char returnMsg[]){
-    if (strlen(returnMsg) <= ESPNOW_BUFFER_SIZE){
+void send_debug(const char returnMsg[]) {
+    if (strlen(returnMsg) <= ESPNOW_BUFFER_SIZE) {
         // mudar para char*
         debug_t msg_data;
         strcpy(msg_data.msg, returnMsg);
-        esp_now_send(address_ECU_BOX, (uint8_t *) &msg_data, sizeof(msg_data));
-    }
-    else
+        esp_now_send(address_ECU_BOX, (uint8_t *)&msg_data, sizeof(msg_data));
+    } else
         log_e("espnow buffer overflow");
 }
 
-void on_error(const char returnMsg[], bool espnow_active){
-    if (REBOOT_ON_ERROR){
+void on_error(const char returnMsg[], bool espnow_active) {
+    if (REBOOT_ON_ERROR) {
         ESP.restart();
         vTaskDelay(1 / portTICK_PERIOD_MS);
-    }
-    else{
-        while(true){
+    } else {
+        while (true) {
             log_e("%s", returnMsg);
 
             if (espnow_active)
                 send_debug(returnMsg);
-            
+
             vTaskDelay(DEBUG_DELAY / portTICK_PERIOD_MS);
         }
     }
+}
+
+bool comp_array(const uint8_t arr1[], const uint8_t arr2[]) { // Function for compare vectors
+
+    for (uint8_t i = 0; i < 6; i++) {
+        if (arr1[i] != arr2[i]) {
+            return false;
+        }
+    }
+    
+    return true;
 }
 
 #endif // __SYSTEM_H__
