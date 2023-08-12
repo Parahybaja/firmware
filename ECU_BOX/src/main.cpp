@@ -49,7 +49,7 @@ void setup(){
     esp_now_register_recv_cb(OnDataRecv);
 
     // -----final confirmation-----
-    INFO("it's all configured!");
+    //INFO("it's all configured!");
 
     xTaskCreatePinnedToCore(
         task_alive_LED, // task function

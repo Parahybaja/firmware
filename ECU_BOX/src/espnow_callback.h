@@ -33,11 +33,11 @@ extern String msg;
 void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status) {
     // -----check if the data was delivered-----
     if (status == ESP_NOW_SEND_SUCCESS) {
-        snprintf(str_buffer, sizeof(str_buffer), "AFV:Send status: Delivery SuccessZ", msg); // format string
+        snprintf(str_buffer, sizeof(str_buffer), "AV:Send status: Delivery SuccessZ", msg); // format string
         Serial.println(str_buffer);                                                          // send string to the server
         memset(str_buffer, 0, sizeof(str_buffer));                                           // reset buffer
     } else {
-        snprintf(str_buffer, sizeof(str_buffer), "AFV:Send status: Delivery FailZ", msg); // format string
+        snprintf(str_buffer, sizeof(str_buffer), "AV:Send status: Delivery FailZ", msg); // format string
         Serial.println(str_buffer);                                                       // send string to the server
         memset(str_buffer, 0, sizeof(str_buffer));                                        // reset buffer
     }
@@ -104,15 +104,15 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
         memcpy(&sensor_received, incomingData, sizeof(sensor_t));
 
         if (comp_array(mac, address_module_1)) {
-            snprintf(str_buffer, sizeof(str_buffer), "AV_bat1:%.2f", sensor_received.value); // format string
+            snprintf(str_buffer, sizeof(str_buffer), "AV:BAT1:%.2f", sensor_received.value); // format string
             Serial.println(str_buffer);                                                                            // send string to the server
             memset(str_buffer, 0, sizeof(str_buffer));
         } else if (comp_array(mac, address_module_2)) {
-            snprintf(str_buffer, sizeof(str_buffer), "AV_bat2:%.2f", sensor_received.value); // format string
+            snprintf(str_buffer, sizeof(str_buffer), "AV:BAT2:%.2f", sensor_received.value); // format string
             Serial.println(str_buffer);                                                                            // send string to the server
             memset(str_buffer, 0, sizeof(str_buffer));
         } else if (comp_array(mac, address_module_3)) {
-            snprintf(str_buffer, sizeof(str_buffer), "AV_bat2:%.2f", sensor_received.value); // format string
+            snprintf(str_buffer, sizeof(str_buffer), "AV:BAT3:%.2f", sensor_received.value); // format string
             Serial.println(str_buffer);                                                                            // send string to the server
             memset(str_buffer, 0, sizeof(str_buffer));
         } else {

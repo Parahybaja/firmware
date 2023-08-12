@@ -47,6 +47,9 @@ void task_battery(void *arg){
 
     float R1 = battery_config->R1;
     float R2 = battery_config->R2;
+    uint8_t mac[6];
+    memcpy(mac, battery_config->mac, sizeof(mac));
+    
 
     // -----create local variables-----
     uint32_t sum;
@@ -84,7 +87,8 @@ void task_battery(void *arg){
         // -----calculate voltage-----
         voltage_read = (ADC_VOLTAGE * adc_read) / ADC_RESOLUTION;
         voltage_bat = voltage_read / (R2 / (R1 + R2));
-        bat.value = voltage_bat;
+        //bat.value = voltage_bat;
+        bat.value = 3.9;
 
         // -----convert to percent-----
     #if (AS_PERCENT)
@@ -97,7 +101,7 @@ void task_battery(void *arg){
     #endif
         
         // -----send system data through esp-now-----
-        esp_now_send(address_ECU_Front, (uint8_t *) &bat, sizeof(sensor_t));
+        esp_now_send(mac, (uint8_t *) &bat, sizeof(sensor_t));
 
         vTaskDelay(TASK_BATTERY_RATE_ms / portTICK_PERIOD_MS);
     }
