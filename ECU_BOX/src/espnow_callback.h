@@ -99,23 +99,28 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
         } else {
             Serial.println("ERROR:unknown board");
         }
-    }else if (len == sizeof(sensor_t)) {
+    } else if (len == sizeof(sensor_t)) {
         sensor_t sensor_received;
         memcpy(&sensor_received, incomingData, sizeof(sensor_t));
-        if (comp_array(mac, address_module_1)) {
-            Serial.println("Module 1 battery voltage");
-        } else if (comp_array(mac, address_module_2)) {
-            Serial.println("Module 2 battery voltage");
-        } else if (comp_array(mac, address_module_3)) {
-            Serial.println("Module 3 battery voltage");
-        }
 
-        else {
-            Serial.println("Don´t have mac address");
+        if (comp_array(mac, address_module_1)) {
+            snprintf(str_buffer, sizeof(str_buffer), "AV_bat1:%.2f", sensor_received.value); // format string
+            Serial.println(str_buffer);                                                                            // send string to the server
+            memset(str_buffer, 0, sizeof(str_buffer));
+        } else if (comp_array(mac, address_module_2)) {
+            snprintf(str_buffer, sizeof(str_buffer), "AV_bat2:%.2f", sensor_received.value); // format string
+            Serial.println(str_buffer);                                                                            // send string to the server
+            memset(str_buffer, 0, sizeof(str_buffer));
+        } else if (comp_array(mac, address_module_3)) {
+            snprintf(str_buffer, sizeof(str_buffer), "AV_bat2:%.2f", sensor_received.value); // format string
+            Serial.println(str_buffer);                                                                            // send string to the server
+            memset(str_buffer, 0, sizeof(str_buffer));
+        } else {
+            Serial.println("ERROR:Don´t have mac address");
         }
-    }else {
+    } else {
         Serial.println("ERROR:incomming data does not match");
     }
-    }
+}
 
 #endif // __ESPNOW_CALLBACK_H__
