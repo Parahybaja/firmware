@@ -20,7 +20,7 @@
 #define __ESPNOW_CALLBACK_H__
 
 #include "system.h"
-#include "module/AFV.h"
+#include "module/AV.h"
 
 extern String msg;
 
@@ -51,6 +51,12 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
  * @param incomingData data received
  * @param len array size 
  */
+
+ bool iguais_1 = true;
+ bool iguais_2 = true;
+ bool iguais_3 = true;
+
+
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
     if (len == sizeof(debug_t)){
         debug_t debug;
@@ -108,6 +114,52 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
     else {
         Serial.println("ERROR:incomming data does not match");
     }
+    
+    iguais_1 = true;
+    iguais_2 = true;
+    iguais_3 = true;
+
+    for ( uint8_t i = 0; i<6; i++){
+
+       if (mac[i] != address_module_1[i]) {
+        iguais_1 = false;
+        break;
+    }
+    }
+
+    if (iguais_1 == true ){
+        Serial.println("Module 1 battery voltage");
+    }
+
+    for (uint8_t i = 0; i<6; i++){
+
+       if (mac[i] != address_module_2[i]){
+       iguais_2 = false;
+       break;
+       }
+    }
+
+    if (iguais_2 == true ){
+         Serial.println("Module 2 battery voltage");
+
+    }   
+
+    for (uint8_t i = 0; i<6; i++){
+
+       if (mac[i] != address_module_3[i]){
+       iguais_3 = false;
+       break;
+       }
+    }
+
+    if (iguais_3 == true ){
+         Serial.println("Module 3 battery voltage");
+    }
+
+    
+
+
+    
 }
 
 #endif // __ESPNOW_CALLBACK_H__

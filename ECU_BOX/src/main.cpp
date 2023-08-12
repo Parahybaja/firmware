@@ -20,6 +20,8 @@
 #include "system.h"
 #include "espnow_callback.h"
 #include "task/alive.h"
+#include "task/battery.h"
+#include "module/AV.h"
 
 // ----- pinout -----
 const uint8_t pin_alive_LED = 33;
