@@ -29,7 +29,7 @@
 #define PIN_SENSOR 32
 #define SIGNAL_DELAY 5000
 
-const uint8_t pin_battery = 3;
+const uint8_t pin_battery = 36;
 const uint8_t board_id = 2;
 
 setup_t setup_board;

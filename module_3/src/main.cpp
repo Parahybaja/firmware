@@ -30,7 +30,7 @@
 #define MS2KMH       3.6
 #define SIGNAL_DELAY 5000
 
-const uint8_t pin_battery = 2;
+const uint8_t pin_battery = 36;
 const uint8_t board_id = 3;
 
 
@@ -63,20 +63,20 @@ void setup() {
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(OnDataRecv);
 
-    battery_config_t battery_config;
-    battery_config.R1 = 330;
-    battery_config.R2 = 220;
+    battery_config_t battery_config ;
+    battery_config.R1 = 10000;
+    battery_config.R2 = 20000;
     memcpy(battery_config.mac, address_ECU_BOX, sizeof(address_ECU_BOX));
 
     xTaskCreatePinnedToCore(
-         task_battery,      // task function
-         "battery voltage", // task name
-         4096,              // stack size
-         &battery_config,   // parameters
-         10,                // priority
-         &th_battery,       // handler 
-         APP_CPU_NUM        // core number
-     );
+        task_battery,      // task function
+        "battery voltage", // task name
+        4096,              // stack size
+        &battery_config,   // parameters
+        10,                // priority
+        &th_battery,       // handler 
+        APP_CPU_NUM        // core number
+    );
 }
 
 void loop() {
