@@ -27,7 +27,7 @@
 #define DEBUG true
 
 #define PIN_SENSOR 32
-#define SIGNAL_DELAY 5000
+#define SIGNAL_DELAY 1000
 
 const uint8_t pin_battery = 36;
 const uint8_t board_id = 2;
@@ -58,20 +58,20 @@ void setup() {
     // Register for a callback function that will be called when data is received
     esp_now_register_recv_cb(OnDataRecv);
 
-    battery_config_t battery_config ;
-    battery_config.R1 = 10000;
-    battery_config.R2 = 20000;
-     memcpy(battery_config.mac, address_ECU_BOX, sizeof(address_ECU_BOX));
+    // battery_config_t battery_config ;
+    // battery_config.R1 = 10000;
+    // battery_config.R2 = 20000;
+    // memcpy(battery_config.mac, address_ECU_BOX, sizeof(address_ECU_BOX));
 
-    xTaskCreatePinnedToCore(
-        task_battery,      // task function
-        "battery voltage", // task name
-        4096,              // stack size
-        &battery_config,   // parameters
-        10,                // priority
-        &th_battery,       // handler 
-        APP_CPU_NUM        // core number
-    );
+    // xTaskCreatePinnedToCore(
+    //     task_battery,      // task function
+    //     "battery voltage", // task name
+    //     4096,              // stack size
+    //     &battery_config,   // parameters
+    //     10,                // priority
+    //     &th_battery,       // handler 
+    //     APP_CPU_NUM        // core number
+    // );
 }
 
 void loop() {
