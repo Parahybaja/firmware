@@ -81,19 +81,19 @@ void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len) {
 
         if (board_received.id == BOARD_01 && !initial_time) {
             initial_time = millis();
-            Serial.println("AFV:started - ");
+            Serial.println("AV:started - ");
         } else if (board_received.id == BOARD_02 && initial_time && !final_time) {
             final_time = millis();
 
             float acc_time = (final_time - initial_time) / 1000.0; // calculate accelaration time in seconds
 
-            snprintf(str_buffer, sizeof(str_buffer), "AFV:finished - %.2fs - ", acc_time); // format string
+            snprintf(str_buffer, sizeof(str_buffer), "AV:finished - %.2fs - ", acc_time); // format string
             Serial.println(str_buffer);                                                    // send string to the server
             memset(str_buffer, 0, sizeof(str_buffer));                                     // reset buffer
 
             reset_time_counter();
         } else if (board_received.id == BOARD_03) {
-            snprintf(str_buffer, sizeof(str_buffer), "AFV:speed: %.2f km/h%c", board_received.speed, CMD_NEWLINE); // format string
+            snprintf(str_buffer, sizeof(str_buffer), "AV:speed: %.2f km/h%c", board_received.speed, CMD_NEWLINE); // format string
             Serial.println(str_buffer);                                                                            // send string to the server
             memset(str_buffer, 0, sizeof(str_buffer));                                                             // reset buffer
         } else {
