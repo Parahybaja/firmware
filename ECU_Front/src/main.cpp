@@ -22,7 +22,7 @@
 #include "espnow_callback.h"
 
 // ----- pinout -----
-const uint8_t pin_alive_LED = 33;
+const uint8_t pin_alive_LED = 12;
 
 void setup(){
     // init system general modules (pinMode and Serial)
