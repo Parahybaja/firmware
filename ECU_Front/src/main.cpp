@@ -2,8 +2,8 @@
  * @file ECU_Front.ino
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief Parahybaja's embedded system: Front ECU
- * @version 3.2
- * @date 2023-02-23
+ * @version 4.1
+ * @date 2023-10-26
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -12,17 +12,19 @@
 #include <Arduino.h>
 
 // common libs
-#include "communication.h"
-#include "tasks/task_telemetry.h"
-#include "tasks/task_rollover.h"
-#include "tasks/task_display.h"
+#include "system.h"
+#include "task/telemetry.h"
+#include "task/rollover.h"
+#include "task/display.h"
 // #include "tasks/task_display_LCD.h" // backup
-#include "tasks/task_alive.h"
+#include "task/battery.h"
+#include "task/alive.h"
 
 #include "espnow_callback.h"
 
 // ----- pinout -----
 const uint8_t pin_alive_LED = 12;
+const uint8_t pin_battery = 35;
 
 void setup(){
     // init system general modules (pinMode and Serial)
@@ -98,6 +100,22 @@ void setup(){
         11,             // priority
         &th_telemetry,  // handler 
         APP_CPU_NUM     // core number
+    );
+
+    battery_config_t battery_config;
+    battery_config.R1 = 160000.0;
+    battery_config.R2 = 21700.0;
+    uint8_t empty_mac[6] = {0, 0, 0, 0, 0, 0};
+    memcpy(battery_config.mac, empty_mac, sizeof(empty_mac));
+
+    xTaskCreatePinnedToCore(
+        task_battery,      // task function
+        "battery voltage", // task name
+        4096,              // stack size
+        &battery_config,   // parameters
+        10,                // priority
+        &th_battery,       // handler 
+        APP_CPU_NUM        // core number
     );
 
     xTaskCreatePinnedToCore(

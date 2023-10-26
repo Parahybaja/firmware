@@ -3,7 +3,7 @@
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief local espnow callback functions 
  * @version 0.1
- * @date 2023-02-10
+ * @date 2023-10-26
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -12,7 +12,7 @@
 #ifndef __ESPNOW_CALLBACK_H__
 #define __ESPNOW_CALLBACK_H__
 
-#include "communication.h"
+#include "system.h"
 
 /**
  * @brief ESP-NOW on data sent callback
@@ -42,23 +42,23 @@ void OnDataSent(const uint8_t *mac_addr, esp_now_send_status_t status){
 }
 
 void OnDataRecv(const uint8_t *mac, const uint8_t *incomingData, int len){
-    if (len ==  sizeof(cmd_t)){
-        cmd_t config = {};
+    if (len ==  sizeof(command_t)){
+        command_t config;
         memcpy(&config, incomingData, sizeof(config));
 
-        if (config.command == CMD_START){
+        if (config == CMD_START){
             INFO("start writing data");
             delay(50); // give time to send the espnow message
         }
-        else if (config.command == CMD_STOP){
+        else if (config == CMD_STOP){
             INFO("stop writing data");
             delay(50); // give time to send the espnow message
         }
-        else if (config.command == CMD_NEW_FILE){ 
+        else if (config == CMD_NEW_FILE){ 
             INFO("new file created");
             delay(50); // give time to send the espnow message
         }
-        else if (config.command == CMD_RESTART){
+        else if (config == CMD_RESTART){
             INFO("restarting . . .\n----------------------");
             delay(50); // give time to send the espnow message
 
