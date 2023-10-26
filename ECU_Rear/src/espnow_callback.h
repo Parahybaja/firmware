@@ -2,8 +2,8 @@
  * @file espnow_callback.h
  * @author jefferson lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief local espnow callback functions 
- * @version 0.1
- * @date 2023-02-10
+ * @version 0.2
+ * @date 2023-10-22
  * 
  * @copyright Copyright (c) 2023
  * 
@@ -12,7 +12,7 @@
 #ifndef __ESPNOW_CALLBACK_H__
 #define __ESPNOW_CALLBACK_H__
 
-#include "communication.h"
+#include "system.h"
 
 /**
  * @brief ESP-NOW on data sent callback
