@@ -1,6 +1,6 @@
 {
-  "name": "common_libs",
-  "version": "0.2.2",
+  "name": "libs",
+  "version": "1.2.2",
   "description": "common libs for the Parahybaja's embedded system",
   "keywords": ["esp32", "Parahybaja", "embedded_system"],
   "authors": [

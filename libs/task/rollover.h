@@ -2,11 +2,14 @@
  * @file task_rollover.h
  * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
  * @brief accelerometer task, functions and configs
- * @version 0.2
- * @date 2023-02-23
+ * @version 1.2
+ * @date 2023-10-26
  * 
  * @copyright Copyright (c) 2023
  * 
+ * Version   Modified By   Date        Comments
+ * -------  -------------  ----------  -----------
+ *  1.2.0    Jefferson L.  26/10/2023  add MPU calibration
  */
 
 #ifndef __ROLLOVER_H__
@@ -32,9 +35,14 @@
  *                       sensi =    [16384,8192,4096,2048] bit/gravity
  */
 
-// -----MPU6050 configs-----
-float gyro_offset[] = {12.25, 1.92, 1.96};
-float acc_offset[]  = {-0.223, 0.028, -0.012};
+// -----MPU offset-----
+#define CALIB_ACC_X 0.531088 // usada para definir o zero do eixo x
+#define CALIB_ACC_Y 0.045418 // usada para definir o zero do eixo y
+#define CALIB_ACC_Z -0.308320 // usada para definir o zero do eixo z
+#define CALIB_GYRO_X -1.591225 // usada para definir o zero do eixo x
+#define CALIB_GYRO_Y -0.218293 // usada para definir o zero do eixo y
+#define CALIB_GYRO_Z 0.441586 // usada para definir o zero do eixo z
+#define CALIBRATE false
 
 /**
  * @brief MPU6050 rollover sensor task
@@ -56,6 +64,8 @@ void task_rollover(void *arg){
     sensor_t tilt_z = {TILT_Z, 0.0};
     sensor_t temp   = {AMBIENT_TEMP, 0.0};
     MPU6050 mpu(Wire, MPU_ADDR);
+
+    Wire.begin(5, 18); // hot fix for GPIO burnout
 
 #if DEBUG_MODE
     // see the remaining space of this task
@@ -80,8 +90,27 @@ void task_rollover(void *arg){
     } // stop everything if could not connect to MPU6050
     log_i("Connected to MPU6050");
 
-    mpu.setGyroOffsets(gyro_offset[0], gyro_offset[1], gyro_offset[2]);
-    mpu.setAccOffsets(acc_offset[0], acc_offset[1], acc_offset[2]);
+    if (CALIBRATE) {
+        log_w("Calculating offsets, do not move MPU6050");
+        delay(1000);
+        mpu.calcOffsets(true, true);  // gyro and accelero
+        log_w("Done!");
+    }
+    else {
+        log_w("Setting offsets");
+        mpu.setAccOffsets(CALIB_ACC_X, CALIB_ACC_Y, CALIB_ACC_Z);
+        mpu.setGyroOffsets(CALIB_GYRO_X, CALIB_GYRO_Y, CALIB_GYRO_Z);
+    }
+
+    log_d("offset acc: %f, %f, %f",
+        mpu.getAccXoffset(),
+        mpu.getAccYoffset(),
+        mpu.getAccZoffset());
+
+    log_d("offset gyro: %f, %f, %f",
+        mpu.getGyroXoffset(),
+        mpu.getGyroYoffset(),
+        mpu.getGyroZoffset());
 
     // -----update timer-----
     timer_send = millis();

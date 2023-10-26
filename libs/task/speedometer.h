@@ -2,11 +2,14 @@
  * @file task_speed.h
  * @author Jefferson Lopes (jefferson.lopes@gmail.com)
  * @brief 
- * @version 0.2
- * @date 2023-02-19
+ * @version 0.3
+ * @date 2023-10-26
  * 
  * @copyright Copyright (c) 2023
  * 
+ * Version   Modified By   Date        Comments
+ * -------  -------------  ----------  -----------
+ *  0.3.0    Jefferson L.  26/10/2023  fix speed calculation
  */
 
 #ifndef __SPEEDOMETER_H__
@@ -90,7 +93,7 @@ void task_speedometer(void *arg){
             interrupts();
 
             // -----calculate-----
-            float meters = (counter_spdmt_copy / WHEEL_EDGES) * WHEEL_CIRC;
+            float meters = (counter_spdmt_copy / float(WHEEL_EDGES)) * WHEEL_CIRC;
             spdmt.value = meters / TASK_SPDMT_SEND_RATE_s; // in meter/second
             spdmt.value *= ms2kmh;          
             

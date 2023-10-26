@@ -1,8 +1,15 @@
-# Embedded system software CHANGELOG
+# Firmware CHANGELOG
+
+## v4.1.0
+* multipurpose battery task
+* fix bad int in speed calculation
+* fix unintended double read on RPM interrupt
+* add AV to this repo
+* add battery level to AV
 
 ## v4.0.0
 * move common_libs into the same repo
-* add AFV to ECU Box
+* add AV to ECU Box
 
 ## v3.1.0
 * containerized tasks

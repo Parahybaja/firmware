@@ -2,8 +2,8 @@
  * @file definitions.h
  * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
  * @brief system's general types definitions and basic esp-now communication functions
- * @version 1.0
- * @date 2023-02-10
+ * @version 1.1
+ * @date 2023-10-26
  *
  * @copyright Copyright (c) 2023
  *
@@ -11,6 +11,7 @@
  * -------  -------------  ----------  -----------
  *  0.1.0    Jefferson L.  10/02/2023  first version
  *  1.0.0    Jefferson L.  18/07/2023  move common_libs and rename a few modules
+ *  1.1.0    Jefferson L.  26/10/2023  remove Wire begin
  */
 
 #ifndef __SYSTEM_H__
@@ -172,7 +173,6 @@ void init_system(void) {
     Serial.begin(SERIAL_FREQ);
     while (!Serial) {
     }; // wait until is initialized
-    Wire.begin();
 }
 
 void init_espnow(void) {

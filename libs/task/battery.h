@@ -2,11 +2,14 @@
  * @file task_battery.h
  * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
  * @brief battery task, functions and configs
- * @version 0.3
- * @date 2023-02-20
+ * @version 1.3
+ * @date 2023-10-26
  * 
  * @copyright Copyright (c) 2023
  * 
+ * Version   Modified By   Date        Comments
+ * -------  -------------  ----------  -----------
+ *  1.3.0    Jefferson L.  26/10/2023  add queue and espnow option
  */
 
 #ifndef __BATTERY_H__
@@ -45,12 +48,26 @@ void task_battery(void *arg){
 
     battery_config_t* battery_config = (battery_config_t*)arg;
 
+    bool all_zeros = false;
+    uint8_t count; 
     float R1 = battery_config->R1;
     float R2 = battery_config->R2;
     uint8_t mac[6];
     memcpy(mac, battery_config->mac, sizeof(mac));
-    
 
+    // Loop through the array
+    for (int i = 0; i < 6; i++) {
+        if (mac[i] == 0) {
+            count++;
+        }
+    }
+
+    if (count == 6) {
+        all_zeros = true;
+    } else {
+        all_zeros = false;
+    }
+    
     // -----create local variables-----
     uint32_t sum;
     uint16_t adc_read;
@@ -87,8 +104,7 @@ void task_battery(void *arg){
         // -----calculate voltage-----
         voltage_read = (ADC_VOLTAGE * adc_read) / ADC_RESOLUTION;
         voltage_bat = voltage_read / (R2 / (R1 + R2));
-        //bat.value = voltage_bat;
-        bat.value = 3.9;
+        bat.value = voltage_bat;
 
         // -----convert to percent-----
     #if (AS_PERCENT)
@@ -100,8 +116,14 @@ void task_battery(void *arg){
             bat.value = ((bat.value - BAT_MIN) / (BAT_MAX - BAT_MIN)) * 100.0; 
     #endif
         
-        // -----send system data through esp-now-----
-        esp_now_send(mac, (uint8_t *) &bat, sizeof(sensor_t));
+        if(all_zeros) {
+            // -----send tilt data through queue-----
+            xQueueSend(qh_battery, &bat, pdMS_TO_TICKS(0));
+        }
+        else {
+            // -----send system data through esp-now-----
+            esp_now_send(mac, (uint8_t *) &bat, sizeof(sensor_t));
+        }
 
         vTaskDelay(TASK_BATTERY_RATE_ms / portTICK_PERIOD_MS);
     }
