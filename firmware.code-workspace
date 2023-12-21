@@ -1,26 +1,39 @@
 {
 	"folders": [
-		{
-			"path": "."
-		},
-		{
-			"path": "ECU_BOX"
-		},
-		{
-			"path": "ECU_Front"
-		},
-		{
-			"path": "ECU_Rear"
-		},
-		{
-			"path": "module_1"
-		},
-		{
-			"path": "module_2"
-		},
-		{
-			"path": "module_3"
-		}
-	],
-    "settings": {}
+        {
+            "path": "."
+        },
+        {
+            "path": "ECU_BOX"
+        },
+        {
+            "path": "ECU_Front"
+        },
+        {
+            "path": "ECU_Rear"
+        },
+        {
+            "path": "module_1"
+        },
+        {
+            "path": "module_2"
+        },
+        {
+            "path": "module_3"
+        },
+        {
+            "path": "lora_received"
+        },
+        {
+            "path": "lora_sender"
+        },
+        {
+            "path": "sender_one"
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "functional": "cpp"
+        }
+    }
 }
