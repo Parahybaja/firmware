@@ -1,23 +1,23 @@
-# Graphic display layout: main and backup
+# Firmware v5
 
 <p align="middle">
-    <img alt="display Nextion" height="250" src="hardware/HMI.png"/>
-    <img alt="display LCD backup" height="250" src="hardware/HMI_backup.jpg"/>
+    <img alt="display Nextion" height="250" src="resources/HMI.png"/>
+    <img alt="display LCD backup" height="250" src="resources/HMI_backup.jpg"/>
 </p>
 
 <p align="middle">
-    <img alt="ECU Front case" height="250" src="hardware/ECU_Front.png"/>
-    <img alt="telemetry" height="250" src="hardware/telemetry.jpg"/>
+    <img alt="ECU Front case" height="250" src="resources/ECU_Front.png"/>
+    <img alt="telemetry" height="250" src="resources/telemetry.jpg"/>
 </p>
 
 # Embedded system workflow
 
-![workflow](software/workflow.jpg)
+![workflow](resources/workflow.jpg)
 
-# ECU Front schematic
+# Build instructions(Ubuntu)
 
-![ECU Front schematic](hardware/ECU1/schematic.jpg)
+Install the [Docker Engine](https://docs.docker.com/engine/install/ubuntu/#install-using-the-repository) and [Docker Desktop](https://docs.docker.com/desktop/install/ubuntu/)
 
-# ECU Rear schematic
+On the project folder within the vs code, create a new terminal and run the following command to build the project:
 
-![ECU Rear schematic](hardware/ECU2/schematic.jpg)
+    docker run --rm -v $PWD:/project -w /project -u $UID -e HOME=/tmp espressif/idf idf.py build
