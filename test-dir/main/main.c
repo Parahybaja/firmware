@@ -1,9 +1,20 @@
 #include <stdio.h>
 
 #include "system.h"
-#include "new_mod.h"
+#include "task_example.h"
 
-void app_main(void)
-{
-    func2();
+static const char *TAG = "test-dir";
+
+void app_main(void) {
+
+    // -----fire up tasks-----
+    xTaskCreatePinnedToCore(
+        task_example,      // task function
+        "task example", // task name
+        2048,              // stack size
+        NULL,              // parameters
+        10,                // priority
+        &th_example,       // handler 
+        APP_CPU_NUM        // core number
+    );
 }
