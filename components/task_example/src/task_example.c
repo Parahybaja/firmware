@@ -1,11 +1,6 @@
-#include <stdio.h>
 #include "task_example.h"
-#include "system.h"
 
 static const char *TAG = "task_example";
-
-// -----FreeRTOS objects-----
-TaskHandle_t th_example;
 
 void task_example(void *arg){
     (void)arg;
@@ -13,10 +8,11 @@ void task_example(void *arg){
     // create task variables
 
     // show remaining task space
+    task_remaining_space();
 
     for (;;) {
         // do something
-        ESP_LOGI(TAG, "so some work");
+        ESP_LOGW(TAG, "do some work");
 
         // some delay
         vTaskDelay(pdMS_TO_TICKS(500));
