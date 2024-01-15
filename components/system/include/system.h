@@ -23,15 +23,53 @@
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "esp_log.h"
+#include "esp_err.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// -----type definitions-----
+typedef enum {
+    RPM,
+    SPEEDOMETER,
+    FUEL_LEVEL,
+    FUEL_EMERGENCY,
+    BATTERY,
+    AMBIENT_TEMP,
+    ROLLOVER,
+    TILT_X,
+    TILT_Y,
+    TILT_Z
+} sensor_type_t;
+
+typedef struct {
+    float rpm;
+    float speed;
+    float fuel_level;
+    float fuel_em;
+    float battery;
+    float temp;
+    float rollover;
+    float tilt_x;
+    float tilt_y;
+    float tilt_z;
+} system_t;
+
+// -----sensor data type definition-----
+typedef struct {
+    sensor_type_t type;
+    float value;
+} sensor_t;
+
+// -----system run time data-----
+extern system_t system_global = {};
+
 // -----FreeRTOS objects-----
 extern TaskHandle_t th_example;
+extern TaskHandle_t th_alive;
 
-void func1(void);
+void task_remaining_space(void);
 
 #ifdef __cplusplus
 }
