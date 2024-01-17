@@ -63,7 +63,7 @@ typedef struct {
 } sensor_t;
 
 // -----system run time data-----
-extern system_t system_global = {};
+extern system_t system_global;
 
 // -----FreeRTOS objects-----
 extern TaskHandle_t th_example;
