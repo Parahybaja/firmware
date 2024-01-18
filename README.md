@@ -18,3 +18,9 @@
 
 * VS code ESP-IDF extension
 * ESP-IDF v5.1.2
+
+# Bug fixes
+
+* code highlighting: add this following line to **.vscode/c_cpp_perties.json** before **"includePath"**
+
+    "compileCommands": "${workspaceFolder}/build/compile_commands.json",
