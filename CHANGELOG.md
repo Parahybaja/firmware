@@ -1,5 +1,8 @@
 # Firmware CHANGELOG
 
+## v5.0.0
+* new core in esp-idf
+
 ## v4.1.0
 * multipurpose battery task
 * fix bad int in speed calculation

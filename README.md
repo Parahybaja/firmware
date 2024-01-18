@@ -1,23 +1,26 @@
-# Graphic display layout: main and backup
+# Firmware v5
 
 <p align="middle">
-    <img alt="display Nextion" height="250" src="hardware/HMI.png"/>
-    <img alt="display LCD backup" height="250" src="hardware/HMI_backup.jpg"/>
+    <img alt="display Nextion" height="250" src="resources/HMI.png"/>
+    <img alt="display LCD backup" height="250" src="resources/HMI_backup.jpg"/>
 </p>
 
 <p align="middle">
-    <img alt="ECU Front case" height="250" src="hardware/ECU_Front.png"/>
-    <img alt="telemetry" height="250" src="hardware/telemetry.jpg"/>
+    <img alt="ECU Front case" height="250" src="resources/ECU_Front.png"/>
+    <img alt="telemetry" height="250" src="resources/telemetry.jpg"/>
 </p>
 
 # Embedded system workflow
 
-![workflow](software/workflow.jpg)
+![workflow](resources/workflow.jpg)
 
-# ECU Front schematic
+# System requirements
 
-![ECU Front schematic](hardware/ECU1/schematic.jpg)
+* VS code ESP-IDF extension
+* ESP-IDF v5.1.2
 
-# ECU Rear schematic
+# Bug fixes
 
-![ECU Rear schematic](hardware/ECU2/schematic.jpg)
+* code highlighting: add this following line to **.vscode/c_cpp_perties.json** before **"includePath"**
+
+    "compileCommands": "${workspaceFolder}/build/compile_commands.json",
