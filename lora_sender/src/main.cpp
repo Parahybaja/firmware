@@ -67,5 +67,9 @@ void setup() {
 }
 
 void loop() {
+    LoRa.beginPacket();
+    LoRa.print("hello");
+    LoRa.endPacket();
 
+    delay(1000);
 }

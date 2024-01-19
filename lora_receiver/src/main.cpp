@@ -42,4 +42,6 @@ void loop() {
         Serial.print("' with RSSI ");
         Serial.println(LoRa.packetRssi());
     }
+
+    delay(1);
 }
