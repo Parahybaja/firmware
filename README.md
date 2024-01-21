@@ -21,6 +21,12 @@
 
 # Bug fixes
 
-* code highlighting: add this following line to **.vscode/c_cpp_perties.json** before **"includePath"**
+* vs code config folder: if there are no config files in /.vscode folder or there's only one file, use the following command to create the config folder properly:
+
+    Crtl + Shift + P
+
+    ESP-IDF: Add .vscode Configuration Folde
+
+* code highlighting: add this following line to **.vscode/c_cpp_properties.json** before **"includePath"**
 
     "compileCommands": "${workspaceFolder}/build/compile_commands.json",

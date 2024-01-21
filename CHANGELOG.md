@@ -2,6 +2,8 @@
 
 ## v5.0.0
 * new core in esp-idf
+* create system requirements
+* add bug fixes section
 
 ## v4.1.0
 * multipurpose battery task
