@@ -18,6 +18,7 @@
 
 #include "system.h"
 #include "task/alive.h"
+#include "task/display.h"
 #include "task/task_example.h"
 
 #include "espnow_callback.h"
@@ -50,5 +51,14 @@ void app_main(void) {
                             8,                // priority
                             &th_alive,        // handler
                             APP_CPU_NUM       // core number
+    );
+
+    xTaskCreatePinnedToCore(task_display,  // task function
+                            "display",     // task name
+                            4096,          // stack size
+                            NULL,          // parameters
+                            10,            // priority
+                            &th_example,   // handler
+                            APP_CPU_NUM    // core number
     );
 }
