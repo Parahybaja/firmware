@@ -19,15 +19,23 @@
 #pragma once
 
 #include <stdio.h>
+#include <string.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/queue.h"
 #include "freertos/task.h"
 #include "esp_log.h"
 #include "esp_err.h"
+#include "esp_wifi.h"
+#include "esp_mac.h"
+#include "esp_netif.h"
+#include "esp_now.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define ESPNOW_CHANNEL 1
+#define MAC_SIZE 6
 
 // -----type definitions-----
 typedef enum {
@@ -69,7 +77,19 @@ extern system_t system_global;
 extern TaskHandle_t th_example;
 extern TaskHandle_t th_alive;
 
+// -----esp-now mac addresses-----
+extern const uint8_t mac_address_ECU_box[MAC_SIZE];
+extern const uint8_t mac_address_ECU_front[MAC_SIZE];
+extern const uint8_t mac_address_ECU_rear[MAC_SIZE];
+extern const uint8_t mac_address_module_1[MAC_SIZE];
+extern const uint8_t mac_address_module_2[MAC_SIZE];
+extern const uint8_t mac_address_module_3[MAC_SIZE];
+
 void task_remaining_space(void);
+
+void print_mac_address(void);
+
+void init_espnow(void);
 
 #ifdef __cplusplus
 }
