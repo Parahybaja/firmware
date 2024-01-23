@@ -21,7 +21,7 @@
 
 # Bug fixes
 
-* vs code config folder: if there are no config files in /.vscode folder or there's only one file, use the following command to create the config folder properly:
+* vs code config folder: if there are no config files in /.vscode folder or there's only one file, delete the /.vscode folder and use the following command to create the new config folder properly:
 
     Crtl + Shift + P
 
