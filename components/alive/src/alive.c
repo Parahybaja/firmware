@@ -22,7 +22,7 @@ void task_alive_LED(void *arg) {
     //configure GPIO with the given settings
     ESP_ERROR_CHECK(gpio_config(&io_conf)); 
 
-    task_remaining_space();
+    print_task_remaining_space();
 
     for (;;) {
         ESP_LOGI(TAG, "CPU alive");

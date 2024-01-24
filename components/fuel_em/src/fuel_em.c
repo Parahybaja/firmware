@@ -30,7 +30,7 @@ void task_fuel_em(void *arg){
     sensor_t fuel = {FUEL_EMERGENCY, 0.0};
 
     // show remaining task space
-    task_remaining_space();
+    print_task_remaining_space();
 
     // -----update timer-----
     timer_send = esp_log_timestamp();
