@@ -89,6 +89,7 @@ extern TaskHandle_t th_blind_spot;
 extern TaskHandle_t th_display_nextion;
 extern TaskHandle_t th_display_LCD;
 extern TaskHandle_t th_telemetry;
+extern SemaphoreHandle_t sh_global_vars;
 
 // -----esp-now mac addresses-----
 extern const uint8_t mac_address_ECU_box[ESP_NOW_ETH_ALEN];
