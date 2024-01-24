@@ -63,7 +63,7 @@ void task_fuel_em(void *arg){
                 ESP_LOGD(TAG, "send fuel_em");
                 esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel, sizeof(fuel));
             }
-
+            
             // ----- update last value -----
             last_value = fuel.value;
         }

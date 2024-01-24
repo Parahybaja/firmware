@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#define TASK_FUEL_SEND_RATE_Hz 0.5 // RPM task send rate in hertz
+#define TASK_FUEL_SEND_RATE_Hz 0.5 // Fuel task send rate in hertz
 
 #define ACTIVE_LOW false
 #define FUEL_AVERAGE_POINTS 5
