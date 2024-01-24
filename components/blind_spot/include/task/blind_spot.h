@@ -22,6 +22,12 @@
 extern "C" {
 #endif
 
+#define TASK_BLIND_SPOT_SEND_RATE_Hz 1 // RPM task send rate in hertz
+
+#define ACTIVE_LOW false
+#define BLIND_SPOT_AVERAGE_POINTS 5
+#define THRESHOLD 1 // to be calibrated
+
 void task_blind_spot(void*);
 
 #ifdef __cplusplus

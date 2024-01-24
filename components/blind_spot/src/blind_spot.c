@@ -10,26 +10,60 @@ void task_blind_spot(void *arg){
     // -----config gpio-----
     //zero-initialize the config structure.
     gpio_config_t io_conf = {};
-    //disable interrupt
     io_conf.intr_type = GPIO_INTR_DISABLE;
-    //set as output mode
     io_conf.mode = GPIO_MODE_INPUT;
-    //bit mask of the pins that you want to set
     io_conf.pin_bit_mask = (1ULL<<gpio_pin);
-    //disable pull-down mode
     io_conf.pull_down_en = false;
-    //disable pull-up mode
     io_conf.pull_up_en = false;
-    //configure GPIO with the given settings
     ESP_ERROR_CHECK(gpio_config(&io_conf));
+
+    const int send_rate_ms = (int)(1000.0 / (float)(TASK_BLIND_SPOT_SEND_RATE_Hz));
+    uint32_t timer_send_ms;
+    float sum;
+    bool last_value = false;
+    sensor_t blind_spot_right = {TILT_Z, 0.0};
+    sensor_t blind_spot_left = {TILT_X, 0.0};
 
     task_remaining_space();
 
-    for (;;) {
-        // do something
-        ESP_LOGI(TAG, "CPU Blind Spot");
-        gpio_set_level(gpio_pin, true);
+    timer_send_ms = esp_log_timestamp();
 
-        vTaskDelay(pdMS_TO_TICKS(1000));
+    for (;;) 
+    {
+        if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms)
+        {
+            // -----add to timer-----
+            timer_send_ms += send_rate_ms;
+
+            // -----calculate-----
+            sum = 0; // clean sum buffer
+            for (int i=0; i < BLIND_SPOT_AVERAGE_POINTS; i++) { 
+                if (ACTIVE_LOW)
+                    sum += !gpio_get_level(gpio_pin);
+                else
+                    sum += gpio_get_level(gpio_pin);
+            }
+            blind.value = sum / (float)(BLIND_SPOT_AVERAGE_POINTS);
+
+            // ----- define high or low level -----
+            // comment out to send raw data fuel average
+            if (blind.value <= THRESHOLD) // low fuel level
+                blind.value = true; // active low fuel emergency flag
+            else 
+                blind.value = false; 
+
+            // ----- send data just when is changed -----
+            if (blind.value != last_value) {
+                // -----send fuel data through esp-now to receiver-----
+                ESP_LOGD(TAG, "send fuel_em");
+                esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_right, sizeof(blind_spot_right));
+                esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_left, sizeof(blind_spot_left));
+            }
+
+            // ----- update last value -----
+            last_value = blind.value;
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
     }
 }
