@@ -23,8 +23,8 @@ void task_fuel_em(void *arg){
     ESP_ERROR_CHECK(gpio_config(&io_conf)); 
 
     // create task variables
-    const int send_rate = (int)(1000.0 / (float)(TASK_FUEL_SEND_RATE_Hz));
-    uint32_t timer_send;
+    const int send_rate_ms = (int)(1000.0 / (float)(TASK_FUEL_SEND_RATE_Hz));
+    uint32_t timer_send_ms;
     float sum;
     bool last_value = false;
     sensor_t fuel = {FUEL_EMERGENCY, 0.0};
@@ -33,12 +33,12 @@ void task_fuel_em(void *arg){
     print_task_remaining_space();
 
     // -----update timer-----
-    timer_send = esp_log_timestamp();
+    timer_send_ms = esp_log_timestamp();
 
     for (;;) {
-        if ((esp_log_timestamp() - timer_send) >= send_rate){
+        if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms){
             // -----add to timer-----
-            timer_send += send_rate;
+            timer_send_ms += send_rate_ms;
 
             // -----calculate-----
             sum = 0; // clean sum buffer
