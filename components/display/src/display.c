@@ -23,7 +23,8 @@ void task_display(void *arg){
      /*Initialize nextion objects */
 
     nextion_page_set(nextion_handle, "0");
-    nextion_page_set(nextion_handle, "1");
+
+    /*nextion_page_set(nextion_handle, "1");*/
 
     /*p1t0_handle = nextion_text_init(nextion_handle, "p1t0");
     p1t1_handle = nextion_text_init(nextion_handle, "p1t1");
@@ -44,7 +45,7 @@ void task_display(void *arg){
 
     for (;;) {
 
-        /*ulTaskNotifyTake(pdTRUE, portMAX_DELAY);*/
+        ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
         // Get the text value from a component.
         /*nextion_component_get_text(nextion_handle,
@@ -66,12 +67,12 @@ void task_display(void *arg){
 
 void callback_touch_event(nextion_on_touch_event_t event)
 {
-    if (event.page_id == 0 && event.component_id == 5 && event.state == NEXTION_TOUCH_RELEASED)
+    if (event.page_id == 0 && event.component_id == 2 && event.state == NEXTION_TOUCH_PRESSED)
     {
         ESP_LOGI(TAG, "button pressed");
 
-        xTaskNotify(task_handle_user_interface,
+        /*xTaskNotify(task_handle_user_interface,
                     event.component_id,
-                    eSetValueWithOverwrite);
+                    eSetValueWithOverwrite);*/
     }
 }
