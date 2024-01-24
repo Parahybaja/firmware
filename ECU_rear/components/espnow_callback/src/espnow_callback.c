@@ -33,14 +33,7 @@ void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* d
         return;
     }
 
-    if (len == sizeof(sensor_t)) {
-        sensor_t recv_sensor;
-        memcpy(&recv_sensor, data, len);
-        ESP_LOGI(TAG, "received %f", recv_sensor.value);
-    }
-    else {
-        ESP_LOGE(TAG, "unrecognized packet");
-    }
+    ESP_LOGE(TAG, "unrecognized packet");
 }
 
 void register_callbacks(void) {
