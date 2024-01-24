@@ -29,10 +29,11 @@ TaskHandle_t th_blind_spot;
 TaskHandle_t th_display_nextion;
 TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
+SemaphoreHandle_t sh_global_vars;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
-const uint8_t mac_address_ECU_front[] = {0x94, 0xB5, 0x55, 0x2D, 0x1A, 0x60};
+const uint8_t mac_address_ECU_front[] = {0x94, 0xB5, 0x55, 0x2D, 0x1A, 0x61};
 const uint8_t mac_address_ECU_rear[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0x11};
 const uint8_t mac_address_module_1[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0x38};
 const uint8_t mac_address_module_2[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8A, 0xD8};
@@ -52,7 +53,7 @@ void print_task_remaining_space(void) {
 void print_mac_address(void) {
     uint8_t mac[ESP_NOW_ETH_ALEN];
 
-    esp_err_t ret = esp_wifi_get_mac(ESP_IF_WIFI_STA, mac);
+    esp_err_t ret = esp_wifi_get_mac(ESP_IF_WIFI_AP, mac);
     
     if (ret == ESP_OK) {
         ESP_LOGW(TAG, "MAC Address: " MACSTR "", MAC2STR(mac));
