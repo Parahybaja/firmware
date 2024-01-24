@@ -61,13 +61,13 @@ void task_fuel_em(void *arg){
             if (fuel.value != last_value) {
                 // -----send fuel data through esp-now to receiver-----
                 ESP_LOGD(TAG, "send fuel_em");
-                // esp_now_send(address_ECU_Front, (uint8_t *) &fuel, sizeof(fuel));
+                esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel, sizeof(fuel));
             }
 
             // ----- update last value -----
             last_value = fuel.value;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(1)); // free up the processor
+        vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
     }
 }
