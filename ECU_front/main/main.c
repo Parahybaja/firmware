@@ -28,10 +28,12 @@ static const gpio_num_t alive_pin = GPIO_NUM_12;
 void app_main(void) {
     ESP_LOGW(TAG, "ECU front v5");
 
-    init_espnow();
+    system_espnow_init();
     register_callbacks();
 
     print_mac_address();
+
+    system_lora_init();
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
@@ -43,4 +45,14 @@ void app_main(void) {
         &th_alive,        // handler
         APP_CPU_NUM       // core number
     );
+
+    // xTaskCreatePinnedToCore(
+    //     task_lora_sender, // task function
+    //     "lora sender",    // task name
+    //     2048,             // stack size
+    //     NULL,             // parameters
+    //     8,                // priority
+    //     &th_lora,         // handler
+    //     PRO_CPU_NUM       // core number
+    // );
 }
