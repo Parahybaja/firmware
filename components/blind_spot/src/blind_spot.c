@@ -20,9 +20,9 @@ void task_blind_spot(void *arg){
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_BLIND_SPOT_SEND_RATE_Hz));
     uint32_t timer_send_ms;
     float sum;
-    bool last_value = false;
-    sensor_t blind_spot_right = {TILT_Z, 0.0};
-    sensor_t blind_spot_left = {TILT_X, 0.0};
+    int last_value = 0;
+    sensor_t blind_sr = {TILT_Z, 0.0};
+    // sensor_t blind_sl = {TILT_X, 0.0};
 
     task_remaining_space();
 
@@ -43,25 +43,28 @@ void task_blind_spot(void *arg){
                 else
                     sum += gpio_get_level(gpio_pin);
             }
-            blind.value = sum / (float)(BLIND_SPOT_AVERAGE_POINTS);
+            blind_sr.value = sum / (float)(BLIND_SPOT_AVERAGE_POINTS);
 
             // ----- define high or low level -----
             // comment out to send raw data fuel average
-            if (blind.value <= THRESHOLD) // low fuel level
-                blind.value = true; // active low fuel emergency flag
-            else 
-                blind.value = false; 
+            if (blind_sr.value <= THRESHOLD){ // low fuel level
+                blind_sr.value = 0; // active low fuel emergency flag
+            }
+            else {
+                blind_sr.value = 1;
+            } 
 
             // ----- send data just when is changed -----
-            if (blind.value != last_value) {
+            if (blind_sr.value != last_value) {
                 // -----send fuel data through esp-now to receiver-----
-                ESP_LOGD(TAG, "send fuel_em");
-                esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_right, sizeof(blind_spot_right));
-                esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_left, sizeof(blind_spot_left));
-            }
+                ESP_LOGD(TAG, "Blind Spot, detected");
+                printf("Pin Level: %f\n",sum);
+                // esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_right, sizeof(blind_spot_right));
+                // esp_now_send(mac_address_ECU_rear, (uint8_t *) &blind_spot_left, sizeof(blind_spot_left));
+            };
 
             // ----- update last value -----
-            last_value = blind.value;
+            last_value = blind_sr.value;
         }
 
         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
