@@ -126,9 +126,6 @@ void system_espnow_init(void) {
 }
 
 void system_lora_init(void) {
-    ESP_LOGW(TAG, "CS: %i", CONFIG_CS_GPIO);
-    ESP_LOGW(TAG, "RST: %i", CONFIG_RST_GPIO);
-
     if (lora_init() == 0) {
 		ESP_LOGE(TAG, "Does not recognize the module");
 
@@ -172,6 +169,7 @@ void task_lora_sender(void *arg) {
 		nowTick = xTaskGetTickCount();
 		
         send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, nowTick);
+        ESP_LOGW(TAG, "sending lora packet");
 		lora_send_packet(buf, send_len);
 		ESP_LOGI(TAG, "%d byte packet sent...", send_len);
 		
