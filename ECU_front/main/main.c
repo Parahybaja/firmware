@@ -46,13 +46,13 @@ void app_main(void) {
         APP_CPU_NUM       // core number
     );
 
-    // xTaskCreatePinnedToCore(
-    //     task_lora_sender, // task function
-    //     "lora sender",    // task name
-    //     2048,             // stack size
-    //     NULL,             // parameters
-    //     8,                // priority
-    //     &th_lora,         // handler
-    //     PRO_CPU_NUM       // core number
-    // );
+    xTaskCreatePinnedToCore(
+        task_lora_sender, // task function
+        "lora sender",    // task name
+        4096,             // stack size
+        NULL,             // parameters
+        8,                // priority
+        &th_lora,         // handler
+        PRO_CPU_NUM       // core number
+    );
 }
