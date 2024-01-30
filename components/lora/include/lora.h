@@ -1,16 +1,6 @@
 #ifndef __LORA_H__
 #define __LORA_H__
 
-/* Pinout */
-#define CONFIG_GPIO_RANGE_MAX 33
-#define CONFIG_MISO_GPIO      19
-#define CONFIG_SCK_GPIO       18
-#define CONFIG_MOSI_GPIO      23
-#define CONFIG_CS_GPIO        5
-#define CONFIG_RST_GPIO       14
-#define CONFIG_SPI2_HOST      true
-#define CONFIG_SPI3_HOST      false
-
 void lora_reset(void);
 void lora_explicit_header_mode(void);
 void lora_implicit_header_mode(int size);

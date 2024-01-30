@@ -6,6 +6,16 @@
 #include "driver/spi_master.h"
 #include "driver/gpio.h"
 
+/* Pinout */
+#define CONFIG_GPIO_RANGE_MAX 33
+#define CONFIG_MISO_GPIO      19
+#define CONFIG_SCK_GPIO       18
+#define CONFIG_MOSI_GPIO      23
+#define CONFIG_CS_GPIO        5
+#define CONFIG_RST_GPIO       14
+#define CONFIG_SPI2_HOST      true
+#define CONFIG_SPI3_HOST      false
+
 /*
  * Register definitions
  */
@@ -518,6 +528,14 @@ int
 lora_init(void)
 {
    esp_err_t ret;
+
+    ESP_LOGI(TAG, "PINOUT: MISO:%i, SCK:%i, MOSI:%i, CS:%i, RST:%i", 
+        CONFIG_MISO_GPIO,
+        CONFIG_SCK_GPIO,
+        CONFIG_MOSI_GPIO,
+        CONFIG_CS_GPIO,
+        CONFIG_RST_GPIO
+    );
 
    /*
     * Configure CPU hardware to communicate with the radio chip
