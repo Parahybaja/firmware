@@ -642,10 +642,10 @@ lora_send_packet(uint8_t *buf, int size)
       ESP_LOGD(TAG, "lora_read_reg=0x%x", irq);
       if ((irq & IRQ_TX_DONE_MASK) == IRQ_TX_DONE_MASK) break;
       loop++;
-      if (loop == 10) break;
+      if (loop == 65) break;
       vTaskDelay(2);
    }
-   if (loop == 10) {
+   if (loop == 65) {
       __send_packet_lost++;
       ESP_LOGE(TAG, "lora_send_packet Fail");
    }
