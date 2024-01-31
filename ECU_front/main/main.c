@@ -25,6 +25,10 @@ static const char* TAG = "ECU_front";
 
 static const gpio_num_t alive_pin = GPIO_NUM_12;
 
+static const int cr = 8;  // coding rate
+static const int sbw = 1; // signal bandwidth
+static const int sf = 7;  // spreading factor rate
+
 void app_main(void) {
     ESP_LOGW(TAG, "ECU front v5");
 
@@ -33,7 +37,7 @@ void app_main(void) {
 
     print_mac_address();
 
-    system_lora_init();
+    system_lora_init(cr, sbw, sf);
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(

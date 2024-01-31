@@ -125,7 +125,7 @@ void system_espnow_init(void) {
     free(peer);
 }
 
-void system_lora_init(void) {
+void system_lora_init(int cr, int sbw, int sf) {
     if (lora_init() == 0) {
 		ESP_LOGE(TAG, "Does not recognize the module");
 
@@ -136,16 +136,12 @@ void system_lora_init(void) {
     lora_set_frequency(915e6); // 915MHz
 
     lora_enable_crc();
-
-    int cr = 1; // coding rate
-	int bw = 7; // bandwidth
-	int sf = 7; // spreading factor rate
     
     lora_set_coding_rate(cr);
 	ESP_LOGI(TAG, "coding_rate=%d", cr);
 
-	lora_set_bandwidth(bw);
-	ESP_LOGI(TAG, "bandwidth=%d", bw);
+	lora_set_bandwidth(sbw);
+	ESP_LOGI(TAG, "signal_bandwidth=%d", sbw);
 
 	lora_set_spreading_factor(sf);
 	ESP_LOGI(TAG, "spreading_factor=%d", sf);
@@ -158,27 +154,43 @@ void task_lora_sender(void *arg) {
 
 	ESP_LOGI(TAG, "Start lora sender task");
 	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
-    TickType_t nowTick;
+    TickType_t start_tick, end_tick;
     int send_len;
     int lost;
 
     // show remaining task space
     print_task_remaining_space();
 
+    // delete task if LoRa is not initialized
+    if (lora_initialized_flag == false) {
+        vTaskDelete(NULL);
+    } 
+vTaskDelay(pdMS_TO_TICKS(2000));
 	for (;;) {
-		nowTick = xTaskGetTickCount();
+		start_tick = xTaskGetTickCount();
 		
-        send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, nowTick);
+        send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, start_tick);
         ESP_LOGW(TAG, "sending lora packet");
 		lora_send_packet(buf, send_len);
 		ESP_LOGI(TAG, "%d byte packet sent...", send_len);
 		
+        // Record the end time after sending the packet
+        end_tick = xTaskGetTickCount();
+
+        // Calculate the time taken to send the packet
+        TickType_t time_taken = end_tick - start_tick;
+
+        // Convert tick count to milliseconds
+        uint32_t time_taken_ms = pdTICKS_TO_MS(time_taken);
+
+        ESP_LOGI(TAG, "Time taken to send packet: %" PRIu32 " ms", time_taken_ms);
+
         lost = lora_packet_lost();
 		if (lost != 0) {
 			ESP_LOGW(TAG, "%d packets lost", lost);
 		}
 
-		vTaskDelay(pdMS_TO_TICKS(5000));
+		vTaskDelay(pdMS_TO_TICKS(2000));
 	}
 }
 
@@ -191,6 +203,11 @@ void task_lora_receiver(void *arg) {
 
     // show remaining task space
     print_task_remaining_space();
+
+    // delete task if LoRa is not initialized
+    if (lora_initialized_flag == false) {
+        vTaskDelete(NULL);
+    } 
 
     for (;;) {
 		lora_receive(); // put into receive mode

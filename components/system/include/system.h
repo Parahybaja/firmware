@@ -124,7 +124,14 @@ void print_mac_address(void);
  */
 void system_espnow_init(void);
 
-void system_lora_init(void);
+/**
+ * @brief LoRa initialization
+ * 
+ * @param cr coding rate (5 - 8)
+ * @param sbw signal bandwidth (0 - 9)
+ * @param sf spreading factor rate (6 - 12)
+ */
+void system_lora_init(int, int, int);
 
 void task_lora_sender(void*);
 
