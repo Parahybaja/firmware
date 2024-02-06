@@ -25,8 +25,8 @@ void espnow_send_callback(const uint8_t* mac_addr, esp_now_send_status_t status)
 }
 
 void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* data, int len) {
-    uint8_t * mac_addr = recv_info->src_addr;
-    uint8_t * des_addr = recv_info->des_addr;
+    uint8_t *mac_addr = recv_info->src_addr;
+    uint8_t *des_addr = recv_info->des_addr;
 
     if (mac_addr == NULL || data == NULL || len <= 0) {
         ESP_LOGE(TAG, "Receive cb arg error");

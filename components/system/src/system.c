@@ -19,6 +19,7 @@ system_t system_global = {
 
 // -----FreeRTOS objects-----
 TaskHandle_t th_example;
+TaskHandle_t th_lora;
 TaskHandle_t th_alive;
 TaskHandle_t th_rpm;
 TaskHandle_t th_fuel_em;
@@ -38,6 +39,8 @@ const uint8_t mac_address_ECU_rear[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0x11};
 const uint8_t mac_address_module_1[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0x38};
 const uint8_t mac_address_module_2[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8A, 0xD8};
 const uint8_t mac_address_module_3[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8B, 0xA0};
+
+bool lora_initialized_flag;
 
 void print_task_remaining_space(void) {
     TaskHandle_t handler = xTaskGetCurrentTaskHandle();
@@ -62,7 +65,7 @@ void print_mac_address(void) {
     }
 }
 
-void init_espnow(void) {
+void system_espnow_init(void) {
     // -----init wifi-----
     ESP_ERROR_CHECK(nvs_flash_init()); // bug fix: https://github.com/espressif/arduino-esp32/issues/761
     ESP_ERROR_CHECK(esp_netif_init());
@@ -120,4 +123,100 @@ void init_espnow(void) {
     ESP_ERROR_CHECK(esp_now_add_peer(peer));
     
     free(peer);
+}
+
+void system_lora_init(int cr, int sbw, int sf) {
+    if (lora_init() == 0) {
+		ESP_LOGE(TAG, "Does not recognize the module");
+
+        return;
+	}
+
+    ESP_LOGI(TAG, "Frequency is 915MHz");
+    lora_set_frequency(915e6); // 915MHz
+
+    lora_enable_crc();
+    
+    lora_set_coding_rate(cr);
+	ESP_LOGI(TAG, "coding_rate=%d", cr);
+
+	lora_set_bandwidth(sbw);
+	ESP_LOGI(TAG, "signal_bandwidth=%d", sbw);
+
+	lora_set_spreading_factor(sf);
+	ESP_LOGI(TAG, "spreading_factor=%d", sf);
+
+    lora_initialized_flag = true;
+}
+
+void task_lora_sender(void *arg) {
+    (void)arg;
+
+	ESP_LOGI(TAG, "Start lora sender task");
+	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
+    TickType_t start_tick, end_tick;
+    int send_len;
+    int lost;
+
+    // show remaining task space
+    print_task_remaining_space();
+
+    // delete task if LoRa is not initialized
+    if (lora_initialized_flag == false) {
+        vTaskDelete(NULL);
+    } 
+vTaskDelay(pdMS_TO_TICKS(2000));
+	for (;;) {
+		start_tick = xTaskGetTickCount();
+		
+        send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, start_tick);
+        ESP_LOGW(TAG, "sending lora packet");
+		lora_send_packet(buf, send_len);
+		ESP_LOGI(TAG, "%d byte packet sent...", send_len);
+		
+        // Record the end time after sending the packet
+        end_tick = xTaskGetTickCount();
+
+        // Calculate the time taken to send the packet
+        TickType_t time_taken = end_tick - start_tick;
+
+        // Convert tick count to milliseconds
+        uint32_t time_taken_ms = pdTICKS_TO_MS(time_taken);
+
+        ESP_LOGI(TAG, "Time taken to send packet: %" PRIu32 " ms", time_taken_ms);
+
+        lost = lora_packet_lost();
+		if (lost != 0) {
+			ESP_LOGW(TAG, "%d packets lost", lost);
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(2000));
+	}
+}
+
+void task_lora_receiver(void *arg) {
+    (void)arg;
+
+	ESP_LOGI(TAG, "Start lora receiver task");
+	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
+	int rxLen;
+
+    // show remaining task space
+    print_task_remaining_space();
+
+    // delete task if LoRa is not initialized
+    if (lora_initialized_flag == false) {
+        vTaskDelete(NULL);
+    } 
+
+    for (;;) {
+		lora_receive(); // put into receive mode
+		
+        if (lora_received()) {
+			rxLen = lora_receive_packet(buf, sizeof(buf));
+			ESP_LOGI(TAG, "%d byte packet received:[%.*s]", rxLen, rxLen, buf);
+		}
+		
+        vTaskDelay(pdMS_TO_TICKS(10)); // Avoid WatchDog alerts
+	}
 }

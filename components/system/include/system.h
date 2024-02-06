@@ -30,6 +30,7 @@
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_now.h"
+#include "lora.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,6 +80,7 @@ extern system_t system_global;
 
 // -----FreeRTOS objects-----
 extern TaskHandle_t th_example;
+extern TaskHandle_t th_lora;
 extern TaskHandle_t th_alive;
 extern TaskHandle_t th_rpm;
 extern TaskHandle_t th_fuel_em;
@@ -99,6 +101,8 @@ extern const uint8_t mac_address_module_1[ESP_NOW_ETH_ALEN];
 extern const uint8_t mac_address_module_2[ESP_NOW_ETH_ALEN];
 extern const uint8_t mac_address_module_3[ESP_NOW_ETH_ALEN];
 
+extern bool lora_initialized_flag;
+
 /**
  * @brief print the space remaining of the task that calls this function
  * 
@@ -118,7 +122,20 @@ void print_mac_address(void);
  * @note also init nvs_flash and wifi
  * 
  */
-void init_espnow(void);
+void system_espnow_init(void);
+
+/**
+ * @brief LoRa initialization
+ * 
+ * @param cr coding rate (5 - 8)
+ * @param sbw signal bandwidth (0 - 9)
+ * @param sf spreading factor rate (6 - 12)
+ */
+void system_lora_init(int, int, int);
+
+void task_lora_sender(void*);
+
+void task_lora_receiver(void*);
 
 #ifdef __cplusplus
 }
