@@ -21,12 +21,34 @@
 
 # Bug fixes
 
-* vs code config folder: if there are no config files in /.vscode folder or there's only one file, use the following command to create the config folder properly:
+## vs code config folder
 
-    Crtl + Shift + P
+If there are no config files in /.vscode folder or there's only one file, delete the /.vscode folder and use the following command to create the new config folder properly:
 
-    ESP-IDF: Add .vscode Configuration Folde
+```
+Crtl + Shift + P
+```
+```
+ESP-IDF: Add .vscode Configuration Folde
+```
 
-* code highlighting: add this following line to **.vscode/c_cpp_properties.json** before **"includePath"**
+## code highlighting
 
-    "compileCommands": "${workspaceFolder}/build/compile_commands.json",
+Add this following line to **.vscode/c_cpp_properties.json** before **"includePath"**
+
+```
+"compileCommands": "${workspaceFolder}/build/compile_commands.json",
+```
+
+## flashing error
+
+Run the following commands on the terminal to give the user permission to access the USB device:
+
+```
+sudo adduser <username> dialout
+```
+and
+
+```
+sudo chmod a+rw /dev/ttyUSB*
+```

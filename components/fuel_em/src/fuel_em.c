@@ -23,22 +23,22 @@ void task_fuel_em(void *arg){
     ESP_ERROR_CHECK(gpio_config(&io_conf)); 
 
     // create task variables
-    const int send_rate = (int)(1000.0 / (float)(TASK_FUEL_SEND_RATE_Hz));
-    uint32_t timer_send;
+    const int send_rate_ms = (int)(1000.0 / (float)(TASK_FUEL_SEND_RATE_Hz));
+    uint32_t timer_send_ms;
     float sum;
     bool last_value = false;
     sensor_t fuel = {FUEL_EMERGENCY, 0.0};
 
     // show remaining task space
-    task_remaining_space();
+    print_task_remaining_space();
 
     // -----update timer-----
-    timer_send = esp_log_timestamp();
+    timer_send_ms = esp_log_timestamp();
 
     for (;;) {
-        if ((esp_log_timestamp() - timer_send) >= send_rate){
+        if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms){
             // -----add to timer-----
-            timer_send += send_rate;
+            timer_send_ms += send_rate_ms;
 
             // -----calculate-----
             sum = 0; // clean sum buffer
@@ -61,13 +61,13 @@ void task_fuel_em(void *arg){
             if (fuel.value != last_value) {
                 // -----send fuel data through esp-now to receiver-----
                 ESP_LOGD(TAG, "send fuel_em");
-                // esp_now_send(address_ECU_Front, (uint8_t *) &fuel, sizeof(fuel));
+                esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel, sizeof(fuel));
             }
-
+            
             // ----- update last value -----
             last_value = fuel.value;
         }
 
-        vTaskDelay(pdMS_TO_TICKS(1)); // free up the processor
+        vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
     }
 }
