@@ -26,8 +26,9 @@ extern "C" {
 
 void task_display(void*);
 
-void callback_touch_event(nextion_on_touch_event_t event);
+static void callback_touch_event(nextion_on_touch_event_t event);
 
+static void process_callback_queue(void*);
 
 #ifdef __cplusplus
 }
