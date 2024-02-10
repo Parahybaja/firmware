@@ -5,6 +5,7 @@ static const char *TAG = "display";
 nextion_t *nextion_handle;  // Declare nextion_handle globally
 
 static TaskHandle_t task_handle_user_interface;
+QueueHandle_t uart_queue;   
 
 void task_display(void *arg){
     (void)arg;
@@ -15,6 +16,11 @@ void task_display(void *arg){
         GPIO_NUM_17,
         GPIO_NUM_16
     );
+
+    sensor_t recv_sensor = {};
+    char msg_buffer[10];
+    float percent;
+
 
     /*Do basic configuration*/
     nextion_init(nextion_handle);
@@ -45,6 +51,22 @@ void task_display(void *arg){
     vTaskDelay(pdMS_TO_TICKS(500));
 
     for (;;) {
+
+        // speed
+        if (xQueueReceive(uart_queue, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                // workaround speed bug
+                recv_sensor.value /= 2.0;
+
+                system_global.speed = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            // print to display
+            snprintf(msg_buffer, 10, "%d",(int)recv_sensor.value);
+            nextion_component_set_text(nextion_handle," p1t0", msg_buffer);
+            memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        }   
         
         vTaskDelay(pdMS_TO_TICKS(500));
     }
