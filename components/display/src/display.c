@@ -4,8 +4,7 @@ static const char *TAG = "display";
 
 nextion_t *nextion_handle;  // Declare nextion_handle globally
 
-static TaskHandle_t task_handle_user_interface;
-QueueHandle_t uart_queue;   
+static TaskHandle_t task_handle_user_interface; // handler to use with touch callback 
 
 void task_display(void *arg){
     (void)arg;
@@ -21,9 +20,14 @@ void task_display(void *arg){
     char msg_buffer[10];
     float percent;
 
-
     /*Do basic configuration*/
-    nextion_init(nextion_handle);
+    nex_err_t nex_err = nextion_init(nextion_handle);
+
+    if (nex_err != 0) {
+        ESP_LOGE(TAG, "Error initializing nextion display");
+
+        vTaskDelete(NULL);
+    }
 
     // Start a task that will handle touch notifications.
     xTaskCreate(
@@ -42,9 +46,9 @@ void task_display(void *arg){
     ); 
 
     /* display initialization routine */
-    nextion_page_set(nextion_handle, "page0");
+    nextion_page_set(nextion_handle, NEX_PAGE_INTRO);
     vTaskDelay(pdMS_TO_TICKS(1000)); 
-    nextion_page_set(nextion_handle, "page1");
+    nextion_page_set(nextion_handle, NEX_PAGE_MODE_BLACK);
 
     print_task_remaining_space();
 
@@ -53,22 +57,97 @@ void task_display(void *arg){
     for (;;) {
 
         // speed
-        if (xQueueReceive(uart_queue, &recv_sensor, pdMS_TO_TICKS(1))){
-            // update global system var
+        if (xQueueReceive(qh_speed, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                // workaround speed bug
-                recv_sensor.value /= 2.0;
-
                 system_global.speed = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             // print to display
             snprintf(msg_buffer, 10, "%d",(int)recv_sensor.value);
-            nextion_component_set_text(nextion_handle," p1t0", msg_buffer);
+            nextion_component_set_text(nextion_handle, NEX_TEXT_SPEED, msg_buffer);
             memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
         }   
         
-        vTaskDelay(pdMS_TO_TICKS(500));
+        // RPM
+        else if (xQueueReceive(qh_rpm, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.rpm = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            percent = convert_to_percent(recv_sensor.value, NEX_RPM_MAX, NEX_RPM_MIN);
+
+            // print to display
+            nextion_component_set_value(nextion_handle, NEX_PROGRESSBAR_RPM, percent);
+        }
+
+        // fuel
+        else if (xQueueReceive(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.fuel_em = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            // print to display
+            nextion_component_set_boolean(nextion_handle, NEX_DSBUTTON_FUEL_EM, (bool)recv_sensor.value);
+        }
+
+        // battery
+        else if (xQueueReceive(qh_battery, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.battery = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            percent = convert_to_percent(recv_sensor.value, NEX_BAT_MAX, NEX_BAT_MIN);
+
+            // print to display
+            snprintf(msg_buffer, 10, "%d%c", (int)percent, NEX_SYMBOL_PERCENT);
+            nextion_component_set_text(nextion_handle, NEX_TEXT_BATTERY, msg_buffer);
+            memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        }
+
+        // temperature
+        else if (xQueueReceive(qh_temp, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.temp = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            // print to display
+            snprintf(msg_buffer, 10, "%d%cC", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
+            nextion_component_set_text(nextion_handle, NEX_TEXT_TEMP, msg_buffer);
+            memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        }
+
+        // tilt_x - pitch
+        else if (xQueueReceive(qh_tilt_x, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.tilt_x = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            // print to display
+            snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
+            nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH, msg_buffer);
+            memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        }
+
+        // tilt_y - roll
+        else if (xQueueReceive(qh_tilt_y, &recv_sensor, pdMS_TO_TICKS(1))){
+            // update global system var
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.tilt_y = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            // print to display
+            snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
+            nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL, msg_buffer);
+            memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 
@@ -114,4 +193,18 @@ void callback_touch_event(nextion_on_touch_event_t event) {
 
         ESP_LOGI(TAG, "received task notify");
     }
+}
+
+float convert_to_percent(float value, float max, float min) {
+    float percent;
+    
+    // convert battery to percent
+    if (value > max)
+        percent = 100.0;
+    else if (value < min)
+        percent = 0.0;
+    else
+        percent = ((value - min) / (max - min)) * 100.0;
+
+    return percent;
 }
