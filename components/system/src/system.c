@@ -31,6 +31,16 @@ TaskHandle_t th_display_nextion;
 TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
 SemaphoreHandle_t sh_global_vars;
+QueueHandle_t qh_rpm;
+QueueHandle_t qh_speed;
+QueueHandle_t qh_fuel_level;
+QueueHandle_t qh_fuel_emer;
+QueueHandle_t qh_battery;
+QueueHandle_t qh_temp;
+QueueHandle_t qh_rollover;
+QueueHandle_t qh_tilt_x;
+QueueHandle_t qh_tilt_y;
+QueueHandle_t qh_tilt_z;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
@@ -63,6 +73,23 @@ void print_mac_address(void) {
     } else {
         ESP_LOGE(TAG, "Failed to get MAC address");
     }
+}
+
+void system_queue_init(void) {
+    // -----create semaphores-----
+    sh_global_vars = xSemaphoreCreateMutex();
+    if(sh_global_vars == NULL)
+        ESP_LOGE(TAG, "global vars Semaphore init failed");
+
+    // -----create queues-----
+    qh_speed     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rpm       = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_fuel_emer = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_battery   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_temp      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_x    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {
