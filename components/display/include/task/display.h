@@ -33,6 +33,9 @@ extern "C" {
 #define NEX_TEXT_PITCH "p1t4"
 #define NEX_DSBUTTON_FUEL_EM "p1bt0"
 #define NEX_PROGRESSBAR_RPM "p1j0"
+#define NEX_PAGE_MODE_WHITE "page2"
+#define NEX_TEXT_SPEED_WHITE "p2t0"
+#define NEX_PROGRESSBAR_RPM_WHITE "p2j0"
 
 #define NEX_SYMBOL_DEGREE 0xB0 // hex value for °
 #define NEX_SYMBOL_PERCENT 0x25 // hex value for %
