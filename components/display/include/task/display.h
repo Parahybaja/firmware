@@ -24,11 +24,54 @@
 extern "C" {
 #endif
 
+#define NEX_PAGE_INTRO "page0"
+#define NEX_PAGE_MODE_BLACK "page1"
+#define NEX_TEXT_SPEED "p1t0"
+#define NEX_TEXT_BATTERY "p1t1"
+#define NEX_TEXT_TEMP "p1t2"
+#define NEX_TEXT_ROLL "p1t3"
+#define NEX_TEXT_PITCH "p1t4"
+#define NEX_DSBUTTON_FUEL_EM "p1bt0"
+#define NEX_PROGRESSBAR_RPM "p1j0"
+
+#define NEX_SYMBOL_DEGREE 0xB0 // hex value for °
+#define NEX_SYMBOL_PERCENT 0x25 // hex value for %
+
+#define NEX_RPM_MAX (float)4000
+#define NEX_RPM_MIN (float)0
+#define NEX_BAT_MAX (float)12.8 // battery 100%
+#define NEX_BAT_MIN (float)11.0 // battery 0%
+
+/**
+ * @brief 
+ * 
+ * @param arg 
+ */
 void task_display(void*);
 
-static void callback_touch_event(nextion_on_touch_event_t event);
+/**
+ * @brief 
+ * 
+ * @param event 
+ */
+static void callback_touch_event(nextion_on_touch_event_t);
 
+/**
+ * @brief 
+ * 
+ * @param arg 
+ */
 static void process_callback_queue(void*);
+
+/**
+ * @brief 
+ * 
+ * @param value 
+ * @param max 
+ * @param min 
+ * @return float 
+ */
+float convert_to_percent(float, float, float);
 
 #ifdef __cplusplus
 }
