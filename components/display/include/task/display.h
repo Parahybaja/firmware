@@ -24,22 +24,39 @@
 extern "C" {
 #endif
 
-#define NEX_PAGE_INTRO "page0"
-#define NEX_PAGE_MODE_BLACK "page1"
-#define NEX_TEXT_SPEED "p1t0"
-#define NEX_TEXT_BATTERY "p1t1"
-#define NEX_TEXT_TEMP "p1t2"
-#define NEX_TEXT_ROLL "p1t3"
-#define NEX_TEXT_PITCH "p1t4"
-#define NEX_DSBUTTON_FUEL_EM "p1bt0"
-#define NEX_PROGRESSBAR_RPM "p1j0"
-#define NEX_PAGE_MODE_WHITE "page2"
-#define NEX_TEXT_SPEED_WHITE "p2t0"
-#define NEX_PROGRESSBAR_RPM_WHITE "p2j0"
+/* nextion pages */
+#define NEX_PAGE_NAME_INTRO  "page0"
+#define NEX_PAGE_NAME_DARK   "page1"
+#define NEX_PAGE_NAME_LIGHT  "page2"
+#define NEX_PAGE_NAME_ENDURO "page3"
+#define NEX_PAGE_ID_INTRO    0
+#define NEX_PAGE_ID_DARK     1
+#define NEX_PAGE_ID_LIGHT    2
+#define NEX_PAGE_ID_ENDURO   3
 
-#define NEX_SYMBOL_DEGREE 0xB0 // hex value for °
+/* nextion dark components */
+#define NEX_TEXT_SPEED_D       "p1t0"
+#define NEX_TEXT_BATTERY_D     "p1t1"
+#define NEX_TEXT_TEMP_D        "p1t2"
+#define NEX_TEXT_ROLL_D        "p1t3"
+#define NEX_TEXT_PITCH_D       "p1t4"
+#define NEX_DSBUTTON_FUEL_EM_D "p1bt0"
+#define NEX_PROGRESSBAR_RPM_D  "p1j0"
+
+/* nextion light components */
+#define NEX_TEXT_SPEED_L       "p2t0"
+#define NEX_TEXT_BATTERY_L     "p2t1"
+#define NEX_TEXT_TEMP_L        "p2t2"
+#define NEX_TEXT_ROLL_L        "p2t3"
+#define NEX_TEXT_PITCH_L       "p2t4"
+#define NEX_DSBUTTON_FUEL_EM_L "p2bt0"
+#define NEX_PROGRESSBAR_RPM_L  "p2j0"
+
+/* nextion symbols */
+#define NEX_SYMBOL_DEGREE  0xB0 // hex value for °
 #define NEX_SYMBOL_PERCENT 0x25 // hex value for %
 
+/* nextion configs */
 #define NEX_RPM_MAX (float)4000
 #define NEX_RPM_MIN (float)0
 #define NEX_BAT_MAX (float)12.8 // battery 100%
