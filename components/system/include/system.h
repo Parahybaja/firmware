@@ -37,6 +37,7 @@ extern "C" {
 #endif
 
 #define ESPNOW_CHANNEL 1
+#define QUEUE_BUFFER_SIZE 6
 
 // -----type definitions-----
 typedef enum {
@@ -92,6 +93,16 @@ extern TaskHandle_t th_display_nextion;
 extern TaskHandle_t th_display_LCD;
 extern TaskHandle_t th_telemetry;
 extern SemaphoreHandle_t sh_global_vars;
+extern QueueHandle_t qh_rpm;
+extern QueueHandle_t qh_speed;
+extern QueueHandle_t qh_fuel_level;
+extern QueueHandle_t qh_fuel_emer;
+extern QueueHandle_t qh_battery;
+extern QueueHandle_t qh_temp;
+extern QueueHandle_t qh_rollover;
+extern QueueHandle_t qh_tilt_x;
+extern QueueHandle_t qh_tilt_y;
+extern QueueHandle_t qh_tilt_z;
 
 // -----esp-now mac addresses-----
 extern const uint8_t mac_address_ECU_box[ESP_NOW_ETH_ALEN];
@@ -115,6 +126,12 @@ void print_task_remaining_space(void);
  * @note must be called after espnow init
  */
 void print_mac_address(void);
+
+/**
+ * @brief internal queues initialization
+ * 
+ */
+void system_queue_init(void);
 
 /**
  * @brief espnow initialization
