@@ -150,10 +150,11 @@ void task_display(void *arg) {
 }
 
 void callback_touch_event(nextion_on_touch_event_t event){
-   // ESP_LOGI(TAG, "page:%i, comp:%i", event.page_id, event.component_id);
+   ESP_LOGI(TAG, "page:%i, comp:%i", event.page_id, event.component_id);
 
     if (event.page_id == 1 && event.component_id == 3 && event.state == NEXTION_TOUCH_PRESSED){
         ESP_LOGI(TAG, "button1 pressed");
+
 
         xTaskNotify(
             task_handle_user_interface,
@@ -175,7 +176,7 @@ void callback_touch_event(nextion_on_touch_event_t event){
     char text_buffer[MAX_TEXT_LENGTH];
     size_t text_length = MAX_TEXT_LENGTH;
     int32_t number;
-    uint32_t touch_id;
+    int touch_id;
 
     for (;;){
         touch_id = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
