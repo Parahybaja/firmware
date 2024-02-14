@@ -3,8 +3,8 @@
 static const char *TAG = "display";
 
 nextion_t *nextion_handle; // Declare nextion_handle globally
-int page_num;
 static TaskHandle_t task_handle_user_interface; // handler to use with touch callback
+int current_page_num;
 
 void task_display(void *arg) {
     (void)arg;
@@ -44,12 +44,17 @@ void task_display(void *arg) {
 
     /* display initialization routine */
     nextion_page_set(nextion_handle, NEX_PAGE_INTRO);
-    ESP_LOGI(TAG, "page:%i", page_num);
+    current_page_num = 0;
+    ESP_LOGI(TAG, "page:%i", current_page_num);
+    
     vTaskDelay(pdMS_TO_TICKS(2000));
+
     nextion_page_set(nextion_handle, NEX_PAGE_MODE_BLACK);
-    page_num=1;
-    ESP_LOGI(TAG, "page:%i", page_num);
+    current_page_num = 1;
+    ESP_LOGI(TAG, "page:%i", current_page_num);
+
     print_task_remaining_space();
+
     vTaskDelay(pdMS_TO_TICKS(500));
 
     for (;;) {
@@ -152,22 +157,32 @@ void task_display(void *arg) {
 void callback_touch_event(nextion_on_touch_event_t event){
    ESP_LOGI(TAG, "page:%i, comp:%i", event.page_id, event.component_id);
 
-    if (event.page_id == 1 && event.component_id == 3 && event.state == NEXTION_TOUCH_PRESSED){
-        ESP_LOGI(TAG, "button1 pressed");
-
+    if (event.page_id == 0 && event.state == NEXTION_TOUCH_PRESSED) {
+        ESP_LOGI(TAG, "page 0 pressed");
 
         xTaskNotify(
             task_handle_user_interface,
-            event.component_id,
-            eSetValueWithOverwrite);
+            event.page_id,
+            eSetValueWithOverwrite
+        );
     }
-    else if (event.page_id == 2 && event.component_id == 0 && event.state == NEXTION_TOUCH_PRESSED){
-        ESP_LOGI(TAG, "button2 pressed");
+    else if (event.page_id == 1 && event.state == NEXTION_TOUCH_PRESSED) {
+        ESP_LOGI(TAG, "page 1 pressed");
 
         xTaskNotify(
             task_handle_user_interface,
-            event.component_id,
-            eSetValueWithOverwrite);
+            event.page_id,
+            eSetValueWithOverwrite
+        );
+    }
+    else if (event.page_id == 2 && event.state == NEXTION_TOUCH_PRESSED) {
+        ESP_LOGI(TAG, "page 2 pressed");
+
+        xTaskNotify(
+            task_handle_user_interface,
+            event.page_id,
+            eSetValueWithOverwrite
+        );
     }
 }
 
@@ -175,27 +190,29 @@ void callback_touch_event(nextion_on_touch_event_t event){
     const uint8_t MAX_TEXT_LENGTH = 50;
     char text_buffer[MAX_TEXT_LENGTH];
     size_t text_length = MAX_TEXT_LENGTH;
-    int32_t number;
-    int touch_id;
+    uint32_t notify_page_id;
 
     for (;;){
-        touch_id = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
+        notify_page_id = ulTaskNotifyTake(pdTRUE, portMAX_DELAY);
 
-        if (touch_id == 3){
-            nextion_page_set(nextion_handle, NEX_PAGE_MODE_WHITE);
-            page_num = 2;
-        }
-        else if (touch_id == 6){
-            nextion_page_set(nextion_handle, NEX_PAGE_INTRO);
-            page_num = 0;
-        }
-        else if (touch_id == 0){
+        if (notify_page_id == 0){
             nextion_page_set(nextion_handle, NEX_PAGE_MODE_BLACK);
-            page_num = 1;
+            current_page_num = 1;
+        }
+        else if (notify_page_id == 1){
+            nextion_page_set(nextion_handle, NEX_PAGE_MODE_WHITE);
+            current_page_num = 2;
+        }
+        else if (notify_page_id == 2){
+            nextion_page_set(nextion_handle, NEX_PAGE_MODE_BLACK);
+            current_page_num = 1;
+        }
+        else {
+            ESP_LOGE(TAG, "undefined touch id");
         }
 
         ESP_LOGI(TAG, "received task notify");
-        ESP_LOGI(TAG, "page:%i", page_num);
+        ESP_LOGI(TAG, "page:%i", current_page_num);
     }
 }
 
