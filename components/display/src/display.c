@@ -13,7 +13,8 @@ void task_display(void *arg) {
         UART_NUM_2,
         115200,
         GPIO_NUM_17,
-        GPIO_NUM_16);
+        GPIO_NUM_16
+        );
 
     sensor_t recv_sensor = {};
     char msg_buffer[10];

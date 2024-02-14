@@ -1,9 +1,10 @@
 /**
- * @file task_example.h
- * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
- * @brief general task example
+ * @file task_display.h
+ * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
+ * @author Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
+ * @brief Task display 
  * @version 0.1
- * @date 2024-01-13
+ * @date 2024-02-14
  *
  * @copyright Copyright (c) 2024
  *
@@ -70,15 +71,13 @@ extern "C" {
 void task_display(void*);
 
 /**
- * @brief 
- * 
- * @param event 
+ * @brief Receiv touch events 
+ * @param event Identifies events 
  */
 static void callback_touch_event(nextion_on_touch_event_t);
 
 /**
- * @brief 
- * 
+ * @brief Process the touch events 
  * @param arg 
  */
 static void process_callback_queue(void*);
@@ -86,9 +85,9 @@ static void process_callback_queue(void*);
 /**
  * @brief 
  * 
- * @param value 
- * @param max 
- * @param min 
+ * @param value The value that batery 
+ * @param max   Margin for max value
+ * @param min   Margin for min value 
  * @return float 
  */
 float convert_to_percent(float, float, float);
