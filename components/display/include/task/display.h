@@ -3,7 +3,7 @@
  * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @author Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
  * @brief Task display 
- * @version 0.1
+ * @version 1.0
  * @date 2024-02-14
  *
  * @copyright Copyright (c) 2024
