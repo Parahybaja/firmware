@@ -25,7 +25,7 @@
 
 static const char* TAG = "ECU_front";
 
-static const gpio_num_t alive_pin = GPIO_NUM_12;
+static const gpio_num_t alive_pin = GPIO_NUM_2;
 
 // static const int cr = 8;  // coding rate
 // static const int sbw = 1; // signal bandwidth
