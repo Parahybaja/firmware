@@ -28,8 +28,8 @@ static const gpio_num_t alive_pin = GPIO_NUM_2;
 // static const gpio_num_t fuel_em_pin = GPIO_NUM_34;
 static const battery_config_t battery_config = {
     .adc_channel = ADC_CHANNEL_7, // GPIO 35
-    .R1 = 20e3,
-    .R2 = 10e3
+    .R1 = 10e3,
+    .R2 = 2.1e3 // calibrated
 };
 
 void app_main(void) {
@@ -53,13 +53,13 @@ void app_main(void) {
     );
 
     xTaskCreatePinnedToCore(
-        task_battery,          // task function
-        "battery",             // task name
-        2048,                  // stack size
+        task_battery,           // task function
+        "battery",              // task name
+        2048,                   // stack size
         (void*)&battery_config, // parameters
-        8,                     // priority
-        &th_battery,           // handler 
-        APP_CPU_NUM            // core number
+        8,                      // priority
+        &th_battery,            // handler 
+        APP_CPU_NUM             // core number
     );
 
     // xTaskCreatePinnedToCore(
