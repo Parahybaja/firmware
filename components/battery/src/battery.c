@@ -1,98 +1,66 @@
-// #include "task/battery.h"
+#include "task/battery.h"
 
-// static const char *TAG = "task_battery";
+static const char *TAG = "task_battery";
 
-// void task_battery(void *arg){
+void task_battery(void *arg){
     
-//     const battery_config_t battery_config = (battery_config_t)arg;
+    const battery_config_t *battery_config = (const battery_config_t*)arg;
 
-//     // -----config gpio-----
-//     //zero-initialize the config structure.
-//     gpio_config_t io_conf = {};
-//     //disable interrupt
-//     io_conf.intr_type = GPIO_INTR_DISABLE;
-//     //set as output mode
-//     io_conf.mode = GPIO_MODE_INPUT;
-//     //bit mask of the pins that you want to set
-//     io_conf.pin_bit_mask = (1ULL<<battery_config.gpio_pin);
-//     //disable pull-down mode
-//     io_conf.pull_down_en = false;
-//     //disable pull-up mode
-//     io_conf.pull_up_en = false;
-//     //configure GPIO with the given settings
-//     ESP_ERROR_CHECK(gpio_config(&io_conf)); 
+    // create task variables
+    const int send_rate_ms = (int)(1000.0 / (float)(TASK_BATTERY_RATE_Hz));
+    uint32_t timer_send_ms;
+    float sum;
+    float voltage_read;
+    float voltage_bat;
+    int adc_raw;
+    bool last_value = false;
 
-//     // create task variables
-//     const int send_rate_ms = (int)(1000.0 / (float)(TASK_BATTERY_RATE_Hz));
-//     uint32_t timer_send_ms;
-//     float sum;
-//     bool last_value = false;
-//     float R1 = battery_config->R1;
-//     float R2 = battery_config->R2;
-//     uint8_t mac[6];
-//     memcpy(mac, battery_config->mac, sizeof(mac));
-//     bool all_zeros = check_empty_mac(mac);
-//     sensor_t bat = {
-//         .type = BATTERY, 
-//         .value = 0.0
-//     };
-
-//     // show remaining task space
-//     print_task_remaining_space();
-
-//     // -----update timer-----
-//     timer_send_ms = esp_log_timestamp();
-
-//     for (;;) {
-//         if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms){
-//             // -----add to timer-----
-//             timer_send_ms += send_rate_ms;
-
-//             // -----calculate-----
-//             sum = 0; // clean sum buffer
-//             for (int i=0; i < FUEL_AVERAGE_POINTS; i++) { 
-//                 if (ACTIVE_LOW)
-//                     sum += !gpio_get_level(battery_config.gpio_pin);
-//                 else
-//                     sum += gpio_get_level(battery_config.gpio_pin);
-//             }
-//             fuel.value = sum / (float)(FUEL_AVERAGE_POINTS);
-
-//             // ----- define high or low level -----
-//             // comment out to send raw data fuel average
-//             if (fuel.value <= THRESHOLD) // low fuel level
-//                 fuel.value = true; // active low fuel emergency flag
-//             else 
-//                 fuel.value = false; 
-
-//             // ----- send data just when is changed -----
-//             if (fuel.value != last_value) {
-//                 // -----send fuel data through esp-now to receiver-----
-//                 ESP_LOGD(TAG, "send fuel_em");
-//                 esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel, sizeof(fuel));
-//             }
-            
-//             // ----- update last value -----
-//             last_value = fuel.value;
-//         }
-
-//         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
-//     }
-// }
-
-// bool check_empty_mac(uint8_t mac[ESP_NOW_ETH_ALEN]) {
-//     uint8_t count;
+    const float R1 = battery_config->R1;
+    const float R2 = battery_config->R2;
     
-//     // Loop through the array
-//     for (int i = 0; i < 6; i++) {
-//         if (mac[i] == 0) {
-//             count++;
-//         }
-//     }
+    sensor_t bat = {
+        .type = BATTERY, 
+        .value = 0.0
+    };
 
-//     if (count == 6) {
-//         return true;
-//     }
-    
-//     return false;
-// }
+    adc_oneshot_unit_handle_t adc1_handle;
+    adc_oneshot_unit_init_cfg_t init_config1 = {
+        .unit_id = ADC_UNIT_1,
+        .ulp_mode = ADC_ULP_MODE_DISABLE,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_new_unit(&init_config1, &adc1_handle));
+
+    adc_oneshot_chan_cfg_t config = {
+        .bitwidth = ADC_BITWIDTH_DEFAULT,
+        .atten = ADC_ATTEN_DB_12,
+    };
+    ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, battery_config->adc_channel, &config));
+
+    // show remaining task space
+    print_task_remaining_space();
+
+    // -----update timer-----
+    timer_send_ms = esp_log_timestamp();
+
+    for (;;) {
+        if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms){
+            // -----add to timer-----
+            timer_send_ms += send_rate_ms;
+
+            adc_oneshot_read(adc1_handle, battery_config->adc_channel, &adc_raw);
+
+            // -----calculate voltage-----
+            voltage_read = (ADC_VOLTAGE * adc_raw) / ADC_RESOLUTION;
+            voltage_bat = voltage_read / (R2 / (R1 + R2));
+            bat.value = voltage_bat;
+
+            ESP_LOGI(TAG, "ADC: Raw=%d, voltage_read=%f, voltage_bat=%f", adc_raw, voltage_read, voltage_bat);
+
+            // -----send fuel data through esp-now to receiver-----
+            ESP_LOGD(TAG, "send battery");
+            esp_now_send(mac_address_ECU_front, (uint8_t *) &bat, sizeof(bat));
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
+    }
+}
