@@ -26,7 +26,7 @@ static const gpio_num_t alive_pin = GPIO_NUM_12;
 
 static const int cr = 8;  // coding rate
 static const int sbw = 1; // signal bandwidth
-static const int sf = 7;  // spreading factor rate
+static const int sf = 6;  // spreading factor rate
 
 void app_main(void) {
     ESP_LOGW(TAG, "TCU v5");
