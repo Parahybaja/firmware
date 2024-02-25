@@ -25,11 +25,12 @@
 
 static const char* TAG = "ECU_front";
 
-static const gpio_num_t alive_pin = GPIO_NUM_2;
+static const gpio_num_t alive_pin = GPIO_NUM_12;
 
+/* LoRa preamble */
 static const int cr = 8;  // coding rate
-static const int sbw = 1; // signal bandwidth
-static const int sf = 6;  // spreading factor rate
+static const int sbw = 3; // signal bandwidth
+static const int sf = 7;  // spreading factor rate
 
 void app_main(void) {
     ESP_LOGW(TAG, "ECU front v5");
@@ -69,7 +70,7 @@ void app_main(void) {
         "lora sender",    // task name
         4096,             // stack size
         NULL,             // parameters
-        8,                // priority
+        9,                // priority
         &th_lora,         // handler
         PRO_CPU_NUM       // core number
     );
