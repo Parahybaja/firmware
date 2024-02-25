@@ -9,18 +9,17 @@ int current_page_num;
 void task_display(void *arg) {
     (void)arg;
 
+    sensor_t recv_sensor = {};
+    char msg_buffer[10];
+    float percent;
+
     nextion_handle = nextion_driver_install(
         UART_NUM_2,
         115200,
         GPIO_NUM_17,
         GPIO_NUM_16
-        );
+    );
 
-    sensor_t recv_sensor = {};
-    char msg_buffer[10];
-    float percent;
-
-    /*Do basic configuration*/
     nex_err_t nex_init_err = nextion_init(nextion_handle);
 
     if (nex_init_err != 0) {
@@ -43,6 +42,7 @@ void task_display(void *arg) {
         callback_touch_event
     );
 
+    /* if there's no error with the nextion initialization */
     if (nex_init_err == 0) {
         /* display initialization routine */
         nextion_page_set(nextion_handle, NEX_PAGE_NAME_INTRO);
@@ -69,6 +69,7 @@ void task_display(void *arg) {
                 system_global.speed = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
@@ -89,6 +90,7 @@ void task_display(void *arg) {
                 system_global.rpm = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 percent = convert_to_percent(recv_sensor.value, NEX_RPM_MAX, NEX_RPM_MIN);
 
@@ -109,6 +111,7 @@ void task_display(void *arg) {
                 system_global.fuel_em = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 if (current_page_num == NEX_PAGE_ID_DARK) {
@@ -127,6 +130,7 @@ void task_display(void *arg) {
                 system_global.battery = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 percent = convert_to_percent(recv_sensor.value, NEX_BAT_MAX, NEX_BAT_MIN);
 
@@ -149,6 +153,7 @@ void task_display(void *arg) {
                 system_global.temp = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d%cC", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
@@ -169,6 +174,7 @@ void task_display(void *arg) {
                 system_global.tilt_x = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
@@ -189,6 +195,7 @@ void task_display(void *arg) {
                 system_global.tilt_y = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
+            /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
