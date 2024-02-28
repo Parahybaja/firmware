@@ -44,7 +44,7 @@ QueueHandle_t qh_tilt_z;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
-const uint8_t mac_address_ECU_front[] = {0xC8, 0xF0, 0x9E, 0x31, 0x92, 0xE9};
+const uint8_t mac_address_ECU_front[] = {0xC8, 0xF0, 0x9E, 0x31, 0x87, 0xB9};
 const uint8_t mac_address_ECU_rear[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0xBD};
 const uint8_t mac_address_module_1[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0x38};
 const uint8_t mac_address_module_2[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8A, 0xD8};
@@ -73,6 +73,45 @@ void print_mac_address(void) {
     } else {
         ESP_LOGE(TAG, "Failed to get MAC address");
     }
+}
+
+simplified_system_t system_to_simplified(const system_t *original) {
+    simplified_system_t simplified = {
+        .key          = TELEMETRY_KEY,
+        .rpm          = (uint16_t)original->rpm,
+        .speed        = (uint8_t)original->speed,
+        .fuel_level   = (uint8_t)(original->fuel_level * 100),
+        .fuel_em      = (original->fuel_em != 0),
+        .battery      = (uint8_t)(original->battery * 15),
+        .temp         = (int8_t)original->temp,
+        .rollover     = (original->rollover != 0),
+        .tilt_x       = (int8_t)original->tilt_x,
+        .tilt_y       = (int8_t)original->tilt_y,
+        .tilt_z       = (int8_t)original->tilt_z,
+        .blind_spot_l = (original->blind_spot_l != 0),
+        .blind_spot_r = (original->blind_spot_r != 0)
+    };
+
+    return simplified;
+}
+
+system_t simplified_to_system(const simplified_system_t *simplified) {
+    system_t original = {
+        .rpm          = (float) simplified->rpm,
+        .speed        = (float) simplified->speed,
+        .fuel_level   = (float) simplified->fuel_level / 100.0f, // Assuming the value was a percentage
+        .fuel_em      = (float)(simplified->fuel_em ? 1 : 0),
+        .battery      = (float) simplified->battery / 15.0f, // Assuming the value was a percentage
+        .temp         = (float) simplified->temp,
+        .rollover     = (float)(simplified->rollover ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
+        .tilt_x       = (float) simplified->tilt_x,
+        .tilt_y       = (float) simplified->tilt_y,
+        .tilt_z       = (float) simplified->tilt_z,
+        .blind_spot_l = (float)(simplified->blind_spot_l ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
+        .blind_spot_r = (float)(simplified->blind_spot_r ? 1 : 0) // Assuming binary 0 or 1 represents the boolean
+    };
+
+    return original;
 }
 
 void system_queue_init(void) {
@@ -179,8 +218,9 @@ void system_lora_init(int cr, int sbw, int sf) {
 void task_lora_sender(void *arg) {
     (void)arg;
 
-	ESP_LOGI(TAG, "Start lora sender task");
+	ESP_LOGW(TAG, "Start lora sender task");
 	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
+    simplified_system_t simplified;
     TickType_t start_tick, end_tick;
     int send_len;
     int lost;
@@ -190,16 +230,22 @@ void task_lora_sender(void *arg) {
 
     // delete task if LoRa is not initialized
     if (lora_initialized_flag == false) {
+        ESP_LOGE(TAG, "LoRa not initialized");
         vTaskDelete(NULL);
     } 
-vTaskDelay(pdMS_TO_TICKS(2000));
+
 	for (;;) {
+
+        ESP_LOGW(TAG, "1 %f", system_global.battery);
+        simplified = system_to_simplified(&system_global);
+        system_t test = simplified_to_system(&simplified);
+        ESP_LOGW(TAG, "2 %f", test.battery);
+
 		start_tick = xTaskGetTickCount();
 		
-        send_len = sprintf((char *)buf,"Hello World!! %"PRIu32, start_tick);
         ESP_LOGW(TAG, "sending lora packet");
-		lora_send_packet(buf, send_len);
-		ESP_LOGI(TAG, "%d byte packet sent...", send_len);
+		lora_send_packet((uint8_t*)&simplified, sizeof(simplified));
+		ESP_LOGI(TAG, "%d byte packet sent...", sizeof(simplified));
 		
         // Record the end time after sending the packet
         end_tick = xTaskGetTickCount();
@@ -224,8 +270,12 @@ vTaskDelay(pdMS_TO_TICKS(2000));
 void task_lora_receiver(void *arg) {
     (void)arg;
 
-	ESP_LOGI(TAG, "Start lora receiver task");
+	ESP_LOGW(TAG, "Start lora receiver task");
+
+    system_t converted_system;
+    simplified_system_t received_system;
 	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
+    char payload[256];
 	int rxLen;
 
     // show remaining task space
@@ -233,6 +283,7 @@ void task_lora_receiver(void *arg) {
 
     // delete task if LoRa is not initialized
     if (lora_initialized_flag == false) {
+        ESP_LOGE(TAG, "LoRa not initialized");
         vTaskDelete(NULL);
     } 
 
@@ -241,7 +292,47 @@ void task_lora_receiver(void *arg) {
 		
         if (lora_received()) {
 			rxLen = lora_receive_packet(buf, sizeof(buf));
-			ESP_LOGI(TAG, "%d byte packet received:[%.*s]", rxLen, rxLen, buf);
+
+            if (rxLen == sizeof(simplified_system_t)) {
+                
+                memcpy(&received_system, buf, sizeof(simplified_system_t));
+
+                if (received_system.key == TELEMETRY_KEY) {
+                    ESP_LOGI(TAG, "key %02X confirmed", received_system.key);
+
+                    converted_system = simplified_to_system(&received_system);
+
+                    /*prepare payload message*/
+                    int len = snprintf(
+                        payload, sizeof(payload),
+                        "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f",
+                        (uint16_t)converted_system.rpm,
+                        (uint8_t)converted_system.speed,
+                        (uint8_t)converted_system.fuel_em,
+                        (float)converted_system.battery,
+                        (float)converted_system.temp,
+                        (uint8_t)converted_system.rollover,
+                        (float)converted_system.tilt_x,
+                        (float)converted_system.tilt_y,
+                        (float)converted_system.tilt_z
+                    );
+
+                    /*send payload to server*/
+                    if (len > 0 && len < sizeof(payload)) {
+                        // Successfully formatted the string; payload contains the data
+                        printf("%s\n", payload); // Using printf to simulate Serial.println
+                    } else {
+                        // Handle error
+                        ESP_LOGE(TAG, "Error formatting the payload");
+                    }
+                }
+                
+                /* clear buffers */
+                memset(&received_system, 0, sizeof(received_system));
+                memset(&converted_system, 0, sizeof(converted_system));
+                memset(&payload, 0, sizeof(payload));
+                memset(&buf, 0, sizeof(buf));
+            }
 		}
 		
         vTaskDelay(pdMS_TO_TICKS(10)); // Avoid WatchDog alerts
