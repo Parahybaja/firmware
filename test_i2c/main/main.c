@@ -30,11 +30,11 @@ static const char *TAG = "test-i2c";
 #define DEFAULT_GYRO_COEFF    0.98
 
 /*-----Define value of variables-----*/
-#define acc_g 16384.0
-#define gyro_lsb_to_degsec 131.0
+#define ACC_GRAVITY_VALUE 16384.0
+#define GYRO_LSB_TO_DEGSEC 131.0
 
 /*-------Upside Down Mounting-------*/
-bool upsideDownMounting = false;
+uint8_t upsideDownMounting 1;
 
 /**
  * @brief Initialize I2C hardware with 400kHz clock speed
@@ -216,37 +216,37 @@ esp_err_t mpu_fetch() {
 
     esp_err_t ret = i2c_read_data(I2C_MASTER_PORT_NUM, MPU6050_ADDR, MPU6050_ACCEL_OUT_REGISTER, raw_data, sizeof(raw_data));
 
-    /*--------Bytes of acc--------*/
+        /*--------Bytes of acc--------*/
     int16_t raw_acc_x = (raw_data[0] << 8) + raw_data[1];
     int16_t raw_acc_y = (raw_data[2] << 8) + raw_data[3];
     int16_t raw_acc_z = (raw_data[4] << 8) + raw_data[5];
 
-    float acc_x = ((float)raw_acc_x) / acc_g;
-    float acc_y = ((float)raw_acc_y) / acc_g;
-    float acc_z = (!upsideDownMounting - upsideDownMounting) * ((float)raw_acc_z) / acc_g;
+    float acc_x = ((float)raw_acc_x) / ACC_GRAVITY_VALUE;
+    float acc_y = ((float)raw_acc_y) / ACC_GRAVITY_VALUE;
+    float acc_z = (!upsideDownMounting - upsideDownMounting) * ((float)raw_acc_z) / ACC_GRAVITY_VALUE;
 
     ESP_LOGI(TAG, "acc_x=%f", acc_x);
     ESP_LOGI(TAG, "acc_y=%f", acc_y);
     ESP_LOGI(TAG, "acc_z=%f", acc_z);
-    
-    /*--------Bytes of gyro--------*/
-    int16_t raw_gyro_x = (raw_data[6] << 8) + raw_data[7];
-    int16_t raw_gyro_y = (raw_data[8] << 8) + raw_data[9];
-    int16_t raw_gyro_z = (raw_data[10] << 8) + raw_data[11];
 
-    float gyroX = ((float)raw_gyro_x) / gyro_lsb_to_degsec;
-    float gyroY = ((float)raw_gyro_y) / gyro_lsb_to_degsec;
-    float gyroZ = ((float)raw_gyro_z) / gyro_lsb_to_degsec;
-
-    ESP_LOGW(TAG, "[0]:%x, [1]%x, raw:%i", raw_data[0], raw_data[1], raw_acc_x);
-    
-    /*--------Bytes of temp--------*/
+        /*--------Bytes of temp--------*/
     int16_t raw_temp = (raw_data[6] << 8) + raw_data[7];
 
     float temp = ((float)raw_temp + TEMP_LSB_OFFSET) / TEMP_LSB_2_DEGREE;
 
     ESP_LOGE(TAG, "temp:%f", temp);
     ESP_LOGW(TAG, "[6]:%x, [7]%x, raw:%i", raw_data[6], raw_data[7], raw_temp);
+    
+        /*--------Bytes of gyro--------*/
+    int16_t raw_gyro_x = (raw_data[8] << 8) + raw_data[9];
+    int16_t raw_gyro_y = (raw_data[10] << 8) + raw_data[11];
+    int16_t raw_gyro_z = (raw_data[12] << 8) + raw_data[13];
+
+    float gyroX = ((float)raw_gyro_x) / GYRO_LSB_TO_DEGSEC;
+    float gyroY = ((float)raw_gyro_y) / GYRO_LSB_TO_DEGSEC;
+    float gyroZ = ((float)raw_gyro_z) / GYRO_LSB_TO_DEGSEC;
+
+    ESP_LOGW(TAG, "[0]:%x, [1]%x, raw:%i", raw_data[0], raw_data[1], raw_acc_x);
 
     return ret;
 }
