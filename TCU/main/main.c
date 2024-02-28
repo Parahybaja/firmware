@@ -34,6 +34,8 @@ void app_main(void) {
 
     system_lora_init(cr, sbw, sf);
 
+    esp_log_level_set("*", ESP_LOG_WARN);
+
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
         task_alive_LED,   // task function
