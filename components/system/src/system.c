@@ -219,6 +219,9 @@ void task_lora_sender(void *arg) {
     (void)arg;
 
 	ESP_LOGW(TAG, "Start lora sender task");
+
+    const int send_rate_ms = (int)(1000.0 / (float)(TASK_TELEMETRY_SEND_RATE_Hz));
+    uint32_t timer_send_ms;
 	uint8_t buf[256]; // Maximum Payload size of SX1276/77/78/79 is 255
     simplified_system_t simplified;
     TickType_t start_tick, end_tick;
@@ -234,33 +237,40 @@ void task_lora_sender(void *arg) {
         vTaskDelete(NULL);
     } 
 
+    // -----update timer-----
+    timer_send_ms = esp_log_timestamp();
+
 	for (;;) {
 
-        simplified = system_to_simplified(&system_global);
+        if ((esp_log_timestamp() - timer_send_ms) >= send_rate_ms){
+            // -----add to timer-----
+            timer_send_ms += send_rate_ms;
 
-		start_tick = xTaskGetTickCount();
-		
-        ESP_LOGW(TAG, "sending lora packet");
-		lora_send_packet((uint8_t*)&simplified, sizeof(simplified));
-		ESP_LOGI(TAG, "%d byte packet sent...", sizeof(simplified));
-		
-        // Record the end time after sending the packet
-        end_tick = xTaskGetTickCount();
+            simplified = system_to_simplified(&system_global);
 
-        // Calculate the time taken to send the packet
-        TickType_t time_taken = end_tick - start_tick;
+            start_tick = xTaskGetTickCount();
 
-        // Convert tick count to milliseconds
-        uint32_t time_taken_ms = pdTICKS_TO_MS(time_taken);
+            lora_send_packet((uint8_t*)&simplified, sizeof(simplified));
+            ESP_LOGI(TAG, "%d byte LoRa packet sent...", sizeof(simplified));
+            
+            // Record the end time after sending the packet
+            end_tick = xTaskGetTickCount();
 
-        ESP_LOGI(TAG, "Time taken to send packet: %" PRIu32 " ms", time_taken_ms);
+            // Calculate the time taken to send the packet
+            TickType_t time_taken = end_tick - start_tick;
 
-        lost = lora_packet_lost();
-		if (lost != 0) {
-			ESP_LOGW(TAG, "%d packets lost", lost);
-		}
+            // Convert tick count to milliseconds
+            uint32_t time_taken_ms = pdTICKS_TO_MS(time_taken);
 
-		vTaskDelay(pdMS_TO_TICKS(2000));
+            ESP_LOGI(TAG, "Time taken to send packet: %" PRIu32 " ms", time_taken_ms);
+
+            lost = lora_packet_lost();
+            if (lost != 0) {
+                ESP_LOGW(TAG, "%d packets lost", lost);
+            }
+        }
+
+        vTaskDelay(pdMS_TO_TICKS(10));
 	}
 }
 

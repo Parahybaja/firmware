@@ -40,6 +40,7 @@ extern "C" {
 #define QUEUE_BUFFER_SIZE 6
 
 #define TELEMETRY_KEY 0x98
+#define TASK_TELEMETRY_SEND_RATE_Hz 1 // Fuel task send rate in hertz
 
 // -----type definitions-----
 typedef enum {
