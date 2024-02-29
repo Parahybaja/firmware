@@ -236,10 +236,7 @@ void task_lora_sender(void *arg) {
 
 	for (;;) {
 
-        ESP_LOGW(TAG, "1 %f", system_global.battery);
         simplified = system_to_simplified(&system_global);
-        system_t test = simplified_to_system(&simplified);
-        ESP_LOGW(TAG, "2 %f", test.battery);
 
 		start_tick = xTaskGetTickCount();
 		
