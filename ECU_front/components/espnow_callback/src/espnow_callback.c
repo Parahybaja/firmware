@@ -36,7 +36,26 @@ void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* d
     if (len == sizeof(sensor_t)) {
         sensor_t recv_sensor;
         memcpy(&recv_sensor, data, len);
-        ESP_LOGI(TAG, "received %f", recv_sensor.value);
+
+        if (recv_sensor.type == BATTERY){
+            // -----send RPM data through queue-----
+            xQueueSend(qh_battery, &recv_sensor, pdMS_TO_TICKS(0));
+        }
+        else if (recv_sensor.type == RPM){
+            // -----send RPM data through queue-----
+            xQueueSend(qh_rpm, &recv_sensor, pdMS_TO_TICKS(0));
+        }
+        else if (recv_sensor.type == SPEEDOMETER){
+            // -----send speed data through queue-----
+            xQueueSend(qh_speed, &recv_sensor, pdMS_TO_TICKS(0));
+        }
+        else if (recv_sensor.type == FUEL_EMERGENCY){
+            // -----send speed data through queue-----
+            xQueueSend(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(0));
+        }
+        else {
+            ESP_LOGE(TAG, "unknown sensor type");
+        }
     }
     else {
         ESP_LOGE(TAG, "unrecognized packet");

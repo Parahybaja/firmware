@@ -25,11 +25,12 @@
 
 static const char* TAG = "ECU_front";
 
-static const gpio_num_t alive_pin = GPIO_NUM_2;
+static const gpio_num_t alive_pin = GPIO_NUM_12;
 
-// static const int cr = 8;  // coding rate
-// static const int sbw = 1; // signal bandwidth
-// static const int sf = 7;  // spreading factor rate
+/* LoRa preamble */
+static const int cr = 8;  // coding rate
+static const int sbw = 3; // signal bandwidth
+static const int sf = 7;  // spreading factor rate
 
 void app_main(void) {
     ESP_LOGW(TAG, "ECU front v5");
@@ -41,7 +42,7 @@ void app_main(void) {
 
     print_mac_address();
 
-    // system_lora_init(cr, sbw, sf);
+    system_lora_init(cr, sbw, sf);
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
@@ -64,13 +65,13 @@ void app_main(void) {
         APP_CPU_NUM    // core number
     );
 
-    // xTaskCreatePinnedToCore(
-    //     task_lora_sender, // task function
-    //     "lora sender",    // task name
-    //     4096,             // stack size
-    //     NULL,             // parameters
-    //     8,                // priority
-    //     &th_lora,         // handler
-    //     PRO_CPU_NUM       // core number
-    // );
+    xTaskCreatePinnedToCore(
+        task_lora_sender, // task function
+        "lora sender",    // task name
+        4096,             // stack size
+        NULL,             // parameters
+        9,                // priority
+        &th_lora,         // handler
+        PRO_CPU_NUM       // core number
+    );
 }

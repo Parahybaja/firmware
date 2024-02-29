@@ -24,14 +24,17 @@ static const char* TAG = "TCU";
 
 static const gpio_num_t alive_pin = GPIO_NUM_12;
 
+/* LoRa preamble */
 static const int cr = 8;  // coding rate
-static const int sbw = 1; // signal bandwidth
+static const int sbw = 3; // signal bandwidth
 static const int sf = 7;  // spreading factor rate
 
 void app_main(void) {
     ESP_LOGW(TAG, "TCU v5");
 
     system_lora_init(cr, sbw, sf);
+
+    esp_log_level_set("*", ESP_LOG_WARN);
 
     // -----fire up tasks-----
     xTaskCreatePinnedToCore(
@@ -49,7 +52,7 @@ void app_main(void) {
         "lora receiver",    // task name
         4096,               // stack size
         NULL,               // parameters
-        8,                  // priority
+        9,                  // priority
         &th_lora,           // handler
         PRO_CPU_NUM         // core number
     );
