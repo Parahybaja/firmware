@@ -9,7 +9,6 @@ void task_battery(void *arg){
     // create task variables
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_BATTERY_RATE_Hz));
     uint32_t timer_send_ms;
-    float sum;
     float voltage_read;
     float voltage_bat;
     int adc_raw;

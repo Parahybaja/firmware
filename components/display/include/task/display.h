@@ -75,13 +75,13 @@ void task_display(void*);
  * @brief Receiv touch events 
  * @param event Identifies events 
  */
-static void callback_touch_event(nextion_on_touch_event_t);
+void callback_touch_event(nextion_on_touch_event_t);
 
 /**
  * @brief Process the touch events 
  * @param arg 
  */
-static void process_callback_queue(void*);
+void process_callback_queue(void*);
 
 /**
  * @brief 

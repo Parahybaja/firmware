@@ -15,6 +15,19 @@ float angle_x, angle_y, angle_z;
 int64_t pre_interval;
 float filter_gyro_coef;
 
+/**
+ * @brief Wrap an angle in the range [-limit,+limit]
+ * 
+ * @param angle 
+ * @param limit 
+ * @return float 
+ */
+static float wrap(float angle, float limit){
+    while (angle >  limit) angle -= 2*limit;
+    while (angle < -limit) angle += 2*limit;
+    return angle;
+}
+
 void i2c_init(void) {
     i2c_config_t i2c_conf = {
         .mode = I2C_MODE_MASTER,
@@ -246,9 +259,3 @@ float mpu_get_angle_y(void) { return angle_y;}
 float mpu_get_angle_z(void) { return angle_z;}
 
 float mpu_get_temp(void) {return temp;}
-
-static float wrap(float angle, float limit){
-    while (angle >  limit) angle -= 2*limit;
-    while (angle < -limit) angle += 2*limit;
-    return angle;
-}

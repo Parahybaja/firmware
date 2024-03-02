@@ -166,15 +166,6 @@ float mpu_get_angle_z(void);
  */
 float mpu_get_temp(void);
 
-/**
- * @brief Wrap an angle in the range [-limit,+limit]
- * 
- * @param angle 
- * @param limit 
- * @return float 
- */
-static float wrap(float angle, float limit);
-
 #ifdef __cplusplus
 }
 #endif

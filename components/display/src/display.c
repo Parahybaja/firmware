@@ -224,10 +224,7 @@ void callback_touch_event(nextion_on_touch_event_t event){
     }
 }
 
-[[noreturn]] static void process_callback_queue(void *arg){
-    const uint8_t MAX_TEXT_LENGTH = 50;
-    char text_buffer[MAX_TEXT_LENGTH];
-    size_t text_length = MAX_TEXT_LENGTH;
+void process_callback_queue(void *arg){
     uint32_t notify_page_id;
 
     for (;;){
