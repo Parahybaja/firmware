@@ -19,6 +19,7 @@
 #include "system.h"
 #include "task/alive.h"
 #include "task/display.h"
+#include "task/rollover.h"
 #include "task/task_example.h"
 
 #include "espnow_callback.h"
@@ -73,4 +74,14 @@ void app_main(void) {
     //     &th_lora,         // handler
     //     PRO_CPU_NUM       // core number
     // );
+
+    xTaskCreatePinnedToCore(
+        task_rollover, // task function
+        "rollover",    // task name
+        4096,          // stack size
+        NULL,          // parameters
+        8,             // priority
+        &th_rollover,  // handler
+        APP_CPU_NUM    // core number
+    );
 }
