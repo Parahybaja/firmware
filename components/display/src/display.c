@@ -179,10 +179,10 @@ void task_display(void *arg) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
                 if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_D, msg_buffer);
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_D, msg_buffer);
                 }
                 else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
@@ -200,10 +200,10 @@ void task_display(void *arg) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
                 if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_D, msg_buffer);
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_D, msg_buffer);
                 }
                 else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
