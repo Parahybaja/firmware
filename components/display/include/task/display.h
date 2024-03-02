@@ -1,7 +1,8 @@
 /**
  * @file task_display.h
- * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
- * @author Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
+ * @authors 
+ *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
+ *      Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
  * @brief Task display 
  * @version 1.0
  * @date 2024-02-14

@@ -1,6 +1,6 @@
 /**
  * @file fuel_em.h
- * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief fuel emergency task
  * @version 1.0
  * @date 2024-01-15

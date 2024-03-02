@@ -1,7 +1,7 @@
 /**
  * @file battery.h
  * @authors 
- *      Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief battery voltage task
  * @version 2.0
  * @date 2024-02-10

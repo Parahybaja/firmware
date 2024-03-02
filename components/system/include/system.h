@@ -1,6 +1,7 @@
 /**
  * @file system.h
- * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @authors 
+ *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief system's general types definitions and basic esp-now communication functions
  * @version 2.0
  * @date 2024-01-08
