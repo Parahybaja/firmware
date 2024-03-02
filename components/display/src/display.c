@@ -167,7 +167,7 @@ void task_display(void *arg) {
             }
         }
 
-        // tilt_x - pitch
+        // tilt_x - roll
         else if (xQueueReceive(qh_tilt_x, &recv_sensor, pdMS_TO_TICKS(1))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
@@ -188,7 +188,7 @@ void task_display(void *arg) {
             }
         }
 
-        // tilt_y - roll
+        // tilt_y - pitch
         else if (xQueueReceive(qh_tilt_y, &recv_sensor, pdMS_TO_TICKS(1))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
@@ -245,10 +245,7 @@ void callback_touch_event(nextion_on_touch_event_t event){
     }
 }
 
-[[noreturn]] static void process_callback_queue(void *arg){
-    const uint8_t MAX_TEXT_LENGTH = 50;
-    char text_buffer[MAX_TEXT_LENGTH];
-    size_t text_length = MAX_TEXT_LENGTH;
+void process_callback_queue(void *arg){
     uint32_t notify_page_id;
 
     for (;;){

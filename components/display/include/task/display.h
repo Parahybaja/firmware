@@ -1,7 +1,8 @@
 /**
  * @file task_display.h
- * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
- * @author Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
+ * @authors 
+ *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
+ *      Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
  * @brief Task display 
  * @version 1.0
  * @date 2024-02-14
@@ -74,13 +75,13 @@ void task_display(void*);
  * @brief Receiv touch events 
  * @param event Identifies events 
  */
-static void callback_touch_event(nextion_on_touch_event_t);
+void callback_touch_event(nextion_on_touch_event_t);
 
 /**
  * @brief Process the touch events 
  * @param arg 
  */
-static void process_callback_queue(void*);
+void process_callback_queue(void*);
 
 /**
  * @brief 

@@ -1,6 +1,8 @@
 /**
  * @file task_example.h
- * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @authors 
+ *      Name 1 (email)
+ *      Name 2 (email)
  * @brief general task example
  * @version 0.1
  * @date 2024-01-13

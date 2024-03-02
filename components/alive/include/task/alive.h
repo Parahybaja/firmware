@@ -1,7 +1,7 @@
 /**
  * @file alive.h
  * @authors 
- *      Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief control alive signal, shows that it's not lockup
  * @version 2.0
  * @date 2024-01-15

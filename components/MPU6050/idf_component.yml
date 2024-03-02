@@ -1,0 +1,3 @@
+version: "0.1.0"
+description: "MPU6050 idf driver"
+url: "https://github.com/Parahybaja/firmware"
