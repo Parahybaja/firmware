@@ -40,6 +40,9 @@ extern "C" {
 #define ESPNOW_CHANNEL 1
 #define QUEUE_BUFFER_SIZE 6
 
+#define TELEMETRY_KEY 0x98
+#define TASK_TELEMETRY_SEND_RATE_Hz 1 // Fuel task send rate in hertz
+
 // -----type definitions-----
 typedef enum {
     RPM,
@@ -70,6 +73,22 @@ typedef struct {
     float blind_spot_l;
     float blind_spot_r;
 } system_t;
+
+typedef struct {
+    uint8_t key;
+    uint16_t rpm;            // For RPM, precision to the nearest unit
+    uint8_t speed;           // For speed, precision to the nearest unit
+    uint8_t fuel_level;      // For fuel level, precision to the nearest percentage
+    uint8_t fuel_em;
+    uint8_t battery;         // For battery, precision to the nearest percentage
+    int8_t temp;             // For temperature, precision to the nearest degree
+    uint8_t rollover;        // For rollover, 0 or 1
+    int8_t tilt_x;           // For tilt, precision to the nearest degree
+    int8_t tilt_y;           // For tilt, precision to the nearest degree
+    int8_t tilt_z;           // For tilt, precision to the nearest degree
+    uint8_t blind_spot_l;    // For blind spot left, 0 or 1
+    uint8_t blind_spot_r;    // For blind spot right, 0 or 1
+} simplified_system_t;
 
 // -----sensor data type definition-----
 typedef struct {
@@ -127,6 +146,22 @@ void print_task_remaining_space(void);
  * @note must be called after espnow init
  */
 void print_mac_address(void);
+
+/**
+ * @brief convert system_t to simplified_system_t
+ * 
+ * @param original 
+ * @return simplified_system_t 
+ */
+simplified_system_t system_to_simplified(const system_t*);
+
+/**
+ * @brief convert simplified_system_t to system_t
+ * 
+ * @param simplified 
+ * @return system_t 
+ */
+system_t simplified_to_system(const simplified_system_t*); 
 
 /**
  * @brief internal queues initialization

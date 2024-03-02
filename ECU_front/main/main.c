@@ -26,10 +26,11 @@
 
 static const char* TAG = "ECU_front";
 
-static const gpio_num_t alive_pin = GPIO_NUM_2;
+static const gpio_num_t alive_pin = GPIO_NUM_12;
 
+/* LoRa preamble */
 static const int cr = 8;  // coding rate
-static const int sbw = 1; // signal bandwidth
+static const int sbw = 3; // signal bandwidth
 static const int sf = 7;  // spreading factor rate
 
 void app_main(void) {
