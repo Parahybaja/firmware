@@ -152,7 +152,7 @@ void task_display(void *arg) {
             memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
         }
 
-        // tilt_x - pitch
+        // tilt_x - roll
         else if (xQueueReceive(qh_tilt_x, &recv_sensor, pdMS_TO_TICKS(1))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
@@ -162,15 +162,15 @@ void task_display(void *arg) {
             // print to display
             snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
             if (current_page_num == NEX_PAGE_ID_DARK) {
-                nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_D, msg_buffer);
+                nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_D, msg_buffer);
             }
             else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
+                nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
             }
             memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
         }
 
-        // tilt_y - roll
+        // tilt_y - pitch
         else if (xQueueReceive(qh_tilt_y, &recv_sensor, pdMS_TO_TICKS(1))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
@@ -180,10 +180,10 @@ void task_display(void *arg) {
             // print to display
             snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
             if (current_page_num == NEX_PAGE_ID_DARK) {
-                nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_D, msg_buffer);
+                nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_D, msg_buffer);
             }
             else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
+                nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
             }
             memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
         }
