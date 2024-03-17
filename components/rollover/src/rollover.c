@@ -82,7 +82,7 @@ void task_rollover(void *arg){
             timer_send_ms += send_rate_ms;
 
             // correct the assembly mounting
-            tilt_x.value = mpu_get_angle_x();
+            tilt_x.value = -1*mpu_get_angle_x();
             tilt_y.value = -1*mpu_get_angle_y();
             tilt_z.value = mpu_get_angle_z();
             temp.value   = mpu_get_temp();

@@ -141,6 +141,9 @@ esp_err_t mpu_init(void) {
     mpu_set_acc_config(0);
     mpu_set_gyro_config(0);
 
+    // enable upside down mounting
+    upside_down_mounting = 1;
+
     return ret;
 }
 
