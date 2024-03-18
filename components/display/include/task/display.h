@@ -1,10 +1,10 @@
 /**
- * @file task_display.h
+ * @file display.h
  * @authors 
  *      Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  *      Raynoan Emilly (raynoan.batista@ee.ufcg.edu.br)
  * @brief Task display 
- * @version 1.0
+ * @version 1.1
  * @date 2024-02-14
  *
  * @copyright Copyright (c) 2024
@@ -12,6 +12,8 @@
  * Version   Modified By   Date        Comments
  * -------  -------------  ----------  -----------
  *  0.1.0    Jefferson L.  10/02/2023  first version
+ *  1.0.0       Emilly     18/01/2024  convertion to esp-idf
+ *  1.0.1    Jefferson L.  18/03/2024  fix read queue overflow
  * 
  */
 
