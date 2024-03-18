@@ -29,7 +29,7 @@ void task_rpm(void *arg){
 
     ESP_LOGI(TAG, "set glitch filter");
     pcnt_glitch_filter_config_t filter_config = {
-        .max_glitch_ns = 1000,
+        .max_glitch_ns = 100,
     };
     ESP_ERROR_CHECK(pcnt_unit_set_glitch_filter(pcnt_unit, &filter_config));
 
@@ -62,15 +62,20 @@ void task_rpm(void *arg){
             timer_send_ms += send_rate_ms;
 
             // -----get counts-----
-            pcnt_unit_get_count(pcnt_unit, &pulse_count);
+            esp_err_t err = pcnt_unit_get_count(pcnt_unit, &pulse_count);
             pcnt_unit_clear_count(pcnt_unit);
 
-            // -----calculate-----
-            rpm.value = pulse_count / send_rate_min; // general rpm calculation
-            rpm.value /= 2; // compensate for the double peak of the signal        
-            
-            // -----send spped data through esp-now to receiver-----
-            esp_now_send(mac_address_ECU_front, (uint8_t *) &rpm, sizeof(rpm));
+            if (err == ESP_OK) {
+                // -----calculate-----
+                rpm.value = pulse_count / send_rate_min; // general rpm calculation
+                rpm.value /= 2.0f; // compensate for the double peak of the signal        
+                
+                // -----send spped data through esp-now to receiver-----
+                esp_now_send(mac_address_ECU_front, (uint8_t *) &rpm, sizeof(rpm));
+            }
+            else {
+                ESP_LOGE(TAG, "error getting PCNT value");
+            }
         }
 
         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor

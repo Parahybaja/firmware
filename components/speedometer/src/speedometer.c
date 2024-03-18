@@ -9,7 +9,7 @@ void task_speed(void *arg){
 
     // create task variables
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_SPEED_SEND_RATE_Hz));
-    const int send_rate_s = (int)(1.0f / (float)(TASK_SPEED_SEND_RATE_Hz));
+    const float send_rate_s = 1.0f / (float)TASK_SPEED_SEND_RATE_Hz;
     uint32_t timer_send_ms;
     int pulse_count = 0;
     sensor_t spdmt = {
@@ -29,7 +29,7 @@ void task_speed(void *arg){
 
     ESP_LOGI(TAG, "set glitch filter");
     pcnt_glitch_filter_config_t filter_config = {
-        .max_glitch_ns = 1000,
+        .max_glitch_ns = 100,
     };
     ESP_ERROR_CHECK(pcnt_unit_set_glitch_filter(pcnt_unit, &filter_config));
 
@@ -41,7 +41,7 @@ void task_speed(void *arg){
     pcnt_channel_handle_t pcnt_chan = NULL;
     ESP_ERROR_CHECK(pcnt_new_channel(pcnt_unit, &chan_config, &pcnt_chan));
 
-    ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_HOLD));
+    ESP_ERROR_CHECK(pcnt_channel_set_edge_action(pcnt_chan, PCNT_CHANNEL_EDGE_ACTION_INCREASE, PCNT_CHANNEL_EDGE_ACTION_INCREASE));
 
     ESP_LOGI(TAG, "enable pcnt unit");
     ESP_ERROR_CHECK(pcnt_unit_enable(pcnt_unit));
@@ -62,16 +62,23 @@ void task_speed(void *arg){
             timer_send_ms += send_rate_ms;
 
             // -----get counts-----
-            pcnt_unit_get_count(pcnt_unit, &pulse_count);
+            esp_err_t err = pcnt_unit_get_count(pcnt_unit, &pulse_count);
             pcnt_unit_clear_count(pcnt_unit);
 
-            // -----calculate-----
-            float meters = (pulse_count / WHEEL_EDGES) * WHEEL_CIRC;
-            spdmt.value = meters / send_rate_s; // in meter/second
-            spdmt.value *= ms2kmh;          
-            
-            // -----send spped data through esp-now to receiver-----
-            esp_now_send(mac_address_ECU_front, (uint8_t *) &spdmt, sizeof(spdmt));
+            if (err == ESP_OK) {
+                // -----calculate-----
+                float meters = (pulse_count / WHEEL_EDGES) * WHEEL_DIA;
+                spdmt.value = meters / send_rate_s; // in meter/second
+                spdmt.value *= ms2kmh;
+
+                ESP_LOGW(TAG, "speed: %f, counts: %i", spdmt.value, pulse_count);
+
+                // -----send spped data through esp-now to receiver-----
+                esp_now_send(mac_address_ECU_front, (uint8_t *) &spdmt, sizeof(spdmt));
+            }
+            else {
+                ESP_LOGE(TAG, "error getting PCNT value");
+            }
         }
 
         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
