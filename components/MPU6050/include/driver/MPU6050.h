@@ -111,6 +111,14 @@ esp_err_t mpu_write_data(uint8_t reg, uint8_t value);
 /**
  * @brief 
  * 
+ * @param gyro_coeff 
+ * @return esp_err_t 
+ */
+esp_err_t mpu_set_filter(float gyro_coeff);
+
+/**
+ * @brief 
+ * 
  * @param config_num 
  * @return esp_err_t 
  */
@@ -125,6 +133,36 @@ esp_err_t mpu_set_acc_config(uint8_t config_num);
 esp_err_t mpu_set_gyro_config(uint8_t config_num);
 
 /**
+ * @brief 
+ * 
+ * @param x 
+ * @param y 
+ * @param z 
+ * @return esp_err_t 
+ */
+esp_err_t mpu_set_acc_offset(float x, float y, float z);
+
+/**
+ * @brief 
+ * 
+ * @param x 
+ * @param y 
+ * @param z 
+ * @return esp_err_t 
+ */
+esp_err_t mpu_set_gyro_offset(float x, float y, float z);
+
+/**
+ * @brief 
+ * 
+ * @param x 
+ * @param y 
+ * @param z 
+ * @return esp_err_t 
+ */
+esp_err_t mpu_set_angle_offset(float x, float y, float z);
+
+/**
  * @brief Fetch data(read raw data) from the MPU6050
  * 
  * @return esp_err_t 
@@ -137,6 +175,15 @@ esp_err_t mpu_fetch(void);
  * @return esp_err_t 
  */
 esp_err_t mpu_update(void);
+
+/**
+ * @brief 
+ * 
+ * @param is_calc_acc 
+ * @param is_calc_gyro 
+ * @return esp_err_t 
+ */
+esp_err_t mpu_calc_offset(uint8_t is_calc_acc, uint8_t is_calc_gyro);
 
 /**
  * @brief returns the angle X
@@ -165,6 +212,18 @@ float mpu_get_angle_z(void);
  * @return float 
  */
 float mpu_get_temp(void);
+
+float mpu_get_acc_x_offset(void);
+
+float mpu_get_acc_y_offset(void);
+
+float mpu_get_acc_z_offset(void);
+
+float mpu_get_gyro_x_offset(void);
+
+float mpu_get_gyro_y_offset(void);
+
+float mpu_get_gyro_z_offset(void);
 
 #ifdef __cplusplus
 }

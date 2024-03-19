@@ -4,13 +4,15 @@ static const char *TAG = "MPU";
 
 /*-----MPU configs-----*/
 uint8_t upside_down_mounting = 0;
-float gyro_lsb_to_degsec, acc_lsb_to_g;
-float gyroXoffset, gyroYoffset, gyroZoffset;
-float accXoffset, accYoffset, accZoffset;
+float acc_lsb_to_g, gyro_lsb_to_degsec;
+float acc_x_offset, acc_y_offset, acc_z_offset;
+float gyro_x_offset, gyro_y_offset, gyro_z_offset;
+float angle_x_offset, angle_y_offset, angle_z_offset;
 
 /*-----result variables-----*/
 float temp, acc_x, acc_y, acc_z, gyro_x, gyro_y, gyro_z;
 float angle_acc_x, angle_acc_y;
+float raw_angle_x, raw_angle_y, raw_angle_z;
 float angle_x, angle_y, angle_z;
 int64_t pre_interval;
 float filter_gyro_coef;
@@ -138,12 +140,14 @@ esp_err_t mpu_init(void) {
 
     vTaskDelay(100 / portTICK_PERIOD_MS);
 
-    mpu_set_acc_config(0);
-    mpu_set_gyro_config(0);
+    mpu_set_filter(DEFAULT_GYRO_COEFF);
+    mpu_set_acc_config(3);
+    mpu_set_gyro_config(3);
+    mpu_set_angle_offset(0, 0, 0);
 
     // enable upside down mounting
     upside_down_mounting = 1;
-
+    
     return ret;
 }
 
@@ -204,6 +208,40 @@ esp_err_t mpu_set_gyro_config(uint8_t config_num){
     return status;
 }
 
+esp_err_t mpu_set_filter(float gyro_coeff) {
+    if ((gyro_coeff < 0) || (gyro_coeff > 1)) { 
+        filter_gyro_coef = DEFAULT_GYRO_COEFF; 
+    } // prevent bad gyro coeff, should throw an error...
+  
+    filter_gyro_coef = gyro_coeff;
+
+    return ESP_OK;
+}
+
+esp_err_t mpu_set_acc_offset(float x, float y, float z) {
+    acc_x_offset = x;
+    acc_y_offset = y;
+    acc_z_offset = z;
+
+    return ESP_OK;
+}
+
+esp_err_t mpu_set_gyro_offset(float x, float y, float z) {
+    gyro_x_offset = x;
+    gyro_y_offset = y;
+    gyro_z_offset = z;
+
+    return ESP_OK;
+}
+
+esp_err_t mpu_set_angle_offset(float x, float y, float z) {
+    angle_x_offset = x;
+    angle_y_offset = y;
+    angle_z_offset = z;
+
+    return ESP_OK;
+}
+
 esp_err_t mpu_fetch(void) {
     uint8_t raw_data[14] = {};
 
@@ -248,17 +286,72 @@ esp_err_t mpu_update(void) {
     float dt = (new_time - pre_interval) / US_TO_S;
     pre_interval = new_time;
 
-    angle_x = wrap(filter_gyro_coef*(angle_acc_x + wrap(angle_x +      gyro_x*dt - angle_acc_x,180)) + (1.0-filter_gyro_coef)*angle_acc_x,180);
-    angle_y = wrap(filter_gyro_coef*(angle_acc_y + wrap(angle_y + sg_z*gyro_y*dt - angle_acc_y, 90)) + (1.0-filter_gyro_coef)*angle_acc_y, 90);
-    angle_z += gyro_z * dt; // not wrapped
+    raw_angle_x = wrap(filter_gyro_coef*(angle_acc_x + wrap(raw_angle_x +      gyro_x*dt - angle_acc_x,180)) + (1.0-filter_gyro_coef)*angle_acc_x,180);
+    raw_angle_y = wrap(filter_gyro_coef*(angle_acc_y + wrap(raw_angle_y + sg_z*gyro_y*dt - angle_acc_y, 90)) + (1.0-filter_gyro_coef)*angle_acc_y, 90);
+    raw_angle_z += gyro_z * dt; // not wrapped
+
+    angle_x = raw_angle_x - angle_x_offset;
+    angle_y = raw_angle_y - angle_y_offset;
+    angle_z = raw_angle_z - angle_z_offset;
 
     return ESP_OK;
 }
 
-float mpu_get_angle_x(void) { return angle_x;}
+esp_err_t mpu_calc_offset(uint8_t is_calc_acc, uint8_t is_calc_gyro) {
+    if(is_calc_acc){ 
+        mpu_set_acc_offset(0, 0, 0); 
+    }
+    
+    if(is_calc_gyro){ 
+        mpu_set_gyro_offset(0,0,0); 
+    }
 
-float mpu_get_angle_y(void) { return angle_y;}
+    float ag[6] = {0,0,0,0,0,0}; // 3*acc, 3*gyro
+    
+    for(int i = 0; i < CALIB_OFFSET_NB_MES; i++){
+        mpu_fetch();
 
-float mpu_get_angle_z(void) { return angle_z;}
+        ag[0] += acc_x;
+        ag[1] += acc_y;
+        ag[2] += (acc_z - 1.0);
+        ag[3] += gyro_x;
+        ag[4] += gyro_y;
+        ag[5] += gyro_z;
 
-float mpu_get_temp(void) {return temp;}
+        vTaskDelay(pdMS_TO_TICKS(1)); // wait a little bit between 2 measurements
+    }
+    
+    if(is_calc_acc){
+        acc_x_offset = ag[0] / CALIB_OFFSET_NB_MES;
+        acc_y_offset = ag[1] / CALIB_OFFSET_NB_MES;
+        acc_z_offset = ag[2] / CALIB_OFFSET_NB_MES;
+    }
+    
+    if(is_calc_gyro){
+        gyro_x_offset = ag[3] / CALIB_OFFSET_NB_MES;
+        gyro_y_offset = ag[4] / CALIB_OFFSET_NB_MES;
+        gyro_z_offset = ag[5] / CALIB_OFFSET_NB_MES;
+    }
+
+    return ESP_OK;
+}
+
+float mpu_get_angle_x(void) { return angle_x; }
+
+float mpu_get_angle_y(void) { return angle_y; }
+
+float mpu_get_angle_z(void) { return angle_z; }
+
+float mpu_get_temp(void) { return temp; }
+
+float mpu_get_acc_x_offset(void) { return acc_x_offset; }
+
+float mpu_get_acc_y_offset(void) { return acc_y_offset; }
+
+float mpu_get_acc_z_offset(void) { return acc_z_offset; }
+
+float mpu_get_gyro_x_offset(void) { return gyro_x_offset; }
+
+float mpu_get_gyro_y_offset(void) { return gyro_y_offset; }
+
+float mpu_get_gyro_z_offset(void) { return gyro_z_offset; }
