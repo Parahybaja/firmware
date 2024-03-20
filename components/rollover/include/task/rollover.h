@@ -31,13 +31,12 @@ extern "C" {
 #define MPU_ACC_CONFIG  3
 
 /*-----MPU offset-----*/
-#define CALIB_ACC_X 0.531088 // usada para definir o zero do eixo x
-#define CALIB_ACC_Y 0.045418 // usada para definir o zero do eixo y
-#define CALIB_ACC_Z -0.308320 // usada para definir o zero do eixo z
-#define CALIB_GYRO_X -1.591225 // usada para definir o zero do eixo x
-#define CALIB_GYRO_Y -0.218293 // usada para definir o zero do eixo y
-#define CALIB_GYRO_Z 0.441586 // usada para definir o zero do eixo z
-#define CALIBRATE false
+#define CALIB_ACC_X 0.126168 // usada para definir o zero do eixo x
+#define CALIB_ACC_Y -0.016679 // usada para definir o zero do eixo y
+#define CALIB_ACC_Z -0.272904 // usada para definir o zero do eixo z
+#define CALIB_GYRO_X -2.928174 // usada para definir o zero do eixo x
+#define CALIB_GYRO_Y -0.410976 // usada para definir o zero do eixo y
+#define CALIB_GYRO_Z -0.131342 // usada para definir o zero do eixo z
 
 /**
  * @brief MPU6050 rollover sensor task

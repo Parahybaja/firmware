@@ -28,6 +28,8 @@ static const char* TAG = "ECU_front";
 
 static const gpio_num_t alive_pin = GPIO_NUM_12;
 
+static const uint8_t mpu_calibrate = false;
+
 /* LoRa preamble */
 static const int cr = 8;  // coding rate
 static const int sbw = 3; // signal bandwidth
@@ -77,12 +79,12 @@ void app_main(void) {
     );
 
     xTaskCreatePinnedToCore(
-        task_rollover, // task function
-        "rollover",    // task name
-        4096,          // stack size
-        NULL,          // parameters
-        8,             // priority
-        &th_rollover,  // handler
-        APP_CPU_NUM    // core number
+        task_rollover,        // task function
+        "rollover",           // task name
+        4096,                 // stack size
+        (void*)mpu_calibrate, // parameters
+        8,                    // priority
+        &th_rollover,         // handler
+        APP_CPU_NUM           // core number
     );
 }

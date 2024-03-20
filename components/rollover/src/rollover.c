@@ -3,7 +3,8 @@
 static const char *TAG = "task_rollover";
 
 void task_rollover(void *arg){
-    (void)arg;
+    
+    const uint8_t calibrate = (uint8_t)arg;
 
     // -----create local variables-----
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_ROLLOVER_RATE_Hz));
@@ -47,28 +48,33 @@ void task_rollover(void *arg){
         vTaskDelete(NULL);
     }
 
-    if (CALIBRATE == true) {
+    if (calibrate == true) {
         ESP_LOGW(TAG, "Calculating offsets, do not move MPU6050");
         vTaskDelay(pdMS_TO_TICKS(500));
         
         /*call offset function*/
+        mpu_calc_offset(true, true);
+
+        ESP_LOGW(TAG, "offset acc: %f, %f, %f",
+            mpu_get_acc_x_offset(),
+            mpu_get_acc_y_offset(),
+            mpu_get_acc_z_offset()
+        );
+
+        ESP_LOGW(TAG, "offset gyro: %f, %f, %f",
+            mpu_get_gyro_x_offset(),
+            mpu_get_gyro_y_offset(),
+            mpu_get_gyro_z_offset()
+        );
     }
     else {
         ESP_LOGW(TAG, "Setting offsets");
         
-        // mpu.setAccOffsets(CALIB_ACC_X, CALIB_ACC_Y, CALIB_ACC_Z);
-        // mpu.setGyroOffsets(CALIB_GYRO_X, CALIB_GYRO_Y, CALIB_GYRO_Z);
+        mpu_set_acc_offset(CALIB_ACC_X, CALIB_ACC_Y, CALIB_ACC_Z);
+        mpu_set_gyro_offset(CALIB_GYRO_X, CALIB_GYRO_Y, CALIB_GYRO_Z);
+
+        mpu_set_angle_offset(0, 50, 0);
     }
-
-    // log_d("offset acc: %f, %f, %f",
-    //     mpu.getAccXoffset(),
-    //     mpu.getAccYoffset(),
-    //     mpu.getAccZoffset());
-
-    // log_d("offset gyro: %f, %f, %f",
-    //     mpu.getGyroXoffset(),
-    //     mpu.getGyroYoffset(),
-    //     mpu.getGyroZoffset());
 
     /*-----update timer-----*/
     timer_send_ms = esp_log_timestamp();
