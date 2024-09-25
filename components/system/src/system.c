@@ -31,6 +31,7 @@ TaskHandle_t th_blind_spot;
 TaskHandle_t th_display_nextion;
 TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
+TaskHandle_t th_infrared;
 SemaphoreHandle_t sh_global_vars;
 QueueHandle_t qh_rpm;
 QueueHandle_t qh_speed;
@@ -45,6 +46,7 @@ QueueHandle_t qh_rollover;
 QueueHandle_t qh_tilt_x;
 QueueHandle_t qh_tilt_y;
 QueueHandle_t qh_tilt_z;
+QueueHandle_t qh_infrared;
 QueueHandle_t qh_lap_minutes;
 QueueHandle_t qh_lap_seconds;
 
@@ -138,8 +140,6 @@ void system_queue_init(void) {
     qh_tilt_x    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_lap_minutes = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_lap_seconds = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {
