@@ -14,7 +14,8 @@ system_t system_global = {
     .tilt_y = 0.0,
     .tilt_z = 0.0,
     .blind_spot_l = 0.0,
-    .blind_spot_r = 0.0
+    .blind_spot_r = 0.0,
+    .infrared = 0.0
 };
 
 // -----FreeRTOS objects-----
@@ -47,6 +48,9 @@ QueueHandle_t qh_tilt_x;
 QueueHandle_t qh_tilt_y;
 QueueHandle_t qh_tilt_z;
 QueueHandle_t qh_infrared;
+QueueHandle_t qh_lap;
+QueueHandle_t qh_lap_minutes;
+QueueHandle_t qh_lap_seconds;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
@@ -95,7 +99,8 @@ simplified_system_t system_to_simplified(const system_t *original) {
         .tilt_y       = (int8_t)original->tilt_y,
         .tilt_z       = (int8_t)original->tilt_z,
         .blind_spot_l = (original->blind_spot_l != 0),
-        .blind_spot_r = (original->blind_spot_r != 0)
+        .blind_spot_r = (original->blind_spot_r != 0),
+        .infrared     = (uint8_t)original->infrared
     };
 
     return simplified;
@@ -114,7 +119,8 @@ system_t simplified_to_system(const simplified_system_t *simplified) {
         .tilt_y       = (float) simplified->tilt_y,
         .tilt_z       = (float) simplified->tilt_z,
         .blind_spot_l = (float)(simplified->blind_spot_l ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
-        .blind_spot_r = (float)(simplified->blind_spot_r ? 1 : 0) // Assuming binary 0 or 1 represents the boolean
+        .blind_spot_r = (float)(simplified->blind_spot_r ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
+        .infrared     = (uint8_t)(simplified->infrared? 1 : 0)
     };
 
     return original;
@@ -322,7 +328,7 @@ void task_lora_receiver(void *arg) {
                     /*prepare payload message*/
                     int len = snprintf(
                         payload, sizeof(payload),
-                        "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f",
+                        "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%d",
                         (uint16_t)converted_system.rpm,
                         (uint8_t)converted_system.speed,
                         (uint8_t)converted_system.fuel_em,
@@ -331,7 +337,8 @@ void task_lora_receiver(void *arg) {
                         (uint8_t)converted_system.rollover,
                         (float)converted_system.tilt_x,
                         (float)converted_system.tilt_y,
-                        (float)converted_system.tilt_z
+                        (float)converted_system.tilt_z,
+                        (uint8_t)converted_system.infrared
                     );
 
                     /*send payload to server*/

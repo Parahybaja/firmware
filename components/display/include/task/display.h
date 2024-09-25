@@ -44,6 +44,7 @@ extern "C" {
 #define NEX_TEXT_BATTERY_L     "p1t5"
 #define NEX_DSBUTTON_FUEL_EM_L "p1t2"
 #define NEX_PROGRESSBAR_RPM_L  "p1j0"
+#define NEX_TEXT_INFRARED      "p1t6"
 
 /* nextion enduro components */
 #define NEX_TEXT_HOUR_L         "p2t2"

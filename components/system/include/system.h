@@ -100,7 +100,7 @@ typedef struct {
     int8_t tilt_z;           // For tilt, precision to the nearest degree
     uint8_t blind_spot_l;    // For blind spot left, 0 or 1
     uint8_t blind_spot_r;    // For blind spot right, 0 or 1
-    uint8_t infrared; 
+    uint8_t infrared;        // For monitoring to 4x4 0 or 1
 } simplified_system_t;
 
 // -----sensor data type definition-----
@@ -142,6 +142,10 @@ extern QueueHandle_t qh_tilt_x;
 extern QueueHandle_t qh_tilt_y;
 extern QueueHandle_t qh_tilt_z;
 extern QueueHandle_t qh_infrared;
+extern QueueHandle_t qh_lap;
+extern QueueHandle_t qh_lap_minutes;
+extern QueueHandle_t qh_lap_seconds;
+
 
 // -----esp-now mac addresses-----
 extern const uint8_t mac_address_ECU_box[ESP_NOW_ETH_ALEN];

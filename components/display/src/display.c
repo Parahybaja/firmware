@@ -185,6 +185,21 @@ void task_display(void *arg) {
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
         }
+         // infrared sensor 
+        if (xQueueReceive(qh_infrared, &recv_sensor, pdMS_TO_TICKS(0))){
+            // update global system var in a protected environment
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.fuel_em = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+            if (nex_init_err == 0) {
+                // print to display
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                    nextion_component_set_boolean(nextion_handle, NEX_TEXT_INFRARED, (bool)recv_sensor.value);
+                }
+            }
+        }
 
         // timer - hour
         if (xQueueReceive(qh_hours, &recv_sensor, pdMS_TO_TICKS(0))) {
@@ -242,14 +257,14 @@ void task_display(void *arg) {
 
         // lap
         if (xQueueReceive(qh_lap, &recv_sensor, pdMS_TO_TICKS(0))) {
-            update global system var in a protected environment
+            //update global system var in a protected environment
            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                system_global.battery = recv_sensor.value;
            xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
            if (nex_init_err == 0) {
-                print to display
+                //print to display
                snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
                if (current_page_num == NEX_PAGE_ID_ENDURO) {
                    nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_L, msg_buffer);
@@ -260,14 +275,14 @@ void task_display(void *arg) {
 
         // lap time - minutes
         if (xQueueReceive(qh_lap_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
-            update global system var in a protected environment
+           // update global system var in a protected environment
            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                system_global.battery = recv_sensor.value;
            xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
            if (nex_init_err == 0) {
-                print to display
+                //print to display
                snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
                if (current_page_num == NEX_PAGE_ID_ENDURO) {
                    nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_MINUTES_L, msg_buffer);
@@ -278,14 +293,14 @@ void task_display(void *arg) {
 
         // lap time - seconds
         if (xQueueReceive(qh_lap_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
-            update global system var in a protected environment
+           // update global system var in a protected environment
            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                system_global.battery = recv_sensor.value;
            xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
            if (nex_init_err == 0) {
-                print to display
+                //print to display
                snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
                if (current_page_num == NEX_PAGE_ID_ENDURO) {
                    nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_SECONDS_L, msg_buffer);
