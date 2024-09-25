@@ -21,6 +21,7 @@
 #include "task/display.h"
 #include "task/rollover.h"
 #include "task/task_example.h"
+#include "task/infrared.h"
 
 #include "espnow_callback.h"
 
@@ -85,4 +86,13 @@ void app_main(void) {
         &th_rollover,  // handler
         APP_CPU_NUM    // core number
     );
+
+    xTaskCreatePinnedToCore(
+        task_infrared,    // task function
+        "infrared",       // task name 
+        2048,             // stack size         
+        NULL,             // parameters
+        10,               // priority
+        &th_infrared,     // handler
+        APP_CPU_NUM);     // core number
 }

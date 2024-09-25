@@ -30,6 +30,7 @@ TaskHandle_t th_blind_spot;
 TaskHandle_t th_display_nextion;
 TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
+TaskHandle_t th_infrared;
 SemaphoreHandle_t sh_global_vars;
 QueueHandle_t qh_rpm;
 QueueHandle_t qh_speed;
@@ -41,6 +42,7 @@ QueueHandle_t qh_rollover;
 QueueHandle_t qh_tilt_x;
 QueueHandle_t qh_tilt_y;
 QueueHandle_t qh_tilt_z;
+QueueHandle_t qh_infrared;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
@@ -129,6 +131,7 @@ void system_queue_init(void) {
     qh_tilt_x    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_infrared  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {
