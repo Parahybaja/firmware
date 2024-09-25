@@ -89,10 +89,10 @@ void app_main(void) {
 
     xTaskCreatePinnedToCore(
         task_infrared,    // task function
-        "infrared",       // task name 
+       "infrared",       // task name 
         2048,             // stack size         
         NULL,             // parameters
-        10,               // priority
+        8,               // priority
         &th_infrared,     // handler
         APP_CPU_NUM);     // core number
 }

@@ -1,16 +1,17 @@
 #include "task/infrared.h"
 
-static const char *TAG = "task_infrared";
+static const char *TAG = "infrared";
 
 static TickType_t last_interrupt_time = 0;
 static QueueHandle_t gpio_evt_queue = NULL;
+static bool infrared_detected = false; // Variável para armazenar o estado do sensor
 
 static void pin_config(void) {
     esp_rom_gpio_pad_select_gpio(pin_infrared);
     gpio_set_direction(pin_infrared, GPIO_MODE_INPUT);
     gpio_pullup_dis(pin_infrared);
     gpio_pulldown_dis(pin_infrared);
-    gpio_set_intr_type(pin_infrared, GPIO_INTR_NEGEDGE); // Interrupção na borda de descida
+    gpio_set_intr_type(pin_infrared, GPIO_INTR_POSEDGE); // Interrupção em qualquer borda
 }
 
 static void IRAM_ATTR infrared_handler(void* arg) {
@@ -18,18 +19,16 @@ static void IRAM_ATTR infrared_handler(void* arg) {
     TickType_t current_time = xTaskGetTickCount();
 
     if ((current_time - last_interrupt_time) * portTICK_PERIOD_MS > DEBOUNCE_DELAY_MS) {
-        last_interrupt_time = current_time; 
+        last_interrupt_time = current_time;
         BaseType_t higher_priority_task_woken = pdFALSE;
-        sensor_t infrared = {INFRARED, 1.0};  // Exemplo de evento detectado
+        sensor_t infrared = {INFRARED, 1.0}; // Define como detectado
         xQueueSendFromISR(gpio_evt_queue, &infrared, &higher_priority_task_woken);
         portYIELD_FROM_ISR(higher_priority_task_woken);
     }
 }
 
 void task_infrared(void* arg) {
-    
     sensor_t infrared = {INFRARED, 0.0};
-    const int send_rate_ms = (int)(1000.0 / (float)(TASK_INFRARED_RATE_Hz));
     bool last_value = false;
 
     // Configuração do pino e interrupção
@@ -50,11 +49,17 @@ void task_infrared(void* arg) {
 
     // Loop da task
     for (;;) {
-        if (xQueueReceive(gpio_evt_queue, &infrared, portMAX_DELAY)) {
-            ESP_LOGI(TAG, "Infrared detected: %.2f", infrared.value);
 
-            // Aqui você pode adicionar código para enviar os dados via ESP-NOW, se necessário.
-        }
+        if (xQueueReceive(gpio_evt_queue, &infrared, portMAX_DELAY)) {
+            // Atualiza o estado do sensor com base na detecção
+            infrared_detected = (infrared.value == 1.0);
+
+            if (infrared_detected) {
+                ESP_LOGI(TAG, "4x4 is activated");
+            } else {
+                ESP_LOGI(TAG, "4x4 is deactivated");
+            }
+        } 
 
         vTaskDelay(pdMS_TO_TICKS(10)); // Liberar processador
     }

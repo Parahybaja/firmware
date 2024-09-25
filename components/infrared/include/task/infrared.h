@@ -25,12 +25,12 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#define TASK_INFRARED_RATE_Hz 0.2 // reading rate in hertz
+#define TASK_INFRARED_RATE_Hz 1 // reading rate in hertz
 #define pin_infrared  GPIO_NUM_26
 #define queue_size 10
 #define DEBOUNCE_DELAY_MS 100
 
-void task_infrared(void* arg);
+void task_infrared(void*);
 
 #ifdef __cplusplus
 }
