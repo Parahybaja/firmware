@@ -33,7 +33,7 @@ extern "C" {
 // ----- constants -----
 #define PI          3.1415f
 #define ms2kmh      3.6f
-#define WHEEL_DIA   0.45f            // diameter in meters
+#define WHEEL_DIA   0.56f            // diameter in meters
 #define WHEEL_CIRC  (PI * WHEEL_DIA) // wheel circumference
 #define WHEEL_EDGES 6.0f             // 6 edges per revolution
 
