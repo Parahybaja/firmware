@@ -23,6 +23,8 @@
 #include "task/timer.h"
 #include "task/infrared.h"
 #include "task/task_example.h"
+#include "task/infrared.h"
+#include "task/timer.h"
 
 #include "espnow_callback.h"
 
