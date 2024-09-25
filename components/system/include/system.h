@@ -142,6 +142,9 @@ extern QueueHandle_t qh_tilt_x;
 extern QueueHandle_t qh_tilt_y;
 extern QueueHandle_t qh_tilt_z;
 extern QueueHandle_t qh_infrared;
+extern QueueHandle_t qh_lap;
+extern QueueHandle_t qh_lap_minutes;
+extern QueueHandle_t qh_lap_seconds;
 
 // -----esp-now mac addresses-----
 extern const uint8_t mac_address_ECU_box[ESP_NOW_ETH_ALEN];

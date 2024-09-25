@@ -20,6 +20,8 @@
 #include "task/alive.h"
 #include "task/display.h"
 #include "task/rollover.h"
+#include "task/timer.h"
+#include "task/infrared.h"
 #include "task/task_example.h"
 
 #include "espnow_callback.h"
