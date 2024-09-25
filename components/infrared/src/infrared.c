@@ -4,14 +4,13 @@ static const char *TAG = "infrared";
 
 static TickType_t last_interrupt_time = 0;
 static QueueHandle_t gpio_evt_queue = NULL;
-static bool infrared_detected = false; // Variável para armazenar o estado do sensor
 
 static void pin_config(void) {
     esp_rom_gpio_pad_select_gpio(pin_infrared);
     gpio_set_direction(pin_infrared, GPIO_MODE_INPUT);
     gpio_pullup_dis(pin_infrared);
     gpio_pulldown_dis(pin_infrared);
-    gpio_set_intr_type(pin_infrared, GPIO_INTR_POSEDGE); // Interrupção em qualquer borda
+    gpio_set_intr_type(pin_infrared, GPIO_INTR_ANYEDGE); // Interrupção na borda de descida e subida
 }
 
 static void IRAM_ATTR infrared_handler(void* arg) {
@@ -21,7 +20,7 @@ static void IRAM_ATTR infrared_handler(void* arg) {
     if ((current_time - last_interrupt_time) * portTICK_PERIOD_MS > DEBOUNCE_DELAY_MS) {
         last_interrupt_time = current_time;
         BaseType_t higher_priority_task_woken = pdFALSE;
-        sensor_t infrared = {INFRARED, 1.0}; // Define como detectado
+        sensor_t infrared = {INFRARED, gpio_get_level(pin_infrared) ? 1.0 : 0.0}; // Atualiza com o nível atual do pino
         xQueueSendFromISR(gpio_evt_queue, &infrared, &higher_priority_task_woken);
         portYIELD_FROM_ISR(higher_priority_task_woken);
     }
@@ -49,18 +48,20 @@ void task_infrared(void* arg) {
 
     // Loop da task
     for (;;) {
-
+        // Tenta receber um evento da fila, com tempo limite
         if (xQueueReceive(gpio_evt_queue, &infrared, portMAX_DELAY)) {
-            // Atualiza o estado do sensor com base na detecção
-            infrared_detected = (infrared.value == 1.0);
+            // Verifica o estado do sensor e atualiza a variável de estado
+            last_value = (infrared.value == 1.0);
+        }
 
-            if (infrared_detected) {
-                ESP_LOGI(TAG, "4x4 is activated");
-            } else {
-                ESP_LOGI(TAG, "4x4 is deactivated");
-            }
-        } 
+        // Verifica o estado do sensor atual e registra a ativação/desativação
+        if (last_value) {
+            ESP_LOGI(TAG, "4x4 is deactivated");
+        } else {
+            ESP_LOGI(TAG, "4x4 is activated");
+        }
 
-        vTaskDelay(pdMS_TO_TICKS(10)); // Liberar processador
+        // Atraso para liberar o processador
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
