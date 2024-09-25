@@ -9,7 +9,7 @@ int current_page_num;
 void task_display(void *arg) {
     (void)arg;
 
-    sensor_t recv_sensor = {};
+    sensor_t recv_sensor;
     char msg_buffer[10];
     float percent;
 
@@ -50,10 +50,6 @@ void task_display(void *arg) {
         ESP_LOGI(TAG, "page:%i", current_page_num);
         
         vTaskDelay(pdMS_TO_TICKS(2000));
-
-        nextion_page_set(nextion_handle, NEX_PAGE_NAME_DARK);
-        current_page_num = NEX_PAGE_ID_DARK;
-        ESP_LOGI(TAG, "page:%i", current_page_num);
     }
 
     print_task_remaining_space();
@@ -63,7 +59,7 @@ void task_display(void *arg) {
     for (;;) {
 
         // speed
-        if (xQueueReceive(qh_speed, &recv_sensor, pdMS_TO_TICKS(1))){
+        if (xQueueReceive(qh_speed, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                 system_global.speed = recv_sensor.value;
@@ -73,10 +69,7 @@ void task_display(void *arg) {
             if (nex_init_err == 0) {
                 // print to display
                 snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_SPEED_D, msg_buffer);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
                     nextion_component_set_text(nextion_handle, NEX_TEXT_SPEED_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
@@ -84,7 +77,7 @@ void task_display(void *arg) {
         }
 
         // RPM
-        else if (xQueueReceive(qh_rpm, &recv_sensor, pdMS_TO_TICKS(1))){
+        if (xQueueReceive(qh_rpm, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                 system_global.rpm = recv_sensor.value;
@@ -95,17 +88,14 @@ void task_display(void *arg) {
                 percent = convert_to_percent(recv_sensor.value, NEX_RPM_MAX, NEX_RPM_MIN);
 
                 // print to display
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_value(nextion_handle, NEX_PROGRESSBAR_RPM_D, percent);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
                     nextion_component_set_value(nextion_handle, NEX_PROGRESSBAR_RPM_L, percent);
                 }
             }
         }
 
         // fuel
-        else if (xQueueReceive(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(1))){
+        if (xQueueReceive(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                 system_global.fuel_em = recv_sensor.value;
@@ -114,17 +104,70 @@ void task_display(void *arg) {
             /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_boolean(nextion_handle, NEX_DSBUTTON_FUEL_EM_D, (bool)recv_sensor.value);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
                     nextion_component_set_boolean(nextion_handle, NEX_DSBUTTON_FUEL_EM_L, (bool)recv_sensor.value);
                 }
             }
         }
 
+        // temperature
+        if (xQueueReceive(qh_temp, &recv_sensor, pdMS_TO_TICKS(0))){
+            // update global system var in a protected environment
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.temp = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+            if (nex_init_err == 0) {
+                // print to display
+                snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_TEMP_L, msg_buffer);
+                }
+                memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+            }
+        }
+
+        // tilt_x - roll
+        if (xQueueReceive(qh_tilt_x, &recv_sensor, pdMS_TO_TICKS(0))){
+            // update global system var in a protected environment
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.tilt_x = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+            if (nex_init_err == 0) {
+                // print to display
+                snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
+                }
+                memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+            }
+        }
+
+        // tilt_y - pitch
+        if (xQueueReceive(qh_tilt_y, &recv_sensor, pdMS_TO_TICKS(0))){
+            // update global system var in a protected environment
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.tilt_y = recv_sensor.value;
+            xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+            if (nex_init_err == 0) {
+                // print to display
+                snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
+                }
+                memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+            }
+
+            memset(&recv_sensor, 0, sizeof(recv_sensor));
+        }
+
         // battery
-        else if (xQueueReceive(qh_battery, &recv_sensor, pdMS_TO_TICKS(1))){
+        if (xQueueReceive(qh_battery, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
                 system_global.battery = recv_sensor.value;
@@ -135,78 +178,120 @@ void task_display(void *arg) {
                 percent = convert_to_percent(recv_sensor.value, NEX_BAT_MAX, NEX_BAT_MIN);
 
                 // print to display
-                snprintf(msg_buffer, 10, "%d%c", (int)percent, NEX_SYMBOL_PERCENT);
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_BATTERY_D, msg_buffer);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
+                snprintf(msg_buffer, 10, "%d", (int)percent);
+                if (current_page_num == NEX_PAGE_ID_LIGHT) {
                     nextion_component_set_text(nextion_handle, NEX_TEXT_BATTERY_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
         }
 
-        // temperature
-        else if (xQueueReceive(qh_temp, &recv_sensor, pdMS_TO_TICKS(1))){
+        // timer - hour
+        if (xQueueReceive(qh_hours, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.temp = recv_sensor.value;
+                system_global.battery = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
-                snprintf(msg_buffer, 10, "%d%cC", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_TEMP_D, msg_buffer);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_TEMP_L, msg_buffer);
+                snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+                if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_HOUR_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
         }
 
-        // tilt_x - roll
-        else if (xQueueReceive(qh_tilt_x, &recv_sensor, pdMS_TO_TICKS(1))){
+        // timer - minutes
+        if (xQueueReceive(qh_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.tilt_x = recv_sensor.value;
+                system_global.battery = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
-                snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_D, msg_buffer);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_ROLL_L, msg_buffer);
+                snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+                if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_MINUTE_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
         }
 
-        // tilt_y - pitch
-        else if (xQueueReceive(qh_tilt_y, &recv_sensor, pdMS_TO_TICKS(1))){
+        // timer - seconds
+        if (xQueueReceive(qh_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.tilt_y = recv_sensor.value;
+                system_global.battery = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
-                snprintf(msg_buffer, 10, "%d%c", (int)recv_sensor.value, NEX_SYMBOL_DEGREE);
-                if (current_page_num == NEX_PAGE_ID_DARK) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_D, msg_buffer);
-                }
-                else if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_text(nextion_handle, NEX_TEXT_PITCH_L, msg_buffer);
+                snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+                if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                    nextion_component_set_text(nextion_handle, NEX_TEXT_SECOND_L, msg_buffer);
                 }
                 memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
             }
+        }
+
+        // lap
+        if (xQueueReceive(qh_lap, &recv_sensor, pdMS_TO_TICKS(0))) {
+            update global system var in a protected environment
+           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+               system_global.battery = recv_sensor.value;
+           xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+           if (nex_init_err == 0) {
+                print to display
+               snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
+               if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_L, msg_buffer);
+               }
+               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+           }
+        }
+
+        // lap time - minutes
+        if (xQueueReceive(qh_lap_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
+            update global system var in a protected environment
+           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+               system_global.battery = recv_sensor.value;
+           xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+           if (nex_init_err == 0) {
+                print to display
+               snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+               if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_MINUTES_L, msg_buffer);
+               }
+               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+           }
+        }
+
+        // lap time - seconds
+        if (xQueueReceive(qh_lap_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
+            update global system var in a protected environment
+           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+               system_global.battery = recv_sensor.value;
+           xSemaphoreGive(sh_global_vars);
+
+            /* if there's no error with the nextion initialization */
+           if (nex_init_err == 0) {
+                print to display
+               snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+               if (current_page_num == NEX_PAGE_ID_ENDURO) {
+                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_SECONDS_L, msg_buffer);
+               }
+               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+           }
         }
 
         vTaskDelay(pdMS_TO_TICKS(10));
@@ -225,7 +310,7 @@ void callback_touch_event(nextion_on_touch_event_t event){
             eSetValueWithOverwrite
         );
     }
-    else if (event.page_id == NEX_PAGE_ID_DARK && event.state == NEXTION_TOUCH_PRESSED) {
+    else if (event.page_id == NEX_PAGE_ID_LIGHT && event.state == NEXTION_TOUCH_PRESSED) {
         ESP_LOGI(TAG, "page 1 pressed");
 
         xTaskNotify(
@@ -234,7 +319,7 @@ void callback_touch_event(nextion_on_touch_event_t event){
             eSetValueWithOverwrite
         );
     }
-    else if (event.page_id == NEX_PAGE_ID_LIGHT && event.state == NEXTION_TOUCH_PRESSED) {
+    else if (event.page_id == NEX_PAGE_ID_ENDURO && event.state == NEXTION_TOUCH_PRESSED) {
         ESP_LOGI(TAG, "page 2 pressed");
 
         xTaskNotify(
@@ -253,16 +338,16 @@ void process_callback_queue(void *arg){
 
         /* change pages logic */
         if (notify_page_id == NEX_PAGE_ID_INTRO){
-            nextion_page_set(nextion_handle, NEX_PAGE_NAME_DARK);
-            current_page_num = NEX_PAGE_ID_DARK;
-        }
-        else if (notify_page_id == NEX_PAGE_ID_DARK){
             nextion_page_set(nextion_handle, NEX_PAGE_NAME_LIGHT);
             current_page_num = NEX_PAGE_ID_LIGHT;
         }
         else if (notify_page_id == NEX_PAGE_ID_LIGHT){
-            nextion_page_set(nextion_handle, NEX_PAGE_NAME_DARK);
-            current_page_num = NEX_PAGE_ID_DARK;
+            nextion_page_set(nextion_handle, NEX_PAGE_NAME_ENDURO);
+            current_page_num = NEX_PAGE_ID_ENDURO;
+        }
+        else if (notify_page_id == NEX_PAGE_ID_ENDURO){
+            nextion_page_set(nextion_handle, NEX_PAGE_NAME_LIGHT);
+            current_page_num = NEX_PAGE_ID_LIGHT;
         }
         else {
             ESP_LOGE(TAG, "undefined touch id");

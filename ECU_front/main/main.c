@@ -21,13 +21,14 @@
 #include "task/display.h"
 #include "task/rollover.h"
 #include "task/task_example.h"
-#include "task/infrared.h"
 
 #include "espnow_callback.h"
 
 static const char* TAG = "ECU_front";
 
 static const gpio_num_t alive_pin = GPIO_NUM_12;
+
+static const uint8_t mpu_calibrate = false;
 
 /* LoRa preamble */
 static const int cr = 8;  // coding rate
@@ -78,13 +79,23 @@ void app_main(void) {
     );
 
     xTaskCreatePinnedToCore(
-        task_rollover, // task function
-        "rollover",    // task name
-        4096,          // stack size
-        NULL,          // parameters
-        8,             // priority
-        &th_rollover,  // handler
-        APP_CPU_NUM    // core number
+        task_rollover,        // task function
+        "rollover",           // task name
+        4096,                 // stack size
+        (void*)mpu_calibrate, // parameters
+        8,                    // priority
+        &th_rollover,         // handler
+        APP_CPU_NUM           // core number
+    );
+
+    xTaskCreatePinnedToCore(
+        task_timer,   // task function
+        "timer",      // task name
+        2048,             // stack size
+        NULL, // parameters
+        8,                // priority
+        &th_timer,        // handler
+        APP_CPU_NUM       // core number
     );
 
     xTaskCreatePinnedToCore(
