@@ -189,7 +189,7 @@ void task_display(void *arg) {
         if (xQueueReceive(qh_infrared, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.fuel_em = recv_sensor.value;
+                system_global.infrared = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
@@ -205,7 +205,7 @@ void task_display(void *arg) {
         if (xQueueReceive(qh_hours, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.battery = recv_sensor.value;
+                system_global.hours = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
@@ -223,7 +223,7 @@ void task_display(void *arg) {
         if (xQueueReceive(qh_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.battery = recv_sensor.value;
+                system_global.minutes = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
@@ -241,7 +241,7 @@ void task_display(void *arg) {
         if (xQueueReceive(qh_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.battery = recv_sensor.value;
+                system_global.seconds = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
@@ -256,58 +256,58 @@ void task_display(void *arg) {
         }
 
         // lap
-        if (xQueueReceive(qh_lap, &recv_sensor, pdMS_TO_TICKS(0))) {
-            //update global system var in a protected environment
-           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-               system_global.battery = recv_sensor.value;
-           xSemaphoreGive(sh_global_vars);
+        // if (xQueueReceive(qh_lap, &recv_sensor, pdMS_TO_TICKS(0))) {
+        //     //update global system var in a protected environment
+        //    xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //        system_global.lap = recv_sensor.value;
+        //    xSemaphoreGive(sh_global_vars);
 
-            /* if there's no error with the nextion initialization */
-           if (nex_init_err == 0) {
-                //print to display
-               snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
-               if (current_page_num == NEX_PAGE_ID_ENDURO) {
-                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_L, msg_buffer);
-               }
-               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
-           }
-        }
+        //     /* if there's no error with the nextion initialization */
+        //    if (nex_init_err == 0) {
+        //         //print to display
+        //        snprintf(msg_buffer, 10, "%d", (int)recv_sensor.value);
+        //        if (current_page_num == NEX_PAGE_ID_ENDURO) {
+        //            nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_L, msg_buffer);
+        //        }
+        //        memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        //    }
+        // }
 
-        // lap time - minutes
-        if (xQueueReceive(qh_lap_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
-           // update global system var in a protected environment
-           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-               system_global.battery = recv_sensor.value;
-           xSemaphoreGive(sh_global_vars);
+        // // lap time - minutes
+        // if (xQueueReceive(qh_lap_minutes, &recv_sensor, pdMS_TO_TICKS(0))) {
+        //    // update global system var in a protected environment
+        //    xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //        system_global.lap_minutes = recv_sensor.value;
+        //    xSemaphoreGive(sh_global_vars);
 
-            /* if there's no error with the nextion initialization */
-           if (nex_init_err == 0) {
-                //print to display
-               snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
-               if (current_page_num == NEX_PAGE_ID_ENDURO) {
-                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_MINUTES_L, msg_buffer);
-               }
-               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
-           }
-        }
+        //     /* if there's no error with the nextion initialization */
+        //    if (nex_init_err == 0) {
+        //         //print to display
+        //        snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+        //        if (current_page_num == NEX_PAGE_ID_ENDURO) {
+        //            nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_MINUTES_L, msg_buffer);
+        //        }
+        //        memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        //    }
+        // }
 
-        // lap time - seconds
-        if (xQueueReceive(qh_lap_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
-           // update global system var in a protected environment
-           xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-               system_global.battery = recv_sensor.value;
-           xSemaphoreGive(sh_global_vars);
+        // // lap time - seconds
+        // if (xQueueReceive(qh_lap_seconds, &recv_sensor, pdMS_TO_TICKS(0))) {
+        //    // update global system var in a protected environment
+        //    xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+        //        system_global.lap_seconds = recv_sensor.value;
+        //    xSemaphoreGive(sh_global_vars);
 
-            /* if there's no error with the nextion initialization */
-           if (nex_init_err == 0) {
-                //print to display
-               snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
-               if (current_page_num == NEX_PAGE_ID_ENDURO) {
-                   nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_SECONDS_L, msg_buffer);
-               }
-               memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
-           }
-        }
+        //     /* if there's no error with the nextion initialization */
+        //    if (nex_init_err == 0) {
+        //         //print to display
+        //        snprintf(msg_buffer, 10, "%02d", (int)recv_sensor.value);
+        //        if (current_page_num == NEX_PAGE_ID_ENDURO) {
+        //            nextion_component_set_text(nextion_handle, NEX_TEXT_LAP_SECONDS_L, msg_buffer);
+        //        }
+        //        memset(msg_buffer, 0, sizeof(msg_buffer)); // clear buffer
+        //    }
+        // }
 
         vTaskDelay(pdMS_TO_TICKS(10));
     }
