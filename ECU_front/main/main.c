@@ -11,7 +11,8 @@
  * Version   Modified By   Date        Comments
  * -------  -------------  ----------  -----------
  *  5.0.0    Jefferson L.  15/01/2024  convertion to esp-idf
- *
+ *  5.0.1    Luiz          24/09/2024  add timer task 
+ *  5.0.1    Raynoan E.    25/09/2024  add infrared  task 
  */
 
 #include <stdio.h>
