@@ -54,7 +54,7 @@ QueueHandle_t qh_lap_seconds;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
-const uint8_t mac_address_ECU_front[] = {0xC8, 0xF0, 0x9E, 0x31, 0x87, 0xB9};
+const uint8_t mac_address_ECU_front[] = {0xC8, 0xF0, 0x9E, 0x31, 0x87, 0xB8};
 const uint8_t mac_address_ECU_rear[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0xBD};
 const uint8_t mac_address_module_1[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8D, 0x38};
 const uint8_t mac_address_module_2[]  = {0xC8, 0xF0, 0x9E, 0x31, 0x8A, 0xD8};
@@ -145,6 +145,8 @@ void system_queue_init(void) {
     qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_infrared  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_lap_minutes = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_lap_seconds = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {

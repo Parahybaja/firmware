@@ -61,7 +61,10 @@ typedef enum {
     TILT_Z,
     BLIND_SPOT_L,
     BLIND_SPOT_R,
-    INFRARED
+    INFRARED,
+    LAP_MINUTES,
+    LAP_SECONDS,
+    LAP
 } sensor_type_t;
 
 typedef struct {
@@ -81,6 +84,9 @@ typedef struct {
     float blind_spot_l;
     float blind_spot_r;
     float infrared;
+    int lap_minutes;
+    int lap_seconds;
+    int lap;
 } system_t;
 
 typedef struct {
@@ -100,7 +106,10 @@ typedef struct {
     int8_t tilt_z;           // For tilt, precision to the nearest degree
     uint8_t blind_spot_l;    // For blind spot left, 0 or 1
     uint8_t blind_spot_r;    // For blind spot right, 0 or 1
-    uint8_t infrared;        // For monitoring to 4x4 0 or 1
+    uint8_t infrared;  
+    uint8_t lap;      // For monitoring to 4x4 0 or 1
+    uint8_t lap_minutes;
+    uint8_t lap_seconds;
 } simplified_system_t;
 
 // -----sensor data type definition-----
