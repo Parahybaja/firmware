@@ -48,7 +48,7 @@ QueueHandle_t qh_tilt_x;
 QueueHandle_t qh_tilt_y;
 QueueHandle_t qh_tilt_z;
 QueueHandle_t qh_infrared;
-QueueHandle_t qh_lap;
+QueueHandle_t qh_laps;
 QueueHandle_t qh_lap_minutes;
 QueueHandle_t qh_lap_seconds;
 
@@ -140,13 +140,14 @@ void system_queue_init(void) {
     qh_hours      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_minutes   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_seconds    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_lap    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_laps    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_lap_seconds = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_lap_minutes = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_temp      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_tilt_x    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_infrared  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {
