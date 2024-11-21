@@ -33,6 +33,7 @@ TaskHandle_t th_display_nextion;
 TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
 TaskHandle_t th_infrared;
+TaskHandle_t th_sdlogger;
 SemaphoreHandle_t sh_global_vars;
 QueueHandle_t qh_rpm;
 QueueHandle_t qh_speed;
