@@ -1,0 +1,3 @@
+version: "0.1.0"
+description: "HX711 driver for ESP-IDF"
+url: "https://github.com/Parahybaja/firmware"
