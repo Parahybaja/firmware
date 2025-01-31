@@ -8,7 +8,7 @@ void task_example(void *arg){
     // create task variables
 
     // show remaining task space
-    task_remaining_space();
+    print_task_remaining_space();
 
     for (;;) {
         // do something

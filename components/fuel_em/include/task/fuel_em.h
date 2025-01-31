@@ -1,6 +1,6 @@
 /**
  * @file fuel_em.h
- * @author Jefferson Lopes (jefferson.lopes@ufcg.edu.br)
+ * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief fuel emergency task
  * @version 1.0
  * @date 2024-01-15
@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-#define TASK_FUEL_SEND_RATE_Hz 0.5 // RPM task send rate in hertz
+#define TASK_FUEL_SEND_RATE_Hz 0.5 // Fuel task send rate in hertz
 
 #define ACTIVE_LOW false
 #define FUEL_AVERAGE_POINTS 5
