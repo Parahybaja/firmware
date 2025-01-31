@@ -31,6 +31,7 @@
 #include "esp_mac.h"
 #include "esp_netif.h"
 #include "esp_now.h"
+#include "esp_timer.h"
 #include "lora.h"
 
 #ifdef __cplusplus
@@ -59,7 +60,8 @@ typedef enum {
     TILT_Y,
     TILT_Z,
     BLIND_SPOT_L,
-    BLIND_SPOT_R
+    BLIND_SPOT_R,
+    INFRARED
 } sensor_type_t;
 
 typedef struct {
@@ -78,6 +80,7 @@ typedef struct {
     float tilt_z;
     float blind_spot_l;
     float blind_spot_r;
+    float infrared;
 } system_t;
 
 typedef struct {
@@ -97,6 +100,7 @@ typedef struct {
     int8_t tilt_z;           // For tilt, precision to the nearest degree
     uint8_t blind_spot_l;    // For blind spot left, 0 or 1
     uint8_t blind_spot_r;    // For blind spot right, 0 or 1
+    uint8_t infrared;        // For monitoring to 4x4 0 or 1
 } simplified_system_t;
 
 // -----sensor data type definition-----
@@ -117,11 +121,13 @@ extern TaskHandle_t th_fuel_em;
 extern TaskHandle_t th_speed;
 extern TaskHandle_t th_rollover;
 extern TaskHandle_t th_battery;
-extern TaskHandle_t th_timer
+extern TaskHandle_t th_timer;
 extern TaskHandle_t th_blind_spot;
 extern TaskHandle_t th_display_nextion;
 extern TaskHandle_t th_display_LCD;
 extern TaskHandle_t th_telemetry;
+extern TaskHandle_t th_infrared;
+extern TaskHandle_t th_sdlogger;
 extern SemaphoreHandle_t sh_global_vars;
 extern QueueHandle_t qh_rpm;
 extern QueueHandle_t qh_speed;
@@ -136,6 +142,10 @@ extern QueueHandle_t qh_seconds;
 extern QueueHandle_t qh_tilt_x;
 extern QueueHandle_t qh_tilt_y;
 extern QueueHandle_t qh_tilt_z;
+extern QueueHandle_t qh_infrared;
+extern QueueHandle_t qh_laps;
+extern QueueHandle_t qh_lap_minutes;
+extern QueueHandle_t qh_lap_seconds;
 
 // -----esp-now mac addresses-----
 extern const uint8_t mac_address_ECU_box[ESP_NOW_ETH_ALEN];

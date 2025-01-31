@@ -20,6 +20,7 @@
 #include "task/alive.h"
 #include "task/battery.h"
 #include "task/speedometer.h"
+#include "task/sd_logger.h"
 // #include "task/fuel_em.h"
 
 #include "espnow_callback.h"
@@ -93,6 +94,16 @@ void app_main(void) {
         (void*)rpm_pin, // parameters
         10,             // priority
         &th_rpm,        // handler 
+        APP_CPU_NUM     // core number
+    );
+
+    xTaskCreatePinnedToCore(
+        task_sdlogger,       // task function
+        "sd_logger",          // task name
+        4096,           // stack size
+        NULL, // parameters
+        10,             // priority
+        &th_sdlogger,        // handler 
         APP_CPU_NUM     // core number
     );
 }

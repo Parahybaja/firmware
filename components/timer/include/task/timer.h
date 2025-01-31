@@ -1,7 +1,7 @@
 /**
  * @file timer.h
  * @authors 
- *      Luiz Guilherme - luizoliver2005@gmail.com
+ *      Luiz Guilherme (luizoliver2005@gmail.com)
  * @brief timer task
  * @version 0.1
  * @date 2024/09/23
