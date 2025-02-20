@@ -3,16 +3,28 @@
 static const char *TAG = "RPM";
 QueueHandle_t pulse_queue;
 typedef struct {
-    uint32_t time;
+    uint64_t last_pulse;
+    uint64_t current_pulse;
 } pulse_message;
+static volatile uint64_t last_isr_pulse = 0;
+static volatile uint64_t beforelast_isr_pulse = 0;
 
 static bool IRAM_ATTR pcnt_isr_handler(pcnt_unit_handle_t unit, const pcnt_watch_event_data_t *edata, void *user_ctx) {
-    pulse_message pcntisr_message = {
-        .time = esp_log_timestamp(),
-    }; 
+    uint64_t current_isr_pulse = esp_timer_get_time();
+    uint64_t last_diff = last_isr_pulse - beforelast_isr_pulse;
+    uint64_t diff = current_isr_pulse - last_isr_pulse;
+    bool outside_inductive_period = (diff > (INDUCTIVE_PERIOD_US + 100)) || (diff < (INDUCTIVE_PERIOD_US - 100));
+    bool resonating_pulse = (last_diff > diff - 110) && (last_diff < diff + 110);   
 
-    ESP_DRAM_LOGW(TAG, "Interrupt called");
-    xQueueSendFromISR(pulse_queue, &pcntisr_message, NULL);
+    if(outside_inductive_period || resonating_pulse) {
+        pulse_message pcntisr_message = {
+        .last_pulse = last_isr_pulse,
+        .current_pulse = current_isr_pulse,
+        };
+        xQueueSendFromISR(pulse_queue, &pcntisr_message, NULL);
+    }
+    beforelast_isr_pulse = last_isr_pulse;
+    last_isr_pulse = current_isr_pulse;
     pcnt_unit_clear_count(unit);
     return 0;
 }
@@ -21,19 +33,14 @@ void task_rpm(void *arg){
     (void)arg;
 
     const gpio_num_t gpio_pin = (gpio_num_t)arg;
-
-    // create task variables
-    const int send_rate_ms = (int)(1000.0 / (float)(TASK_RPM_SEND_RATE_Hz));
-    const double send_rate_min = 1 / ((float)TASK_RPM_SEND_RATE_Hz * 60.0f);
-    uint32_t timer_send_ms;
-    int pulse_count = 0;
     sensor_t rpm = {
         .type = RPM, 
         .value = 0.0
     };
     pulse_queue = xQueueCreate(1, sizeof(pulse_message));
     pulse_message pulse = {
-        .time = 0
+        .last_pulse = 0,
+        .current_pulse = 0,
     };
 
     /*-----config pulse counter-----*/
@@ -48,7 +55,7 @@ void task_rpm(void *arg){
 
     ESP_LOGI(TAG, "set glitch filter");
     pcnt_glitch_filter_config_t filter_config = {
-        .max_glitch_ns = 1000,
+        .max_glitch_ns = 100,
     };
     ESP_ERROR_CHECK(pcnt_unit_set_glitch_filter(pcnt_unit, &filter_config));
 
@@ -78,26 +85,29 @@ void task_rpm(void *arg){
     // show remaining task space
     print_task_remaining_space();
 
-    uint32_t last_pulse = 0;
-    uint32_t current_pulse = 0;
+    uint64_t last_pulse = 0;
+    uint64_t current_pulse = 0;
     for (;;) {
-        if(uxQueueMessagesWaiting(pulse_queue) > 0) {
-            last_pulse = current_pulse;
-            xQueueReceive(pulse_queue, &pulse, 0);
-            current_pulse = pulse.time;
-        } 
+        uint64_t current_time = esp_timer_get_time();
+        xQueueReceive(pulse_queue, &pulse, 0);
 
-        uint32_t current_time = esp_log_timestamp();
-        uint32_t pulse_diff = current_pulse - last_pulse;
-        uint32_t task_diff = current_time - current_pulse;
+        uint64_t pulse_diff = pulse.current_pulse - pulse.last_pulse;
+        uint64_t task_diff = current_time - pulse.current_pulse;
+
+        pulse_diff += INDUCTIVE_PERIOD_US;
+
+        //ESP_LOGW(TAG, "pulse_diff: %lld", pulse_diff);
+        //ESP_LOGW(TAG, "task_diff: %lld", task_diff);
         
         if(pulse_diff > task_diff) {
-            rpm.value = (int)((1 / ((float)(pulse_diff)/1000)) * 60);
-        } else {
-            rpm.value = (int)(1 / (float)(task_diff)/1000) * 60;
+            rpm.value = ((1 / ((double)(pulse_diff)/1000000)) * 60);
+        } else if(task_diff > pulse_diff*2) {
+            rpm.value = ((1 / ((double)(task_diff)/1000000)) * 60);
         }
+
         //ESP_LOGW(TAG, "%f", rpm.value);      
-        
+        printf("%f\n", rpm.value);
+
         system_global.rpm = rpm.value;
         esp_now_send(mac_address_ECU_front, (uint8_t *) &rpm, sizeof(rpm));
 

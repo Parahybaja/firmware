@@ -71,9 +71,10 @@ void task_speed(void *arg){
                 spdmt.value = meters / send_rate_s; // in meter/second
                 spdmt.value *= ms2kmh;
 
-                ESP_LOGW(TAG, "speed: %f, counts: %i", spdmt.value, pulse_count);
+                //ESP_LOGW(TAG, "speed: %f, counts: %i", spdmt.value, pulse_count);
 
                 // -----send spped data through esp-now to receiver-----
+                system_global.speed = spdmt.value;
                 esp_now_send(mac_address_ECU_front, (uint8_t *) &spdmt, sizeof(spdmt));
             }
             else {

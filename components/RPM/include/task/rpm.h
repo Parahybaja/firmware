@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define TASK_RPM_SEND_RATE_Hz  2 // speedometer task send rate in hertz
+#define INDUCTIVE_PERIOD_US 8000
 
 #define PCNT_HIGH_LIMIT 10000
 #define PCNT_LOW_LIMIT  -10

@@ -60,6 +60,6 @@ void task_battery(void *arg){
             esp_now_send(mac_address_ECU_front, (uint8_t *) &bat, sizeof(bat));
         }
 
-        vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
+        vTaskDelay(pdMS_TO_TICKS(5000)); // free up the processor
     }
 }

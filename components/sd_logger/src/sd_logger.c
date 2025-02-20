@@ -86,7 +86,7 @@ void task_sdlogger(void *arg) {
         }
         sprintf(
             log_line,
-            "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%d",
+            "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%d, %lld",
             (uint16_t)system_global.rpm,
             (uint8_t)system_global.speed,
             (uint8_t)system_global.fuel_em,
@@ -96,7 +96,8 @@ void task_sdlogger(void *arg) {
             (float)system_global.tilt_x,
             (float)system_global.tilt_y,
             (float)system_global.tilt_z,
-            (uint8_t)system_global.infrared
+            (uint8_t)system_global.infrared,
+            (uint64_t)esp_timer_get_time()
             );
         fprintf(log, "%s\n", log_line);
         
