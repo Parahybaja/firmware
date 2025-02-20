@@ -20,6 +20,7 @@
 #include "task/alive.h"
 #include "task/battery.h"
 #include "task/speedometer.h"
+#include "task/sd_logger.h"
 // #include "task/fuel_em.h"
 
 #include "espnow_callback.h"
@@ -28,13 +29,13 @@ static const char *TAG = "ECU_rear";
 
 static const gpio_num_t rpm_pin = GPIO_NUM_36;
 static const gpio_num_t speed_pin = GPIO_NUM_39;
-static const gpio_num_t alive_pin = GPIO_NUM_2;
+//static const gpio_num_t alive_pin = GPIO_NUM_2;
 // static const gpio_num_t fuel_em_pin = GPIO_NUM_34;
-static const battery_config_t battery_config = {
-    .adc_channel = ADC_CHANNEL_7, // GPIO 35
-    .R1 = 10e3,
-    .R2 = 2.1e3 // calibrated
-};
+// static const battery_config_t battery_config = {
+//     .adc_channel = ADC_CHANNEL_7, // GPIO 35
+//     .R1 = 10e3,
+//     .R2 = 2.1e3 // calibrated
+// };
 
 void app_main(void) {
     
@@ -46,25 +47,25 @@ void app_main(void) {
     print_mac_address();
 
     // -----fire up tasks-----
-    xTaskCreatePinnedToCore(
-        task_alive_LED,   // task function
-        "alive LED",      // task name
-        2048,             // stack size
-        (void*)alive_pin, // parameters
-        8,                // priority
-        &th_alive,        // handler 
-        APP_CPU_NUM       // core number
-    );
+    // xTaskCreatePinnedToCore(
+    //     task_alive_LED,   // task function
+    //     "alive LED",      // task name
+    //     2048,             // stack size
+    //     (void*)alive_pin, // parameters
+    //     8,                // priority
+    //     &th_alive,        // handler 
+    //     APP_CPU_NUM       // core number
+    // );
 
-    xTaskCreatePinnedToCore(
-        task_battery,           // task function
-        "battery",              // task name
-        2048,                   // stack size
-        (void*)&battery_config, // parameters
-        8,                      // priority
-        &th_battery,            // handler 
-        APP_CPU_NUM             // core number
-    );
+    // xTaskCreatePinnedToCore(
+    //     task_battery,           // task function
+    //     "battery",              // task name
+    //     2048,                   // stack size
+    //     (void*)&battery_config, // parameters
+    //     8,                      // priority
+    //     &th_battery,            // handler 
+    //     APP_CPU_NUM             // core number
+    // );
 
     // xTaskCreatePinnedToCore(
     //     task_fuel_em,       // task function
@@ -95,4 +96,14 @@ void app_main(void) {
         &th_rpm,        // handler 
         APP_CPU_NUM     // core number
     );
+
+        // xTaskCreatePinnedToCore(
+        //     task_sdlogger,       // task function
+        //     "sd_logger",          // task name
+        //     4096,           // stack size
+        //     NULL, // parameters
+        //     10,             // priority
+        //     &th_sdlogger,        // handler 
+        //     APP_CPU_NUM     // core number
+        // );
 }

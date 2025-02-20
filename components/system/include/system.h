@@ -127,6 +127,7 @@ extern TaskHandle_t th_display_nextion;
 extern TaskHandle_t th_display_LCD;
 extern TaskHandle_t th_telemetry;
 extern TaskHandle_t th_infrared;
+extern TaskHandle_t th_sdlogger;
 extern SemaphoreHandle_t sh_global_vars;
 extern QueueHandle_t qh_rpm;
 extern QueueHandle_t qh_speed;

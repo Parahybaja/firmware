@@ -19,7 +19,7 @@ void espnow_send_callback(const uint8_t* mac_addr, esp_now_send_status_t status)
             ESP_LOGI(TAG, "Send successfully");
         }
         else {
-            ESP_LOGE(TAG, "Send fail");
+            //ESP_LOGE(TAG, "Send fail");
         }
     #endif
 }

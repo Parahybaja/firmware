@@ -20,8 +20,9 @@ static void IRAM_ATTR infrared_handler(void* arg) {
     if ((current_time - last_interrupt_time) * portTICK_PERIOD_MS > DEBOUNCE_DELAY_MS) {
         last_interrupt_time = current_time;
         BaseType_t higher_priority_task_woken = pdFALSE;
-        sensor_t infrared = {INFRARED, gpio_get_level(pin_infrared) ? 1.0 : 0.0}; // Atualiza com o nível atual do pino
-        xQueueSendFromISR(gpio_evt_queue, &infrared, &higher_priority_task_woken);
+        //Redundante? sensor_t infrared = {INFRARED, gpio_get_level(pin_infrared) ? 1.0 : 0.0}; // Atualiza com o nível atual do pino
+        //infrared = gpio_get_level(pin_infrared) Alternativa à linha anterior 
+        //xQueueSendFromISR(gpio_evt_queue, &infrared, &higher_priority_task_woken);
         portYIELD_FROM_ISR(higher_priority_task_woken);
     }
 }
@@ -34,7 +35,7 @@ void task_infrared(void* arg) {
     pin_config();
     gpio_evt_queue = xQueueCreate(queue_size, sizeof(sensor_t));
     if (gpio_evt_queue == NULL) {
-        ESP_LOGE(TAG, "Failed to create queue");
+        ESP_LOGE(TAG, "Failed to create queue"); //Fila vazia
         vTaskDelete(NULL);
     }
 
@@ -60,8 +61,9 @@ void task_infrared(void* arg) {
         } else {
             ESP_LOGI(TAG, "4x4 is activated");
         }
-
-        // Atraso para liberar o processador
-        vTaskDelay(pdMS_TO_TICKS(10));
+        //Simplificação do if acima:
+        //ESP_LOGI(TAG, {last_value ? "4x4 is deactivated" : "4x4 is activated"});
+        
+        vTaskDelay(pdMS_TO_TICKS(10)); // Atraso para liberar o processador
     }
 }
