@@ -21,6 +21,7 @@
 #include "task/battery.h"
 #include "task/speedometer.h"
 #include "task/sd_logger.h"
+#include "task/rotation.h"
 // #include "task/fuel_em.h"
 
 #include "espnow_callback.h"
@@ -29,6 +30,7 @@ static const char *TAG = "ECU_rear";
 
 static const gpio_num_t rpm_pin = GPIO_NUM_36;
 static const gpio_num_t speed_pin = GPIO_NUM_39;
+static const gpio_num_t rotation_pin = GPIO_NUM_14;
 //static const gpio_num_t alive_pin = GPIO_NUM_2;
 // static const gpio_num_t fuel_em_pin = GPIO_NUM_34;
 // static const battery_config_t battery_config = {
@@ -95,6 +97,16 @@ void app_main(void) {
         10,             // priority
         &th_rpm,        // handler 
         APP_CPU_NUM     // core number
+    );
+
+    xTaskCreatePinnedToCore(
+        task_rotation,       // task function
+        "rotation",          // task name
+        4096,             // stack size
+        (void*)rotation_pin, // parameters
+        10,               // priority
+        &th_rotation,        // handler 
+        APP_CPU_NUM       // core number
     );
 
         // xTaskCreatePinnedToCore(

@@ -15,7 +15,8 @@ system_t system_global = {
     .tilt_z = 0.0,
     .blind_spot_l = 0.0,
     .blind_spot_r = 0.0,
-    .infrared = 0.0
+    .infrared = 0.0,
+    .rotation = 0.0
 };
 
 // -----FreeRTOS objects-----
@@ -34,6 +35,7 @@ TaskHandle_t th_display_LCD;
 TaskHandle_t th_telemetry;
 TaskHandle_t th_infrared;
 TaskHandle_t th_sdlogger;
+TaskHandle_t th_rotation;
 SemaphoreHandle_t sh_global_vars;
 QueueHandle_t qh_rpm;
 QueueHandle_t qh_speed;
@@ -52,6 +54,7 @@ QueueHandle_t qh_infrared;
 QueueHandle_t qh_laps;
 QueueHandle_t qh_lap_minutes;
 QueueHandle_t qh_lap_seconds;
+QueueHandle_t qh_rotation;
 
 // -----esp-now addresses-----
 const uint8_t mac_address_TCU[]       = {0xC8, 0xF0, 0x9E, 0x31, 0x8C, 0xA0};
@@ -101,7 +104,8 @@ simplified_system_t system_to_simplified(const system_t *original) {
         .tilt_z       = (int8_t)original->tilt_z,
         .blind_spot_l = (original->blind_spot_l != 0),
         .blind_spot_r = (original->blind_spot_r != 0),
-        .infrared     = (uint8_t)original->infrared
+        .infrared     = (uint8_t)original->infrared,
+        .rotation          = (uint16_t)original->rotation
     };
 
     return simplified;
@@ -121,7 +125,8 @@ system_t simplified_to_system(const simplified_system_t *simplified) {
         .tilt_z       = (float) simplified->tilt_z,
         .blind_spot_l = (float)(simplified->blind_spot_l ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
         .blind_spot_r = (float)(simplified->blind_spot_r ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
-        .infrared     = (uint8_t)(simplified->infrared? 1 : 0)
+        .infrared     = (uint8_t)(simplified->infrared? 1 : 0),
+        .rotation     = (float) simplified->rotation
     };
 
     return original;
@@ -149,6 +154,7 @@ void system_queue_init(void) {
     qh_tilt_y    = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rollover  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_infrared  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_rotation  = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
 }
 
 void system_espnow_init(void) {
