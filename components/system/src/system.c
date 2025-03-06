@@ -6,7 +6,7 @@ static const char *TAG = "system";
 system_t system_global = {
     .rpm = 0.0,
     .speed = 0.0,
-    .fuel_em = 0.0,
+    .fuel_level = 0.0,
     .battery = 0.0,
     .temp = 0.0,
     .rollover = 0.0,
@@ -23,7 +23,7 @@ TaskHandle_t th_example;
 TaskHandle_t th_lora;
 TaskHandle_t th_alive;
 TaskHandle_t th_rpm;
-TaskHandle_t th_fuel_em;
+TaskHandle_t th_fuel_level;
 TaskHandle_t th_speed;
 TaskHandle_t th_rollover;
 TaskHandle_t th_battery;
@@ -38,7 +38,6 @@ SemaphoreHandle_t sh_global_vars;
 QueueHandle_t qh_rpm;
 QueueHandle_t qh_speed;
 QueueHandle_t qh_fuel_level;
-QueueHandle_t qh_fuel_emer;
 QueueHandle_t qh_battery;
 QueueHandle_t qh_hours;
 QueueHandle_t qh_minutes;
@@ -92,7 +91,6 @@ simplified_system_t system_to_simplified(const system_t *original) {
         .rpm          = (uint16_t)original->rpm,
         .speed        = (uint8_t)original->speed,
         .fuel_level   = (uint8_t)(original->fuel_level * 100),
-        .fuel_em      = (original->fuel_em != 0),
         .battery      = (uint8_t)(original->battery * 15),
         .temp         = (int8_t)original->temp,
         .rollover     = (original->rollover != 0),
@@ -112,7 +110,6 @@ system_t simplified_to_system(const simplified_system_t *simplified) {
         .rpm          = (float) simplified->rpm,
         .speed        = (float) simplified->speed,
         .fuel_level   = (float) simplified->fuel_level / 100.0f, // Assuming the value was a percentage
-        .fuel_em      = (float)(simplified->fuel_em ? 1 : 0),
         .battery      = (float) simplified->battery / 15.0f, // Assuming the value was a percentage
         .temp         = (float) simplified->temp,
         .rollover     = (float)(simplified->rollover ? 1 : 0), // Assuming binary 0 or 1 represents the boolean
@@ -136,7 +133,7 @@ void system_queue_init(void) {
     // -----create queues-----
     qh_speed     = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_rpm       = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
-    qh_fuel_emer = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
+    qh_fuel_level = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_battery   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_hours      = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
     qh_minutes   = xQueueCreate(QUEUE_BUFFER_SIZE, sizeof(sensor_t));
@@ -336,7 +333,7 @@ void task_lora_receiver(void *arg) {
                         "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%d",
                         (uint16_t)converted_system.rpm,
                         (uint8_t)converted_system.speed,
-                        (uint8_t)converted_system.fuel_em,
+                        (uint8_t)converted_system.fuel_level,
                         (float)converted_system.battery,
                         (float)converted_system.temp,
                         (uint8_t)converted_system.rollover,

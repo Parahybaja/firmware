@@ -89,7 +89,7 @@ void task_sdlogger(void *arg) {
             "DATA:%d,%d,%d,%.2f,%.2f,%d,%.2f,%.2f,%.2f,%d, %lld",
             (uint16_t)system_global.rpm,
             (uint8_t)system_global.speed,
-            (uint8_t)system_global.fuel_em,
+            (uint8_t)system_global.fuel_level,
             (float)system_global.battery,
             (float)system_global.temp,
             (uint8_t)system_global.rollover,

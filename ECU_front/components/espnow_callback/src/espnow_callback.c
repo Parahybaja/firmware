@@ -49,9 +49,9 @@ void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* d
             // -----send speed data through queue-----
             xQueueSend(qh_speed, &recv_sensor, pdMS_TO_TICKS(0));
         }
-        else if (recv_sensor.type == FUEL_EMERGENCY){
+        else if (recv_sensor.type == FUEL_LEVEL){
             // -----send speed data through queue-----
-            xQueueSend(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(0));
+            xQueueSend(qh_fuel_level, &recv_sensor, pdMS_TO_TICKS(0));
         }
         else {
             ESP_LOGE(TAG, "unknown sensor type");

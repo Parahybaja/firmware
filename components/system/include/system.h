@@ -49,7 +49,6 @@ typedef enum {
     RPM,
     SPEEDOMETER,
     FUEL_LEVEL,
-    FUEL_EMERGENCY,
     BATTERY,
     HOURS,
     MINUTES,
@@ -68,7 +67,6 @@ typedef struct {
     float rpm;
     float speed;
     float fuel_level;
-    float fuel_em;
     float battery;
     int hours;
     int minutes;
@@ -88,7 +86,6 @@ typedef struct {
     uint16_t rpm;            // For RPM, precision to the nearest unit
     uint8_t speed;           // For speed, precision to the nearest unit
     uint8_t fuel_level;      // For fuel level, precision to the nearest percentage
-    uint8_t fuel_em;
     uint8_t battery;         // For battery, precision to the nearest percentage
     uint8_t hours;
     uint8_t minutes;
@@ -117,7 +114,7 @@ extern TaskHandle_t th_example;
 extern TaskHandle_t th_lora;
 extern TaskHandle_t th_alive;
 extern TaskHandle_t th_rpm;
-extern TaskHandle_t th_fuel_em;
+extern TaskHandle_t th_fuel_level;
 extern TaskHandle_t th_speed;
 extern TaskHandle_t th_rollover;
 extern TaskHandle_t th_battery;
@@ -132,7 +129,6 @@ extern SemaphoreHandle_t sh_global_vars;
 extern QueueHandle_t qh_rpm;
 extern QueueHandle_t qh_speed;
 extern QueueHandle_t qh_fuel_level;
-extern QueueHandle_t qh_fuel_emer;
 extern QueueHandle_t qh_battery;
 extern QueueHandle_t qh_temp;
 extern QueueHandle_t qh_rollover;

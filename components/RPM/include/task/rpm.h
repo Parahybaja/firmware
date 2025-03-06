@@ -25,7 +25,7 @@
 extern "C" {
 #endif
 
-#define INDUCTIVE_PERIOD_US 8000
+#define INDUCTIVE_PERIOD_US 4160
 
 #define PCNT_HIGH_LIMIT 10000
 #define PCNT_LOW_LIMIT  -10

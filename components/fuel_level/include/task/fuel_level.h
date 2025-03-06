@@ -1,5 +1,5 @@
 /**
- * @file fuel_em.h
+ * @file fuel_level.h
  * @author Jefferson Lopes (jefferson.lopes@ee.ufcg.edu.br)
  * @brief fuel emergency task
  * @version 1.0
@@ -18,18 +18,16 @@
 
 #include "system.h"
 #include "driver/gpio.h"
+#include "driver/pulse_cnt.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-#define TASK_FUEL_SEND_RATE_Hz 0.5 // Fuel task send rate in hertz
+#define PCNT_HIGH_LIMIT 10000
+#define PCNT_LOW_LIMIT  -10
 
-#define ACTIVE_LOW false
-#define FUEL_AVERAGE_POINTS 5
-#define THRESHOLD 0.5 // to be calibrated
-
-void task_fuel_em(void*);
+void task_fuel_level(void*);
 
 #ifdef __cplusplus
 }

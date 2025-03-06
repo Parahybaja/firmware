@@ -1,46 +1,37 @@
-#include "task/rpm.h"
-          
-static const char *TAG = "RPM";
-QueueHandle_t rpm_queue;
+#include "task/fuel_level.h"
+
+static const char *TAG = "fuel_level";
+QueueHandle_t fuel_queue;
 typedef struct {
-    uint64_t last_pulse;
-    uint64_t current_pulse;
+    uint64_t diff;
 } pulse_message;
 static volatile uint64_t last_isr_pulse = 0;
-static volatile uint64_t beforelast_isr_pulse = 0;
 
 static bool IRAM_ATTR pcnt_isr_handler(pcnt_unit_handle_t unit, const pcnt_watch_event_data_t *edata, void *user_ctx) {
     uint64_t current_isr_pulse = esp_timer_get_time();
-    uint64_t last_diff = last_isr_pulse - beforelast_isr_pulse;
     uint64_t diff = current_isr_pulse - last_isr_pulse;
-    bool outside_inductive_period = (diff > (INDUCTIVE_PERIOD_US + 100)) || (diff < (INDUCTIVE_PERIOD_US - 100));
-    bool resonating_pulse = (last_diff > diff - 110) && (last_diff < diff + 110);   
 
-    if(outside_inductive_period || resonating_pulse) {
-        pulse_message pcntisr_message = {
-        .last_pulse = last_isr_pulse,
-        .current_pulse = current_isr_pulse,
-        };
-        xQueueSendFromISR(rpm_queue, &pcntisr_message, NULL);
-    }
-    beforelast_isr_pulse = last_isr_pulse;
+    pulse_message pcntisr_message = {
+        .diff = diff,
+    };
+    xQueueSendFromISR(fuel_queue, &pcntisr_message, NULL);
+
     last_isr_pulse = current_isr_pulse;
     pcnt_unit_clear_count(unit);
     return 0;
 }
 
-void task_rpm(void *arg){
+void task_fuel_level(void *arg){
     (void)arg;
 
     const gpio_num_t gpio_pin = (gpio_num_t)arg;
-    sensor_t rpm = {
-        .type = RPM, 
+    sensor_t fuel_level = {
+        .type = FUEL_LEVEL, 
         .value = 0.0
     };
-    rpm_queue = xQueueCreate(1, sizeof(pulse_message));
+    fuel_queue = xQueueCreate(1, sizeof(pulse_message));
     pulse_message pulse = {
-        .last_pulse = 0,
-        .current_pulse = 0,
+        .diff = 0,
     };
 
     /*-----config pulse counter-----*/
@@ -88,26 +79,14 @@ void task_rpm(void *arg){
     uint64_t last_pulse = 0;
     uint64_t current_pulse = 0;
     for (;;) {
-        uint64_t current_time = esp_timer_get_time();
-        xQueueReceive(rpm_queue, &pulse, 0);
-
-        uint64_t pulse_diff = pulse.current_pulse - pulse.last_pulse;
-        uint64_t task_diff = current_time - pulse.current_pulse;
-
-        pulse_diff += INDUCTIVE_PERIOD_US;
-
-        //ESP_LOGW(TAG, "pulse_diff: %lld", pulse_diff);
-        //ESP_LOGW(TAG, "task_diff: %lld", task_diff);
+        xQueueReceive(fuel_queue, &pulse, 0);
+        fuel_level.value = pulse.diff;
         
-        if(pulse_diff > task_diff) {
-            rpm.value = ((1 / ((double)(pulse_diff)/1000000)) * 60);
-        } else if(task_diff > pulse_diff*2) {
-            rpm.value = ((1 / ((double)(task_diff)/1000000)) * 60);
-        }
 
-        //ESP_LOGW(TAG, "%f", rpm.value);      
-        system_global.rpm = rpm.value;
-        esp_now_send(mac_address_ECU_front, (uint8_t *) &rpm, sizeof(rpm));
+
+        ESP_LOGW(TAG, "%f", fuel_level.value);      
+        system_global.fuel_level = fuel_level.value;
+        esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel_level, sizeof(fuel_level));
 
         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor
     }

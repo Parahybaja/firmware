@@ -95,17 +95,17 @@ void task_display(void *arg) {
         }
 
         // fuel
-        if (xQueueReceive(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(0))){
+        if (xQueueReceive(qh_fuel_level, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-                system_global.fuel_em = recv_sensor.value;
+                system_global.fuel_level = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
             if (nex_init_err == 0) {
                 // print to display
                 if (current_page_num == NEX_PAGE_ID_LIGHT) {
-                    nextion_component_set_boolean(nextion_handle, NEX_DSBUTTON_FUEL_EM_L, (bool)recv_sensor.value);
+                    nextion_component_set_boolean(nextion_handle, NEX_DSBUTTON_fuel_level_L, (bool)recv_sensor.value);
                 }
             }
         }
@@ -189,7 +189,7 @@ void task_display(void *arg) {
         if (xQueueReceive(qh_infrared, &recv_sensor, pdMS_TO_TICKS(0))){
             // update global system var in a protected environment
             xSemaphoreTake(sh_global_vars, portMAX_DELAY);
-            system_global.fuel_em = recv_sensor.value;
+            system_global.fuel_level = recv_sensor.value;
             xSemaphoreGive(sh_global_vars);
 
             /* if there's no error with the nextion initialization */
