@@ -31,7 +31,7 @@ void task_battery(void *arg){
 
     adc_oneshot_chan_cfg_t config = {
         .bitwidth = ADC_BITWIDTH_DEFAULT,
-        .atten = ADC_ATTEN_DB_12,
+        .atten = ADC_ATTEN_DB_11,
     };
     ESP_ERROR_CHECK(adc_oneshot_config_channel(adc1_handle, battery_config->adc_channel, &config));
 

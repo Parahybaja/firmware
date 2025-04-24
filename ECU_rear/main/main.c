@@ -16,14 +16,18 @@
 
 #include <stdio.h>
 #include "system.h"
+#include "task/rpm.h"
 #include "task/alive.h"
 #include "task/battery.h"
+#include "task/speedometer.h"
 // #include "task/fuel_em.h"
 
 #include "espnow_callback.h"
 
 static const char *TAG = "ECU_rear";
 
+static const gpio_num_t rpm_pin = GPIO_NUM_36;
+static const gpio_num_t speed_pin = GPIO_NUM_39;
 static const gpio_num_t alive_pin = GPIO_NUM_2;
 // static const gpio_num_t fuel_em_pin = GPIO_NUM_34;
 static const battery_config_t battery_config = {
@@ -71,4 +75,24 @@ void app_main(void) {
     //     &th_fuel_em,        // handler 
     //     APP_CPU_NUM         // core number
     // );
+
+    xTaskCreatePinnedToCore(
+        task_speed,       // task function
+        "speed",          // task name
+        4096,             // stack size
+        (void*)speed_pin, // parameters
+        10,               // priority
+        &th_speed,        // handler 
+        APP_CPU_NUM       // core number
+    );
+
+    xTaskCreatePinnedToCore(
+        task_rpm,       // task function
+        "RPM",          // task name
+        4096,           // stack size
+        (void*)rpm_pin, // parameters
+        10,             // priority
+        &th_rpm,        // handler 
+        APP_CPU_NUM     // core number
+    );
 }
