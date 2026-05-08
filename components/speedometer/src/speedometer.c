@@ -1,4 +1,6 @@
 #include "task/speedometer.h"
+#include "system.h" // Necessário para acessar o Quadro de Avisos
+#include "esp_log.h"
 
 static const char *TAG = "speedometer";
 
@@ -12,10 +14,9 @@ void task_speed(void *arg){
     const float send_rate_s = 1.0f / (float)TASK_SPEED_SEND_RATE_Hz;
     uint32_t timer_send_ms;
     int pulse_count = 0;
-    sensor_t spdmt = {
-        .type = SPEEDOMETER, 
-        .value = 0.0
-    };
+    
+    // Substituindo o sensor_t por uma variável simples
+    float spd_val = 0.0f;
 
     /*-----config pulse counter-----*/
     ESP_LOGI(TAG, "install pcnt unit");
@@ -68,13 +69,15 @@ void task_speed(void *arg){
             if (err == ESP_OK) {
                 // -----calculate-----
                 float meters = (pulse_count / WHEEL_EDGES) * WHEEL_CIRC;
-                spdmt.value = meters / send_rate_s; // in meter/second
-                spdmt.value *= ms2kmh;
+                spd_val = meters / send_rate_s; // in meter/second
+                spd_val *= ms2kmh;
 
-                ESP_LOGW(TAG, "speed: %f, counts: %i", spdmt.value, pulse_count);
+                ESP_LOGW(TAG, "speed: %f, counts: %i", spd_val, pulse_count);
 
-                // -----send spped data through esp-now to receiver-----
-                esp_now_send(mac_address_ECU_front, (uint8_t *) &spdmt, sizeof(spdmt));
+                // ----- Atualiza o Quadro de Avisos Global -----
+                xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.speed = spd_val;
+                xSemaphoreGive(sh_global_vars);
             }
             else {
                 ESP_LOGE(TAG, "error getting PCNT value");

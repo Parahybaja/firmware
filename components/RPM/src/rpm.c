@@ -1,4 +1,6 @@
 #include "task/rpm.h"
+#include "system.h" // Necessário para acessar o Quadro de Avisos
+#include "esp_log.h"
 
 static const char *TAG = "RPM";
 
@@ -12,10 +14,9 @@ void task_rpm(void *arg){
     const float send_rate_min = 1 / ((float)TASK_RPM_SEND_RATE_Hz * 60.0f);
     uint32_t timer_send_ms;
     int pulse_count = 0;
-    sensor_t rpm = {
-        .type = RPM, 
-        .value = 0.0
-    };
+    
+    // Substituindo o sensor_t por uma variável simples
+    float rpm_val = 0.0f;
 
     /*-----config pulse counter-----*/
     ESP_LOGI(TAG, "install pcnt unit");
@@ -67,11 +68,13 @@ void task_rpm(void *arg){
 
             if (err == ESP_OK) {
                 // -----calculate-----
-                rpm.value = pulse_count / send_rate_min; // general rpm calculation
-                rpm.value /= 2.0f; // compensate for the double peak of the signal        
+                rpm_val = pulse_count / send_rate_min; // general rpm calculation
+                rpm_val /= 2.0f; // compensate for the double peak of the signal        
                 
-                // -----send spped data through esp-now to receiver-----
-                esp_now_send(mac_address_ECU_front, (uint8_t *) &rpm, sizeof(rpm));
+                // ----- Atualiza o Quadro de Avisos Global -----
+                xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.rpm = rpm_val;
+                xSemaphoreGive(sh_global_vars);
             }
             else {
                 ESP_LOGE(TAG, "error getting PCNT value");

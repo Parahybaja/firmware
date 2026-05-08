@@ -1,4 +1,6 @@
 #include "task/fuel_em.h"
+#include "system.h"
+#include "esp_log.h"
 
 static const char *TAG = "task_fuel_em";
 
@@ -7,27 +9,22 @@ void task_fuel_em(void *arg){
     const gpio_num_t gpio_pin = (gpio_num_t)arg;
 
     // -----config gpio-----
-    //zero-initialize the config structure.
     gpio_config_t io_conf = {};
-    //disable interrupt
     io_conf.intr_type = GPIO_INTR_DISABLE;
-    //set as output mode
     io_conf.mode = GPIO_MODE_INPUT;
-    //bit mask of the pins that you want to set
     io_conf.pin_bit_mask = (1ULL<<gpio_pin);
-    //disable pull-down mode
     io_conf.pull_down_en = false;
-    //disable pull-up mode
     io_conf.pull_up_en = false;
-    //configure GPIO with the given settings
     ESP_ERROR_CHECK(gpio_config(&io_conf)); 
 
     // create task variables
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_FUEL_SEND_RATE_Hz));
     uint32_t timer_send_ms;
     float sum;
-    bool last_value = false;
-    sensor_t fuel = {FUEL_EMERGENCY, 0.0};
+    
+    // Novas variáveis no lugar do sensor_t
+    float fuel_val = 0.0f;
+    float last_value = -1.0f; // Inicializa com -1 para forçar o primeiro envio
 
     // show remaining task space
     print_task_remaining_space();
@@ -48,24 +45,26 @@ void task_fuel_em(void *arg){
                 else
                     sum += gpio_get_level(gpio_pin);
             }
-            fuel.value = sum / (float)(FUEL_AVERAGE_POINTS);
+            fuel_val = sum / (float)(FUEL_AVERAGE_POINTS);
 
             // ----- define high or low level -----
-            // comment out to send raw data fuel average
-            if (fuel.value <= THRESHOLD) // low fuel level
-                fuel.value = true; // active low fuel emergency flag
+            if (fuel_val <= THRESHOLD) // low fuel level
+                fuel_val = 1.0f; // active emergency flag
             else 
-                fuel.value = false; 
+                fuel_val = 0.0f; 
 
-            // ----- send data just when is changed -----
-            if (fuel.value != last_value) {
-                // -----send fuel data through esp-now to receiver-----
-                ESP_LOGD(TAG, "send fuel_em");
-                esp_now_send(mac_address_ECU_front, (uint8_t *) &fuel, sizeof(fuel));
+            // ----- Atualiza a struct apenas quando o valor mudar -----
+            if (fuel_val != last_value) {
+                ESP_LOGI(TAG, "Fuel state changed. Updating global struct to: %.1f", fuel_val);
+                
+                // Atualiza o Quadro de Avisos Global
+                xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+                system_global.fuel_em = fuel_val;
+                xSemaphoreGive(sh_global_vars);
+                
+                // update last value
+                last_value = fuel_val;
             }
-            
-            // ----- update last value -----
-            last_value = fuel.value;
         }
 
         vTaskDelay(pdMS_TO_TICKS(10)); // free up the processor

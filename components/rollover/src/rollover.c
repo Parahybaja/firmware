@@ -1,40 +1,17 @@
 #include "task/rollover.h"
+#include "system.h"
+#include "esp_log.h"
+#include <math.h>
 
 static const char *TAG = "task_rollover";
 
 void task_rollover(void *arg){
     
-    const uint8_t calibrate = (uint8_t)arg;
+    const uint8_t calibrate = (uint8_t)(uintptr_t)arg;
 
     // -----create local variables-----
     const int send_rate_ms = (int)(1000.0 / (float)(TASK_ROLLOVER_RATE_Hz));
     uint32_t timer_send_ms;
-    float roll_last = 0.0;
-
-    sensor_t rollover = {
-        .type = ROLLOVER, 
-        .value = 0.0
-    };
-
-    sensor_t tilt_x = {
-        .type = TILT_X, 
-        .value = 0.0
-    };
-
-    sensor_t tilt_y = {
-        .type = TILT_Y, 
-        .value = 0.0
-    };
-
-    sensor_t tilt_z = {
-        .type = TILT_Z, 
-        .value = 0.0
-    };
-
-    sensor_t temp = {
-        .type = AMBIENT_TEMP, 
-        .value = 0.0
-    };
 
     // show remaining task space
     print_task_remaining_space();
@@ -88,28 +65,29 @@ void task_rollover(void *arg){
             timer_send_ms += send_rate_ms;
 
             // correct the assembly mounting
-            tilt_x.value = -1*mpu_get_angle_x();
-            tilt_y.value = -1*mpu_get_angle_y();
-            tilt_z.value = mpu_get_angle_z();
-            temp.value   = mpu_get_temp();
-
-            if ((fabs(tilt_x.value) > 45) || (fabs(tilt_y.value) > 45))
-                rollover.value = 1.0;
-            else
-                rollover.value = 0.0;
-
-            if (rollover.value != roll_last)
-                xQueueSend(qh_rollover, &rollover, pdMS_TO_TICKS(0));
+            float calc_tilt_x = -1.0f * mpu_get_angle_x();
+            float calc_tilt_y = -1.0f * mpu_get_angle_y();
+            float calc_tilt_z = mpu_get_angle_z();
+            float calc_temp   = mpu_get_temp();
             
-            roll_last = rollover.value;
+            float calc_rollover = 0.0f;
+            if ((fabs(calc_tilt_x) > 45) || (fabs(calc_tilt_y) > 45)) {
+                calc_rollover = 1.0f;
+            }
 
-            // -----send tilt data through queue-----
-            xQueueSend(qh_tilt_x, &tilt_x, pdMS_TO_TICKS(0));
-            xQueueSend(qh_tilt_y, &tilt_y, pdMS_TO_TICKS(0)); 
-            xQueueSend(qh_temp, &temp, pdMS_TO_TICKS(0));
-            // xQueueSend(qh_tilt_z, &tilt_z, pdMS_TO_TICKS(0)); 
+            // ==========================================
+            // ATUALIZA O QUADRO DE AVISOS GLOBAL
+            // ==========================================
+            xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+            system_global.tilt_x   = calc_tilt_x;
+            system_global.tilt_y   = calc_tilt_y;
+            system_global.tilt_z   = calc_tilt_z;
+            system_global.temp     = calc_temp;
+            system_global.rollover = calc_rollover;
+            xSemaphoreGive(sh_global_vars);
+            // ==========================================
 
-            ESP_LOGI(TAG, "send rollover");
+            ESP_LOGD(TAG, "rollover data updated in global struct");
         }
         vTaskDelay(pdMS_TO_TICKS(10));
     }

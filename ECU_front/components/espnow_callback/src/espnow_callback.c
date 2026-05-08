@@ -26,7 +26,7 @@ void espnow_send_callback(const uint8_t* mac_addr, esp_now_send_status_t status)
 
 void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* data, int len) {
     uint8_t *mac_addr = recv_info->src_addr;
-    uint8_t *des_addr = recv_info->des_addr;
+    // uint8_t *des_addr = recv_info->des_addr; // Comentado para evitar warning de variável não usada
 
     if (mac_addr == NULL || data == NULL || len <= 0) {
         ESP_LOGE(TAG, "Receive cb arg error");
@@ -37,25 +37,29 @@ void espnow_recv_callback(const esp_now_recv_info_t* recv_info, const uint8_t* d
         sensor_t recv_sensor;
         memcpy(&recv_sensor, data, len);
 
+        // ==========================================
+        // SALVA OS DADOS RECEBIDOS DIRETO NA MEMÓRIA
+        // ==========================================
+        xSemaphoreTake(sh_global_vars, portMAX_DELAY);
+
         if (recv_sensor.type == BATTERY){
-            // -----send RPM data through queue-----
-            xQueueSend(qh_battery, &recv_sensor, pdMS_TO_TICKS(0));
+            system_global.battery = recv_sensor.value;
         }
         else if (recv_sensor.type == RPM){
-            // -----send RPM data through queue-----
-            xQueueSend(qh_rpm, &recv_sensor, pdMS_TO_TICKS(0));
+            system_global.rpm = recv_sensor.value;
         }
         else if (recv_sensor.type == SPEEDOMETER){
-            // -----send speed data through queue-----
-            xQueueSend(qh_speed, &recv_sensor, pdMS_TO_TICKS(0));
+            system_global.speed = recv_sensor.value;
         }
         else if (recv_sensor.type == FUEL_EMERGENCY){
-            // -----send speed data through queue-----
-            xQueueSend(qh_fuel_emer, &recv_sensor, pdMS_TO_TICKS(0));
+            system_global.fuel_em = recv_sensor.value;
         }
         else {
-            ESP_LOGE(TAG, "unknown sensor type");
+            ESP_LOGE(TAG, "unknown sensor type: %d", recv_sensor.type);
         }
+
+        xSemaphoreGive(sh_global_vars);
+        // ==========================================
     }
     else {
         ESP_LOGE(TAG, "unrecognized packet");

@@ -1,3 +1,4 @@
+#include "driver/gpio.h"
 #include <malloc.h>
 #include <string.h>
 #include "esp32_driver_nextion/nextion.h"
